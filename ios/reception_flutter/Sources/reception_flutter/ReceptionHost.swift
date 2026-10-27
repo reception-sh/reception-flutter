@@ -15,6 +15,8 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   private var connected = false
   private var settingRevisions: [String: Int64] = [:]
   private var observation = UUID()
+  /// Calls to Dart awaiting Pigeon's acknowledgement, cancelled when this connection ends.
+  private var calls: [UUID: Task<Void, Never>] = [:]
 
   init(flutterApi: ReceptionFlutterApi) {
     self.flutterApi = flutterApi
@@ -24,6 +26,8 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     connected = false
     observation = UUID()
     requests.cancelAll()
+    for call in calls.values { call.cancel() }
+    calls = [:]
     guard Self.current === self else { return }
     Reception.shared.onEvent = nil
     Reception.shared.onPaywall = nil
@@ -77,7 +81,12 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   private func send(_ call: @escaping @MainActor (ReceptionFlutterApi) async throws -> Void) {
     guard connected else { return }
     let api = flutterApi
-    Task { try? await call(api) }
+    let id = UUID()
+    // The task starts after this main-actor turn, so it is registered before it can remove itself.
+    calls[id] = Task { [weak self] in
+      try? await call(api)
+      self?.calls[id] = nil
+    }
   }
 
   private func send(_ event: ReceptionEvent) {
