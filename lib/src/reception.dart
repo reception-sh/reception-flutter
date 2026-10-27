@@ -104,9 +104,9 @@ abstract final class Reception {
   static Future<void> closeChat() => _call((host) => host.closeChat());
 
   /// Identifies the person on this device; staged for the next device
-  /// update. Use [Identity.user] for a real signed-in account or an entered
-  /// name, or [Identity.token] for a signed token from your server.
-  static Future<void> identify(Identity identity) => _call(
+  /// update. Use [ReceptionIdentity.user] for a real signed-in account or an entered
+  /// name, or [ReceptionIdentity.token] for a signed token from your server.
+  static Future<void> identify(ReceptionIdentity identity) => _call(
     (host) => switch (identity.token) {
       final token? => host.identifyToken(token),
       null => host.identify(identity.userId, identity.name, identity.email),
@@ -142,7 +142,7 @@ abstract final class Reception {
   /// tokens are logged and ignored.
   static Future<void> setPushToken(
     String hexToken, {
-    PushEnvironment environment = PushEnvironment.automatic,
+    ReceptionPushEnvironment environment = ReceptionPushEnvironment.automatic,
   }) => _call((host) async {
     if (hexToken.length > 512 || !_pushToken.hasMatch(hexToken)) {
       warnInvalid('APNs token or environment');
@@ -183,16 +183,16 @@ abstract final class Reception {
 
   /// Local chat styling. Assign a complete value; it is visible immediately
   /// and reconciled with native validation.
-  static Appearance get appearance {
+  static ReceptionAppearance get appearance {
     checkSupported();
     return _state.setting('appearance');
   }
 
-  static set appearance(Appearance value) {
+  static set appearance(ReceptionAppearance value) {
     if (!checkSupported()) return;
     final valid = validateAppearance(
       value.toJson(),
-      _state.setting<Appearance>('appearance').toJson(),
+      _state.setting<ReceptionAppearance>('appearance').toJson(),
     );
     final json = jsonEncode(valid);
     _state.assign(
@@ -241,13 +241,13 @@ abstract final class Reception {
     (host, revision) => host.setLanguageOverride(value, revision),
   );
 
-  /// SDK log level (default [LogLevel.info]).
-  static LogLevel get logLevel {
+  /// SDK log level (default [ReceptionLogLevel.info]).
+  static ReceptionLogLevel get logLevel {
     checkSupported();
     return _state.setting('logLevel');
   }
 
-  static set logLevel(LogLevel value) => _assign(
+  static set logLevel(ReceptionLogLevel value) => _assign(
     'logLevel',
     value,
     (host, revision) => host.setLogLevel(value.name, revision),

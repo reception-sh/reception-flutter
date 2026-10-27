@@ -116,7 +116,7 @@ ReceptionPaywall paywallFromMessage(PaywallMessage message) => ReceptionPaywall(
 );
 
 /// APNs environment of a push token.
-enum PushEnvironment {
+enum ReceptionPushEnvironment {
   /// Detected from the app's signing (default).
   automatic,
 
@@ -128,7 +128,7 @@ enum PushEnvironment {
 }
 
 /// Amount of SDK logging.
-enum LogLevel {
+enum ReceptionLogLevel {
   /// No logging.
   off,
 
@@ -144,13 +144,14 @@ enum LogLevel {
 
 /// Who the current person is: a self-reported user or a verified token.
 @immutable
-class Identity {
+class ReceptionIdentity {
   /// Labels this device with a real signed-in account ID (null when there is
   /// none) and optional name and email. It does not authenticate anyone.
-  const Identity.user({this.userId, this.name, this.email}) : token = null;
+  const ReceptionIdentity.user({this.userId, this.name, this.email})
+    : token = null;
 
   /// A verified identity: a signed token fetched from your own server.
-  const Identity.token(String this.token)
+  const ReceptionIdentity.token(String this.token)
     : userId = null,
       name = null,
       email = null;
@@ -164,7 +165,7 @@ class Identity {
   /// Email address.
   final String? email;
 
-  /// Signed identity token, set only by [Identity.token].
+  /// Signed identity token, set only by [ReceptionIdentity.token].
   final String? token;
 }
 
@@ -174,46 +175,46 @@ sealed class ReceptionEvent {
 }
 
 /// The chat became visible.
-final class ChatOpenedEvent extends ReceptionEvent {
+final class ReceptionChatOpened extends ReceptionEvent {
   /// Creates the event.
-  const ChatOpenedEvent();
+  const ReceptionChatOpened();
 }
 
 /// The person sent a message.
-final class MessageSentEvent extends ReceptionEvent {
+final class ReceptionMessageSent extends ReceptionEvent {
   /// Creates the event.
-  const MessageSentEvent();
+  const ReceptionMessageSent();
 }
 
 /// The person sent an image.
-final class ImageSentEvent extends ReceptionEvent {
+final class ReceptionImageSent extends ReceptionEvent {
   /// Creates the event.
-  const ImageSentEvent();
+  const ReceptionImageSent();
 }
 
 /// The person opened an App Store review prompt from the chat.
-final class ReviewOpenedEvent extends ReceptionEvent {
+final class ReceptionReviewOpened extends ReceptionEvent {
   /// Creates the event.
-  const ReviewOpenedEvent();
+  const ReceptionReviewOpened();
 }
 
 /// The person opened a paywall card from the chat.
-final class PaywallOpenedEvent extends ReceptionEvent {
+final class ReceptionPaywallOpened extends ReceptionEvent {
   /// Creates the event.
-  const PaywallOpenedEvent();
+  const ReceptionPaywallOpened();
 }
 
 /// This device's support data was deleted.
-final class DataDeletedEvent extends ReceptionEvent {
+final class ReceptionDataDeleted extends ReceptionEvent {
   /// Creates the event.
-  const DataDeletedEvent();
+  const ReceptionDataDeleted();
 }
 
 /// The server rejected the identity token. Refresh the token only when
 /// [error] has code `identity_token_expired`; other codes need a server fix.
-final class IdentityRejectedEvent extends ReceptionEvent {
+final class ReceptionIdentityRejected extends ReceptionEvent {
   /// Creates the event with its [error].
-  const IdentityRejectedEvent(this.error);
+  const ReceptionIdentityRejected(this.error);
 
   /// Why the identity was rejected.
   final ReceptionError error;
@@ -222,14 +223,13 @@ final class IdentityRejectedEvent extends ReceptionEvent {
 /// Maps a bridge [message] to a [ReceptionEvent]; null for unknown events.
 ReceptionEvent? eventFromMessage(EventMessage message) =>
     switch ((message.type, message.error)) {
-      ('chatOpened', _) => const ChatOpenedEvent(),
-      ('messageSent', _) => const MessageSentEvent(),
-      ('imageSent', _) => const ImageSentEvent(),
-      ('reviewOpened', _) => const ReviewOpenedEvent(),
-      ('paywallOpened', _) => const PaywallOpenedEvent(),
-      ('dataDeleted', _) => const DataDeletedEvent(),
-      ('identityRejected', final ErrorMessage error) => IdentityRejectedEvent(
-        ReceptionError.from(error),
-      ),
+      ('chatOpened', _) => const ReceptionChatOpened(),
+      ('messageSent', _) => const ReceptionMessageSent(),
+      ('imageSent', _) => const ReceptionImageSent(),
+      ('reviewOpened', _) => const ReceptionReviewOpened(),
+      ('paywallOpened', _) => const ReceptionPaywallOpened(),
+      ('dataDeleted', _) => const ReceptionDataDeleted(),
+      ('identityRejected', final ErrorMessage error) =>
+        ReceptionIdentityRejected(ReceptionError.from(error)),
       _ => null,
     };

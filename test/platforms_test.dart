@@ -21,8 +21,8 @@ void main() {
         await Reception.openChat();
         await Reception.closeChat();
         await Reception.track('paywall_declined', opensChat: true);
-        await Reception.identify(const Identity.user(userId: 'test'));
-        await Reception.identify(const Identity.token('token'));
+        await Reception.identify(const ReceptionIdentity.user(userId: 'test'));
+        await Reception.identify(const ReceptionIdentity.token('token'));
         await Reception.setMetadata({'plan': 'test'});
         await Reception.setPushToken('abcd');
         await Reception.registerForPushIfAuthorized();
@@ -35,13 +35,13 @@ void main() {
           }),
           isFalse,
         );
-        Reception.appearance = const Appearance(
-          accentColor: AppearanceColor.hex('#ff0000'),
+        Reception.appearance = const ReceptionAppearance(
+          accentColor: ReceptionColor.hex('#ff0000'),
         );
         Reception.updatesAppBadge = false;
         Reception.usesRemoteAppearance = false;
         Reception.languageOverride = 'de';
-        Reception.logLevel = LogLevel.off;
+        Reception.logLevel = ReceptionLogLevel.off;
         Reception.paywalls = [
           const ReceptionPaywall(id: 'plans', title: 'Plans'),
         ];
@@ -57,7 +57,7 @@ void main() {
         expect(Reception.updatesAppBadge, isTrue);
         expect(Reception.usesRemoteAppearance, isTrue);
         expect(Reception.languageOverride, isNull);
-        expect(Reception.logLevel, LogLevel.info);
+        expect(Reception.logLevel, ReceptionLogLevel.info);
         expect(Reception.paywalls, isEmpty);
         expect(Reception.onEvent, isNull);
         expect(Reception.onPaywall, isNull);

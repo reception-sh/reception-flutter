@@ -38,18 +38,18 @@ void main() {
     ]) {
       host.handlers[method] = (_) => Completer<SnapshotMessage>().future;
     }
-    Reception.appearance = const Appearance(
-      accentColor: AppearanceColor.hex('#112233'),
+    Reception.appearance = const ReceptionAppearance(
+      accentColor: ReceptionColor.hex('#112233'),
     );
     Reception.languageOverride = 'de';
     Reception.updatesAppBadge = false;
-    Reception.logLevel = LogLevel.debug;
+    Reception.logLevel = ReceptionLogLevel.debug;
     Reception.paywalls = [const ReceptionPaywall(id: 'plans', title: 'Plans')];
     Reception.usesRemoteAppearance = false;
     expect(Reception.appearance.toJson(), {'accentColor': '#112233'});
     expect(Reception.languageOverride, 'de');
     expect(Reception.updatesAppBadge, isFalse);
-    expect(Reception.logLevel, LogLevel.debug);
+    expect(Reception.logLevel, ReceptionLogLevel.debug);
     expect(Reception.paywalls, [
       const ReceptionPaywall(id: 'plans', title: 'Plans'),
     ]);
@@ -59,11 +59,11 @@ void main() {
   test(
     'settings are sent with increasing revisions and native values',
     () async {
-      Reception.appearance = const Appearance(title: 'Help');
+      Reception.appearance = const ReceptionAppearance(title: 'Help');
       Reception.updatesAppBadge = false;
       Reception.usesRemoteAppearance = false;
       Reception.languageOverride = null;
-      Reception.logLevel = LogLevel.off;
+      Reception.logLevel = ReceptionLogLevel.off;
       await pumpEventQueue();
       expect(host.calls.map((call) => call.$1).toList(), [
         'connect',
@@ -89,8 +89,8 @@ void main() {
       final first = Completer<SnapshotMessage>();
       final second = Completer<SnapshotMessage>();
       reply('setAppearance', [first, second]);
-      Reception.appearance = const Appearance(title: 'First');
-      Reception.appearance = const Appearance(
+      Reception.appearance = const ReceptionAppearance(title: 'First');
+      Reception.appearance = const ReceptionAppearance(
         title: 'Second',
         fontFamily: 'Missing',
       );
@@ -155,7 +155,7 @@ void main() {
       final language = Completer<SnapshotMessage>();
       reply('setAppearance', [appearance]);
       reply('setLanguageOverride', [language]);
-      Reception.appearance = const Appearance(fontFamily: 'Missing');
+      Reception.appearance = const ReceptionAppearance(fontFamily: 'Missing');
       Reception.languageOverride = 'de';
       await pumpEventQueue();
       appearance.complete(
@@ -173,15 +173,15 @@ void main() {
       final first = Completer<SnapshotMessage>();
       final second = Completer<SnapshotMessage>();
       reply('setLogLevel', [first, second]);
-      Reception.logLevel = LogLevel.debug;
-      Reception.logLevel = LogLevel.off;
+      Reception.logLevel = ReceptionLogLevel.debug;
+      Reception.logLevel = ReceptionLogLevel.off;
       await pumpEventQueue();
       first.completeError(Exception('private native diagnostic'));
       await pumpEventQueue();
-      expect(Reception.logLevel, LogLevel.off);
+      expect(Reception.logLevel, ReceptionLogLevel.off);
       second.completeError(Exception('private native diagnostic'));
       await pumpEventQueue();
-      expect(Reception.logLevel, LogLevel.info);
+      expect(Reception.logLevel, ReceptionLogLevel.info);
       expect(logs, List.filled(2, '[Reception] Native bridge call failed.'));
     },
   );
@@ -189,12 +189,12 @@ void main() {
   test(
     'invalid appearance fields keep their previous value end to end',
     () async {
-      Reception.appearance = const Appearance(
-        accentColor: AppearanceColor.hex('#112233'),
+      Reception.appearance = const ReceptionAppearance(
+        accentColor: ReceptionColor.hex('#112233'),
         title: 'Old',
       );
-      Reception.appearance = const Appearance(
-        accentColor: AppearanceColor.hex('red'),
+      Reception.appearance = const ReceptionAppearance(
+        accentColor: ReceptionColor.hex('red'),
         welcomeIconSize: 200,
       );
       expect(Reception.appearance.toJson(), {'accentColor': '#112233'});

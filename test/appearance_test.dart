@@ -9,27 +9,27 @@ import 'package:reception_flutter/src/appearance.dart'
 import 'fake_host.dart';
 
 void main() {
-  const all = Appearance(
-    accentColor: AppearanceColor.hex('#ff8800'),
-    onAccentColor: AppearanceColor.hex('#ffffff80'),
+  const all = ReceptionAppearance(
+    accentColor: ReceptionColor.hex('#ff8800'),
+    onAccentColor: ReceptionColor.hex('#ffffff80'),
     title: '',
     welcomeTitle: 'Hello',
     welcomeText: 'Welcome',
     showsCloseButton: true,
-    chatBackground: AppearanceColor.adaptive(
+    chatBackground: ReceptionColor.adaptive(
       light: '#123456',
       dark: '#abcdef80',
     ),
-    incomingBackground: AppearanceColor.hex('#eeeeee'),
-    incomingForeground: AppearanceColor.hex('#000000'),
-    preferredColorScheme: PreferredColorScheme.dark,
-    closeIcon: CloseIcon.chevronDown,
+    incomingBackground: ReceptionColor.hex('#eeeeee'),
+    incomingForeground: ReceptionColor.hex('#000000'),
+    preferredColorScheme: ReceptionColorScheme.dark,
+    closeIcon: ReceptionCloseIcon.chevronDown,
     closeImage: 'Close',
-    fontDesign: FontDesign.rounded,
+    fontDesign: ReceptionFontDesign.rounded,
     fontFamily: 'Avenir',
     fadesOlderMessages: false,
-    welcomeIcon: WelcomeIcon.symbol('star'),
-    welcomeIconColor: AppearanceColor.hex('#aa00bb'),
+    welcomeIcon: ReceptionWelcomeIcon.symbol('star'),
+    welcomeIconColor: ReceptionColor.hex('#aa00bb'),
     welcomeIconSize: 80,
     welcomeIconCornerRadius: 20,
     welcomeIconOffset: Offset(3, -5),
@@ -73,33 +73,33 @@ void main() {
     expect(appearanceFromJson(allJson).toJson(), allJson);
     final decoded = jsonDecode(jsonEncode(allJson)) as Map<String, Object?>;
     expect(appearanceFromJson(decoded).toJson(), allJson);
-    expect(const Appearance().toJson(), isEmpty);
+    expect(const ReceptionAppearance().toJson(), isEmpty);
     expect(logs, isEmpty);
   });
 
   test('every enum and welcome icon variant maps to its native value', () {
     expect(
       [
-        for (final icon in CloseIcon.values)
-          Appearance(closeIcon: icon).toJson()['closeIcon'],
+        for (final icon in ReceptionCloseIcon.values)
+          ReceptionAppearance(closeIcon: icon).toJson()['closeIcon'],
       ],
       ['xmark', 'chevron.down', 'arrow.down'],
     );
     expect(
       [
-        for (final design in FontDesign.values)
-          Appearance(fontDesign: design).toJson()['fontDesign'],
+        for (final design in ReceptionFontDesign.values)
+          ReceptionAppearance(fontDesign: design).toJson()['fontDesign'],
       ],
       ['default', 'rounded', 'serif', 'monospaced'],
     );
     expect(
       [
         for (final icon in [
-          const WelcomeIcon.symbol('star'),
-          const WelcomeIcon.image('Welcome'),
-          WelcomeIcon.hidden,
+          const ReceptionWelcomeIcon.symbol('star'),
+          const ReceptionWelcomeIcon.image('Welcome'),
+          ReceptionWelcomeIcon.hidden,
         ])
-          Appearance(welcomeIcon: icon).toJson()['welcomeIcon'],
+          ReceptionAppearance(welcomeIcon: icon).toJson()['welcomeIcon'],
       ],
       [
         {'symbol': 'star'},
@@ -139,7 +139,7 @@ void main() {
   test('copyWith replaces only the given fields', () {
     final copy = all.copyWith(
       title: 'Support',
-      welcomeIcon: WelcomeIcon.hidden,
+      welcomeIcon: ReceptionWelcomeIcon.hidden,
     );
     expect(copy.toJson(), {
       ...allJson,
@@ -148,16 +148,16 @@ void main() {
     });
   });
 
-  for (final value in <Appearance>[
-    const Appearance(accentColor: AppearanceColor.hex('red')),
-    const Appearance(accentColor: AppearanceColor.hex('#fff')),
-    const Appearance(onAccentColor: AppearanceColor.hex('#gggggg')),
-    const Appearance(welcomeIconSize: double.nan),
-    const Appearance(welcomeIconSize: 161),
-    const Appearance(welcomeIconSize: 15),
-    const Appearance(welcomeIconCornerRadius: -1),
-    const Appearance(welcomeIconCornerRadius: 81),
-    const Appearance(welcomeIconOffset: Offset(double.infinity, 0)),
+  for (final value in <ReceptionAppearance>[
+    const ReceptionAppearance(accentColor: ReceptionColor.hex('red')),
+    const ReceptionAppearance(accentColor: ReceptionColor.hex('#fff')),
+    const ReceptionAppearance(onAccentColor: ReceptionColor.hex('#gggggg')),
+    const ReceptionAppearance(welcomeIconSize: double.nan),
+    const ReceptionAppearance(welcomeIconSize: 161),
+    const ReceptionAppearance(welcomeIconSize: 15),
+    const ReceptionAppearance(welcomeIconCornerRadius: -1),
+    const ReceptionAppearance(welcomeIconCornerRadius: 81),
+    const ReceptionAppearance(welcomeIconOffset: Offset(double.infinity, 0)),
   ]) {
     test('invalid field is logged and ignored: ${value.toJson()}', () {
       expect(validateAppearance(value.toJson(), {}), isEmpty);
@@ -166,11 +166,14 @@ void main() {
   }
 
   test('range limits are inclusive', () {
-    const limits = Appearance(welcomeIconSize: 16, welcomeIconCornerRadius: 80);
+    const limits = ReceptionAppearance(
+      welcomeIconSize: 16,
+      welcomeIconCornerRadius: 80,
+    );
     expect(validateAppearance(limits.toJson(), {}), limits.toJson());
     expect(
       validateAppearance(
-        const Appearance(
+        const ReceptionAppearance(
           welcomeIconSize: 160,
           welcomeIconCornerRadius: 0,
         ).toJson(),
@@ -181,13 +184,15 @@ void main() {
   });
 
   test('invalid replacement retains that field while omitted fields reset', () {
-    final previous = const Appearance(
-      accentColor: AppearanceColor.hex('#112233'),
+    final previous = const ReceptionAppearance(
+      accentColor: ReceptionColor.hex('#112233'),
       title: 'Old',
     ).toJson();
     expect(
       validateAppearance(
-        const Appearance(accentColor: AppearanceColor.hex('bad')).toJson(),
+        const ReceptionAppearance(
+          accentColor: ReceptionColor.hex('bad'),
+        ).toJson(),
         previous,
       ),
       {'accentColor': '#112233'},
@@ -196,8 +201,8 @@ void main() {
   });
 
   test('all six color options accept light/dark hex pairs', () {
-    const pair = AppearanceColor.adaptive(light: '#123456', dark: '#ABCDEF80');
-    const value = Appearance(
+    const pair = ReceptionColor.adaptive(light: '#123456', dark: '#ABCDEF80');
+    const value = ReceptionAppearance(
       accentColor: pair,
       onAccentColor: pair,
       chatBackground: pair,
@@ -213,20 +218,23 @@ void main() {
   });
 
   for (final pair in [
-    const AppearanceColor.adaptive(light: '#112233', dark: 'red'),
-    const AppearanceColor.adaptive(light: '#12', dark: '#445566'),
+    const ReceptionColor.adaptive(light: '#112233', dark: 'red'),
+    const ReceptionColor.adaptive(light: '#12', dark: '#445566'),
   ]) {
     test(
       'invalid adaptive color retains the previous complete pair: ${pair.light}/${pair.dark}',
       () {
-        final previous = const Appearance(
-          accentColor: AppearanceColor.adaptive(
+        final previous = const ReceptionAppearance(
+          accentColor: ReceptionColor.adaptive(
             light: '#abcdef',
             dark: '#123456',
           ),
         ).toJson();
         expect(
-          validateAppearance(Appearance(accentColor: pair).toJson(), previous),
+          validateAppearance(
+            ReceptionAppearance(accentColor: pair).toJson(),
+            previous,
+          ),
           previous,
         );
         expect(logs, ['[Reception] Invalid appearance.accentColor; ignored.']);
@@ -236,14 +244,14 @@ void main() {
 
   test('Flutter colors serialize to opaque or translucent hex', () {
     expect(
-      Appearance(
-        accentColor: AppearanceColor.of(const Color(0xFFFF8800)),
+      ReceptionAppearance(
+        accentColor: ReceptionColor.of(const Color(0xFFFF8800)),
       ).toJson(),
       {'accentColor': '#ff8800'},
     );
     expect(
-      Appearance(
-        chatBackground: AppearanceColor.adaptiveOf(
+      ReceptionAppearance(
+        chatBackground: ReceptionColor.adaptiveOf(
           light: const Color(0x80FFFFFF),
           dark: const Color(0x00010203),
         ),
@@ -252,9 +260,9 @@ void main() {
         'chatBackground': {'light': '#ffffff80', 'dark': '#01020300'},
       },
     );
-    final json = Appearance(
-      accentColor: AppearanceColor.of(const Color.fromARGB(255, 18, 52, 86)),
-      onAccentColor: AppearanceColor.adaptiveOf(
+    final json = ReceptionAppearance(
+      accentColor: ReceptionColor.of(const Color.fromARGB(255, 18, 52, 86)),
+      onAccentColor: ReceptionColor.adaptiveOf(
         light: const Color(0xFF000000),
         dark: const Color(0x33ABCDEF),
       ),
@@ -283,9 +291,9 @@ void main() {
       blue: 0.5,
       colorSpace: ColorSpace.extendedSRGB,
     );
-    final json = Appearance(
-      accentColor: AppearanceColor.of(p3Red),
-      chatBackground: AppearanceColor.adaptiveOf(light: extended, dark: p3Red),
+    final json = ReceptionAppearance(
+      accentColor: ReceptionColor.of(p3Red),
+      chatBackground: ReceptionColor.adaptiveOf(light: extended, dark: p3Red),
     ).toJson();
     expect(json, {
       'accentColor': '#ff0000',

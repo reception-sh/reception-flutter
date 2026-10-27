@@ -45,13 +45,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Callbacks are cleared by a hot restart, so main() assigns them every time.
   Reception.onEvent = (event) => record(switch (event) {
-    ChatOpenedEvent() => 'chatOpened',
-    MessageSentEvent() => 'messageSent',
-    ImageSentEvent() => 'imageSent',
-    ReviewOpenedEvent() => 'reviewOpened',
-    PaywallOpenedEvent() => 'paywallOpened',
-    DataDeletedEvent() => 'dataDeleted',
-    IdentityRejectedEvent(:final error) => 'identityRejected:${error.code}',
+    ReceptionChatOpened() => 'chatOpened',
+    ReceptionMessageSent() => 'messageSent',
+    ReceptionImageSent() => 'imageSent',
+    ReceptionReviewOpened() => 'reviewOpened',
+    ReceptionPaywallOpened() => 'paywallOpened',
+    ReceptionDataDeleted() => 'dataDeleted',
+    ReceptionIdentityRejected(:final error) => 'identityRejected:${error.code}',
   });
   Reception.onPaywall = (id) =>
       record('onPaywall:$id, chat:${Reception.isChatOpen.value}');
@@ -88,19 +88,19 @@ Future<void> configure() async {
     await Reception.configure(appId: appId);
   }
   configured.value = Reception.isConfigured;
-  Reception.logLevel = LogLevel.debug;
-  Reception.appearance = const Appearance(
-    accentColor: AppearanceColor.adaptive(light: '#8A2BE2', dark: '#C89FFF'),
-    chatBackground: AppearanceColor.adaptive(light: '#F5F1FA', dark: '#191024'),
-    incomingBackground: AppearanceColor.adaptive(
+  Reception.logLevel = ReceptionLogLevel.debug;
+  Reception.appearance = const ReceptionAppearance(
+    accentColor: ReceptionColor.adaptive(light: '#8A2BE2', dark: '#C89FFF'),
+    chatBackground: ReceptionColor.adaptive(light: '#F5F1FA', dark: '#191024'),
+    incomingBackground: ReceptionColor.adaptive(
       light: '#FFFFFF',
       dark: '#332641',
     ),
-    incomingForeground: AppearanceColor.adaptive(
+    incomingForeground: ReceptionColor.adaptive(
       light: '#23172E',
       dark: '#F8F1FF',
     ),
-    onAccentColor: AppearanceColor.adaptive(light: '#FFFFFF', dark: '#22112F'),
+    onAccentColor: ReceptionColor.adaptive(light: '#FFFFFF', dark: '#22112F'),
     showsCloseButton: true,
   );
   Reception.usesRemoteAppearance = false;
@@ -175,12 +175,12 @@ class HomePage extends StatelessWidget {
               await Reception.openChat();
               await Reception.closeChat();
               await Reception.identify(
-                const Identity.user(userId: 'before-configure'),
+                const ReceptionIdentity.user(userId: 'before-configure'),
               );
               await Reception.setMetadata({'stage': 'before'});
               await Reception.setPushToken(
                 'aabb',
-                environment: PushEnvironment.sandbox,
+                environment: ReceptionPushEnvironment.sandbox,
               );
               await Reception.logout();
               await Reception.deleteData();
@@ -220,7 +220,7 @@ class HomePage extends StatelessWidget {
           button('Identify and metadata', () {
             run(() async {
               await Reception.identify(
-                const Identity.user(
+                const ReceptionIdentity.user(
                   userId: 'flutter-verification-user',
                   name: 'Flutter Test Customer',
                   email: 'flutter-test@example.test',
@@ -230,12 +230,12 @@ class HomePage extends StatelessWidget {
                 'plan': 'Pro',
                 'source': 'Flutter example',
               });
-            }, 'Identity and metadata staged');
+            }, 'ReceptionIdentity and metadata staged');
           }),
           button('Identify with invalid token', () {
             run(
               () => Reception.identify(
-                const Identity.token('invalid.test.token'),
+                const ReceptionIdentity.token('invalid.test.token'),
               ),
               'Token identity staged',
             );

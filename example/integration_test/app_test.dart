@@ -64,7 +64,7 @@ void main() {
     );
     expect(Reception.isConfigured, isTrue);
     expect(Reception.usesRemoteAppearance, isFalse);
-    expect(Reception.logLevel, LogLevel.debug);
+    expect(Reception.logLevel, ReceptionLogLevel.debug);
     expect(Reception.paywalls.map((paywall) => paywall.id), [
       'plans',
       'hidden',
@@ -79,7 +79,7 @@ void main() {
     await tap(tester, 'Identify and metadata');
     await until(
       tester,
-      () => app.status.value == 'Identity and metadata staged',
+      () => app.status.value == 'ReceptionIdentity and metadata staged',
       reason: 'identify',
     );
 

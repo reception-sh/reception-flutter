@@ -26,11 +26,11 @@ class ReceptionState {
   int _revision = 0;
   Map<String, int> _settingRevisions = const {};
   Map<String, Object?> _settings = const {
-    'appearance': Appearance(),
+    'appearance': ReceptionAppearance(),
     'updatesAppBadge': true,
     'usesRemoteAppearance': true,
     'languageOverride': null,
-    'logLevel': LogLevel.info,
+    'logLevel': ReceptionLogLevel.info,
     'paywalls': <ReceptionPaywall>[],
   };
   final _pending = <String, ({int revision, Object? value})>{};
@@ -49,13 +49,14 @@ class ReceptionState {
     _settings = {
       'appearance': switch (jsonDecode(snapshot.appearanceJson)) {
         final Map<String, Object?> json => appearanceFromJson(json),
-        _ => const Appearance(),
+        _ => const ReceptionAppearance(),
       },
       'updatesAppBadge': snapshot.updatesAppBadge,
       'usesRemoteAppearance': snapshot.usesRemoteAppearance,
       'languageOverride': snapshot.languageOverride,
       'logLevel':
-          LogLevel.values.asNameMap()[snapshot.logLevel] ?? LogLevel.info,
+          ReceptionLogLevel.values.asNameMap()[snapshot.logLevel] ??
+          ReceptionLogLevel.info,
       'paywalls': List<ReceptionPaywall>.unmodifiable(
         snapshot.paywalls.map(paywallFromMessage),
       ),

@@ -6,22 +6,22 @@ import 'platform.dart';
 /// A chat color: one hex value, or a light/dark pair that follows the native
 /// color scheme. Hex values are `#RRGGBB` or `#RRGGBBAA`.
 @immutable
-class AppearanceColor {
+class ReceptionColor {
   /// One color for both color schemes.
-  const AppearanceColor.hex(String hex)
+  const ReceptionColor.hex(String hex)
     : light = hex,
       dark = hex,
       _adaptive = false;
 
   /// Separate colors for light and dark mode.
-  const AppearanceColor.adaptive({required this.light, required this.dark})
+  const ReceptionColor.adaptive({required this.light, required this.dark})
     : _adaptive = true;
 
   /// One Flutter [color] for both color schemes.
-  AppearanceColor.of(Color color) : this.hex(_hexOf(color));
+  ReceptionColor.of(Color color) : this.hex(_hexOf(color));
 
   /// Separate Flutter colors for light and dark mode.
-  AppearanceColor.adaptiveOf({required Color light, required Color dark})
+  ReceptionColor.adaptiveOf({required Color light, required Color dark})
     : this.adaptive(light: _hexOf(light), dark: _hexOf(dark));
 
   /// Hex value used in light mode.
@@ -50,17 +50,19 @@ class AppearanceColor {
 
 /// The icon above the welcome heading in an empty chat.
 @immutable
-class WelcomeIcon {
+class ReceptionWelcomeIcon {
   /// An SF Symbol, for example `star`.
-  const WelcomeIcon.symbol(String name) : _key = 'symbol', _value = name;
+  const ReceptionWelcomeIcon.symbol(String name)
+    : _key = 'symbol',
+      _value = name;
 
   /// An image from the host app's iOS asset catalog (not a Flutter asset).
-  const WelcomeIcon.image(String name) : _key = 'image', _value = name;
+  const ReceptionWelcomeIcon.image(String name) : _key = 'image', _value = name;
 
-  const WelcomeIcon._hidden() : _key = 'hidden', _value = true;
+  const ReceptionWelcomeIcon._hidden() : _key = 'hidden', _value = true;
 
   /// No welcome icon.
-  static const hidden = WelcomeIcon._hidden();
+  static const hidden = ReceptionWelcomeIcon._hidden();
 
   final String _key;
   final Object _value;
@@ -69,7 +71,7 @@ class WelcomeIcon {
 }
 
 /// Symbol of the presented chat's close button.
-enum CloseIcon {
+enum ReceptionCloseIcon {
   /// A cross (default).
   xmark('xmark'),
 
@@ -79,12 +81,12 @@ enum CloseIcon {
   /// A downward arrow.
   arrowDown('arrow.down');
 
-  const CloseIcon(this._json);
+  const ReceptionCloseIcon(this._json);
   final String _json;
 }
 
 /// System font design of the chat.
-enum FontDesign {
+enum ReceptionFontDesign {
   /// The standard system design (Swift `.default`).
   standard('default'),
 
@@ -97,12 +99,12 @@ enum FontDesign {
   /// Monospaced.
   monospaced('monospaced');
 
-  const FontDesign(this._json);
+  const ReceptionFontDesign(this._json);
   final String _json;
 }
 
 /// Color scheme forced on the chat; leave unset to follow the app.
-enum PreferredColorScheme {
+enum ReceptionColorScheme {
   /// Always light.
   light,
 
@@ -115,9 +117,9 @@ enum PreferredColorScheme {
 /// keep their previous value. Published dashboard appearance overrides these
 /// values unless `Reception.usesRemoteAppearance` is false.
 @immutable
-class Appearance {
+class ReceptionAppearance {
   /// Creates an appearance; every field is optional.
-  const Appearance({
+  const ReceptionAppearance({
     this.accentColor,
     this.onAccentColor,
     this.title,
@@ -144,10 +146,10 @@ class Appearance {
   });
 
   /// Outgoing bubble fills and accented controls.
-  final AppearanceColor? accentColor;
+  final ReceptionColor? accentColor;
 
   /// Text and symbols on accent surfaces.
-  final AppearanceColor? onAccentColor;
+  final ReceptionColor? onAccentColor;
 
   /// Navigation title at the top of the chat.
   final String? title;
@@ -162,25 +164,25 @@ class Appearance {
   final bool? showsCloseButton;
 
   /// Background behind the conversation.
-  final AppearanceColor? chatBackground;
+  final ReceptionColor? chatBackground;
 
   /// Incoming bubble, review card and paywall card fills.
-  final AppearanceColor? incomingBackground;
+  final ReceptionColor? incomingBackground;
 
   /// Incoming message text and review/paywall card body text.
-  final AppearanceColor? incomingForeground;
+  final ReceptionColor? incomingForeground;
 
   /// Forces light or dark mode; null follows the app.
-  final PreferredColorScheme? preferredColorScheme;
+  final ReceptionColorScheme? preferredColorScheme;
 
   /// Close button symbol.
-  final CloseIcon? closeIcon;
+  final ReceptionCloseIcon? closeIcon;
 
   /// Close button image: a name from the host app's iOS asset catalog.
   final String? closeImage;
 
   /// System font design.
-  final FontDesign? fontDesign;
+  final ReceptionFontDesign? fontDesign;
 
   /// Font family name registered with iOS (Flutter `pubspec.yaml` fonts are
   /// not available to UIKit).
@@ -190,10 +192,10 @@ class Appearance {
   final bool? fadesOlderMessages;
 
   /// Symbol, image, or no icon above the welcome heading.
-  final WelcomeIcon? welcomeIcon;
+  final ReceptionWelcomeIcon? welcomeIcon;
 
   /// Color of a welcome icon symbol.
-  final AppearanceColor? welcomeIconColor;
+  final ReceptionColor? welcomeIconColor;
 
   /// Welcome icon size in points, 16 to 160.
   final double? welcomeIconSize;
@@ -214,32 +216,32 @@ class Appearance {
   final bool? hidesWelcomeText;
 
   /// Returns a copy with the given fields replaced. It cannot clear a field;
-  /// assign a new [Appearance] without it to unset a field.
-  Appearance copyWith({
-    AppearanceColor? accentColor,
-    AppearanceColor? onAccentColor,
+  /// assign a new [ReceptionAppearance] without it to unset a field.
+  ReceptionAppearance copyWith({
+    ReceptionColor? accentColor,
+    ReceptionColor? onAccentColor,
     String? title,
     String? welcomeTitle,
     String? welcomeText,
     bool? showsCloseButton,
-    AppearanceColor? chatBackground,
-    AppearanceColor? incomingBackground,
-    AppearanceColor? incomingForeground,
-    PreferredColorScheme? preferredColorScheme,
-    CloseIcon? closeIcon,
+    ReceptionColor? chatBackground,
+    ReceptionColor? incomingBackground,
+    ReceptionColor? incomingForeground,
+    ReceptionColorScheme? preferredColorScheme,
+    ReceptionCloseIcon? closeIcon,
     String? closeImage,
-    FontDesign? fontDesign,
+    ReceptionFontDesign? fontDesign,
     String? fontFamily,
     bool? fadesOlderMessages,
-    WelcomeIcon? welcomeIcon,
-    AppearanceColor? welcomeIconColor,
+    ReceptionWelcomeIcon? welcomeIcon,
+    ReceptionColor? welcomeIconColor,
     double? welcomeIconSize,
     double? welcomeIconCornerRadius,
     Offset? welcomeIconOffset,
     bool? hidesTitle,
     bool? hidesWelcomeTitle,
     bool? hidesWelcomeText,
-  }) => Appearance(
+  }) => ReceptionAppearance(
     accentColor: accentColor ?? this.accentColor,
     onAccentColor: onAccentColor ?? this.onAccentColor,
     title: title ?? this.title,
@@ -296,11 +298,11 @@ class Appearance {
 }
 
 /// Reads an appearance from the native JSON shape, skipping unknown values.
-Appearance appearanceFromJson(Map<String, Object?> json) {
-  AppearanceColor? color(String key) => switch (json[key]) {
-    final String hex => AppearanceColor.hex(hex),
+ReceptionAppearance appearanceFromJson(Map<String, Object?> json) {
+  ReceptionColor? color(String key) => switch (json[key]) {
+    final String hex => ReceptionColor.hex(hex),
     {'light': final String light, 'dark': final String dark} =>
-      AppearanceColor.adaptive(light: light, dark: dark),
+      ReceptionColor.adaptive(light: light, dark: dark),
     _ => null,
   };
   T? value<T>(String key) => switch (json[key]) {
@@ -309,7 +311,7 @@ Appearance appearanceFromJson(Map<String, Object?> json) {
   };
   double? number(String key) => value<num>(key)?.toDouble();
 
-  return Appearance(
+  return ReceptionAppearance(
     accentColor: color('accentColor'),
     onAccentColor: color('onAccentColor'),
     title: value('title'),
@@ -319,22 +321,22 @@ Appearance appearanceFromJson(Map<String, Object?> json) {
     chatBackground: color('chatBackground'),
     incomingBackground: color('incomingBackground'),
     incomingForeground: color('incomingForeground'),
-    preferredColorScheme: PreferredColorScheme.values
+    preferredColorScheme: ReceptionColorScheme.values
         .where((scheme) => scheme.name == json['preferredColorScheme'])
         .firstOrNull,
-    closeIcon: CloseIcon.values
+    closeIcon: ReceptionCloseIcon.values
         .where((icon) => icon._json == json['closeIcon'])
         .firstOrNull,
     closeImage: value('closeImage'),
-    fontDesign: FontDesign.values
+    fontDesign: ReceptionFontDesign.values
         .where((design) => design._json == json['fontDesign'])
         .firstOrNull,
     fontFamily: value('fontFamily'),
     fadesOlderMessages: value('fadesOlderMessages'),
     welcomeIcon: switch (json['welcomeIcon']) {
-      {'symbol': final String name} => WelcomeIcon.symbol(name),
-      {'image': final String name} => WelcomeIcon.image(name),
-      {'hidden': true} => WelcomeIcon.hidden,
+      {'symbol': final String name} => ReceptionWelcomeIcon.symbol(name),
+      {'image': final String name} => ReceptionWelcomeIcon.image(name),
+      {'hidden': true} => ReceptionWelcomeIcon.hidden,
       _ => null,
     },
     welcomeIconColor: color('welcomeIconColor'),
@@ -382,7 +384,7 @@ final Map<String, bool Function(Object?)> _validators = {
   },
 };
 
-/// Validates [value] (from [Appearance.toJson]). Invalid fields log and keep
+/// Validates [value] (from [ReceptionAppearance.toJson]). Invalid fields log and keep
 /// their [previous] value instead of resetting a working customization.
 Map<String, Object> validateAppearance(
   Map<String, Object> value,

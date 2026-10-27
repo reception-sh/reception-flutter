@@ -61,13 +61,13 @@ void main() {
     'identity variants, metadata and push forward only valid inputs',
     () async {
       await Reception.identify(
-        const Identity.user(userId: 'customer', name: 'Test'),
+        const ReceptionIdentity.user(userId: 'customer', name: 'Test'),
       );
-      await Reception.identify(const Identity.token('signed-token'));
+      await Reception.identify(const ReceptionIdentity.token('signed-token'));
       await Reception.setMetadata({'plan': 'Pro'});
       await Reception.setPushToken(
         'AABB01',
-        environment: PushEnvironment.sandbox,
+        environment: ReceptionPushEnvironment.sandbox,
       );
       expect(host.callsTo('identify'), [
         ['customer', 'Test', null],
@@ -245,18 +245,18 @@ void main() {
         await host.send('onEvent', [EventMessage(type: type)]);
       }
       expect(first, isEmpty);
-      expect(next.first, isA<IdentityRejectedEvent>());
+      expect(next.first, isA<ReceptionIdentityRejected>());
       expect(
-        (next.first as IdentityRejectedEvent).error,
+        (next.first as ReceptionIdentityRejected).error,
         const ReceptionError('identity_token_expired', 401),
       );
       expect(next.skip(1).map((event) => event.runtimeType), [
-        ChatOpenedEvent,
-        MessageSentEvent,
-        ImageSentEvent,
-        ReviewOpenedEvent,
-        PaywallOpenedEvent,
-        DataDeletedEvent,
+        ReceptionChatOpened,
+        ReceptionMessageSent,
+        ReceptionImageSent,
+        ReceptionReviewOpened,
+        ReceptionPaywallOpened,
+        ReceptionDataDeleted,
       ]);
       Reception.onEvent = null;
       expect(Reception.onEvent, isNull);
@@ -444,7 +444,7 @@ void main() {
       Reception.openChat(),
       throwsA(const ReceptionError('bridge_error', 0)),
     );
-    Reception.logLevel = LogLevel.debug;
+    Reception.logLevel = ReceptionLogLevel.debug;
     await pumpEventQueue();
     expect(host.callsTo('setLogLevel'), hasLength(1));
     await Reception.openChat();
@@ -454,7 +454,7 @@ void main() {
       'setLogLevel',
       'openChat',
     ]);
-    expect(Reception.logLevel, LogLevel.debug);
+    expect(Reception.logLevel, ReceptionLogLevel.debug);
   });
 
   test(
