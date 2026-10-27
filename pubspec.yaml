@@ -1,0 +1,34 @@
+name: reception_flutter
+description: Native Reception support chat for Flutter apps on iOS, with replies managed in the Reception dashboard.
+version: 1.0.0
+homepage: https://reception.sh
+repository: https://github.com/reception-sh/reception-flutter
+issue_tracker: https://github.com/reception-sh/reception-flutter/issues
+documentation: https://reception.sh/docs/flutter
+topics:
+  - support
+  - chat
+  - customer-support
+  - ios
+  - in-app-chat
+
+environment:
+  sdk: ^3.10.0
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  crypto: ^3.0.6
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  pigeon: ^29.0.11
+
+flutter:
+  plugin:
+    platforms:
+      ios:
+        pluginClass: ReceptionFlutterPlugin
