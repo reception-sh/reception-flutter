@@ -1,0 +1,98 @@
+# Customer walkthrough: commands and results (2026-10-27)
+# App ID replaced by <APP_ID>; device = iPhone 17 Pro simulator 1B82EA4D-9E6C-401B-9BF1-DF6EEE286309
+# PATH=/opt/homebrew/bin:$PATH; Flutter 3.47.8, Xcode 26.5
+
+## Prompt and docs
+# Prompt rendered from reception/src/lib/setup-prompt.ts (buildSetupPrompt with appName "Walkthrough", the App ID,
+# baseUrl http://localhost:3123, packageUrl https://github.com/reception-sh/reception-ios.git; no projectId) via
+# node --experimental-strip-types (copies of setup-prompt.ts, paywall-prompt.ts, brand.ts in /tmp/rw-prompt).
+curl -s http://localhost:3123/llms.txt                 -> OK (links point to http://localhost:3000, see GAPS.md G0)
+curl -s http://localhost:3123/docs/get-started.md      -> OK
+curl -s http://localhost:3123/docs/flutter.md          -> OK
+curl -s http://localhost:3123/docs/paywalls.md         -> OK (Flutter helpers section, #flutter-custom)
+curl -s http://localhost:3123/docs/language.md         -> OK (to learn languageOverride's value type)
+
+## Baseline app (before the prompt)
+cd /tmp/reception-walkthrough && flutter create --org sh.reception --platforms=ios -i swift walkthrough   -> OK, no ios/Podfile (SwiftPM)
+flutter pub add shared_preferences 'flutter_localizations:{"sdk":"flutter"}'                                -> OK
+PlistBuddy: CFBundleLocalizations = [en, de] in ios/Runner/Info.plist
+flutter analyze -> No issues; flutter test -> 1 passed
+git init && git commit -m "Walkthrough app: home, settings, sign-in, paywall, theme and language"          -> af821b4
+
+## Setup prompt, step 3-5
+flutter pub add 'reception_flutter:{"path":"/Users/andi/Code/support/reception-flutter"}'   -> OK (path dep instead of pub.dev)
+sed IPHONEOS_DEPLOYMENT_TARGET 15.0 -> 17.0 in ios/Runner.xcodeproj/project.pbxproj          -> 3 entries changed; no Podfile
+files: lib/main.dart (configure), lib/reception_support.dart (appearance, language, identify, metadata, logout),
+       lib/widgets/support_badge.dart, lib/screens/home_screen.dart (Support icon button + badge),
+       lib/screens/settings_screen.dart (Support row + badge), lib/strings.dart ('support'),
+       lib/reception_store_paywall.dart (from paywalls.md#flutter-custom, adapted: no store library), AGENTS.md
+dart format lib; flutter analyze -> No issues found; flutter test -> 1 passed
+
+## Step 6: build and check
+flutter build ios --simulator --debug   -> "✓ Built build/ios/iphonesimulator/Runner.app" (39.9 s Xcode), no warning lines
+codesign -dvv Runner.app                -> Signature=adhoc, no entitlements
+xcrun simctl install D build/ios/iphonesimulator/Runner.app
+xcrun simctl launch --terminate-running-process D sh.reception.walkthrough -ReceptionSetupCheck <APP_ID>   -> pid 51125
+xcrun simctl spawn D log show --last 2m --info --style compact --predicate 'subsystem == "com.reception.sdk"'
+  (first read 12 s after launch) -> "Configured, SDK 1.6.0", "Setup check started", "Device registered",
+  "Setup check passed" (setup-check.log). PASS on the first attempt.
+
+## Dashboard reply (headless Chrome over CDP, /tmp/rw-tools/cdp.mjs; Synara browser/device tools refused writes
+## with caller_turn_inactive in this session)
+/login -> email andreas.losing@gmx.de -> Send code -> code read from /tmp/reception-dev-3123.log by the script
+  (never printed or stored) -> auto-submit redirects to http://localhost:3000 (AUTH_URL, local env) -> session cookie
+  works on :3123 -> /inbox/<conversation> -> "Hi from the Reception dashboard! Thanks for trying the Walkthrough app."
+  -> Send reply. Message row AGENT in DB. (04a-dashboard-reply.png)
+
+## Step 7: design round (taps: throwaway XCUITest driver /tmp/rfv/driver via xcodebuild test-without-building
+## -xctestrun ..., wrapper /tmp/rw-tools/drive.sh; not part of any repo)
+xcrun simctl launch --terminate-running-process D sh.reception.walkthrough; screenshot -> badge "1" on the Support
+  icon button on Home (01). PASS
+drive testTap Settings -> Support row with badge before the chevron. First build: badge capsule stretched to the
+  row height (my widget: Container alignment in a ListTile trailing Row); fixed with Center(widthFactor/heightFactor 1),
+  flutter build ios --simulator --debug, reinstall -> correct capsule (02). PASS after fix
+drive testTap Account; drive testTypeAndSend "Maria Becker" -> signed in (03)
+drive testTapContaining Support -> chat opens with the dashboard reply, app accent color on outgoing bubble (04)
+psql: Device.name = Maria Becker, metadata {"plan": "free", "sign_up_date": "2026-10-27"},
+  paywalls [{"id":"plans","title":"Plans","source":"app","products":[walkthrough_pro_monthly, walkthrough_pro_yearly]}]. PASS
+xcrun simctl launch --terminate-running-process D sh.reception.walkthrough -ReceptionPreview welcome      -> 05. PASS
+xcrun simctl launch --terminate-running-process D sh.reception.walkthrough -ReceptionPreview conversation -> 06. PASS
+
+## Extra checks
+App settings dark + Deutsch (written with xcrun simctl spawn D defaults write <app container>/Library/Preferences/
+  sh.reception.walkthrough flutter.themeMode dark / flutter.languageCode de, because the Material dropdowns merge into
+  the row in the accessibility tree) -> chat dark with the dark theme's primary, German texts ("Gesendet",
+  "Nachricht", "Di.") (08). PASS (startup path; the live-change listener path was not driven)
+Dashboard Send offer (Plans, "View offer") -> card "Angebot ansehen" (09); tap -> chat sheet closes, the app's Flutter
+  paywall opens (10); "Schließen" -> chat reopens (11). PASS
+Settings -> Abmelden -> log "Logged out, session revocation queued"; Support -> new empty welcome chat in German (12). PASS
+
+## "test push"
+The app has no notification permission flow; the docs give no Flutter way to request it (GAPS.md G1), so none added.
+cat reception-push.apns   (payload shape from push-notifications.md#payload-shape, conversation id from psql)
+xcrun simctl launch D com.apple.Preferences                       (app in background)
+xcrun simctl push D sh.reception.walkthrough reception-push.apns  -> "Notification sent to 'sh.reception.walkthrough'"
+  screenshots at +0.7 s and +2 s: NO banner (07). SpringBoard log: "Got effective section info [ hasResult: 0 ]"
+  (the app never requested authorization), the request is saved and the icon badge set to 1, but nothing is shown.
+  => simctl push needs notification authorization to show a banner. No banner, so no banner tap either. NOT VERIFIED
+
+## Docs, prompt and plugin changed during the walkthrough
+# reception: d5aa5e63..ebba025d at 20:43-20:45 (Reception-prefixed Flutter types, iOS-only entry, entitlements file
+# without Xcode, configure after other notification plugins, simulator boot, log predicate BEGINSWITH "com.reception",
+# paywall store-call replacement). reception-flutter: f07e7d3 (20:43, "Prefix every exported type with Reception"),
+# a6dfe89 (20:52, willPresent fallback). The first build (20:34/20:38) used the old API. Re-fetched the docs,
+# re-rendered the prompt (setup-prompt-current.txt; the start version is setup-prompt-at-start.txt) and updated the app:
+sed: Appearance -> ReceptionAppearance, AppearanceColor -> ReceptionColor, PreferredColorScheme -> ReceptionColorScheme,
+     Identity -> ReceptionIdentity (lib/reception_support.dart)
+supportsReception (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) around both Support entries
+ios/Runner/Runner.entitlements (aps-environment development) + CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements in the
+  Runner target's Debug, Release, Profile (pbxproj); paywall helper kept in a reassignable `late ReceptionStorePaywall`
+dart format lib; flutter analyze -> No issues found (after bracing one if); flutter test -> 1 passed
+flutter build ios --simulator --debug -> "✓ Built", 0 warning lines; Runner __TEXT,__entitlements contains aps-environment
+xcrun simctl install D ...; xcrun simctl launch --terminate-running-process D sh.reception.walkthrough -ReceptionSetupCheck <APP_ID>
+xcrun simctl spawn D log show --last 1m --info --style compact --predicate 'subsystem BEGINSWITH "com.reception"'
+  -> "Setup check passed" (setup-check-v2.log), new conversation (the device had logged out)
+dashboard reply "Thanks for writing in, Maria! How can we help?" -> Home badge 1 (13), Settings row badge 1 (14). PASS
+-ReceptionPreview welcome (15) / conversation (16): dark, German UI; the example messages stay English. PASS
+test push again (Settings in front, xcrun simctl push): no banner within 5 s (XCUITest testTapBanner "Your reply" ->
+  "no banner") (17). Same result as before: no authorization, no banner.

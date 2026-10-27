@@ -207,3 +207,27 @@ Against `reception/content/docs/flutter.md` (served at /docs/flutter):
 4. Local verification environment (not the guide): the backend's `AUTH_URL=http://localhost:3000` sends the
    post-login redirect of the :3123 dev server to :3000; `local-test@example.test` is not a member of the
    Flutter Example organization (its only member is the workspace owner).
+
+## Customer walkthrough
+
+2026-10-27, 20:20–21:00 CET, evidence in `verification/customer-walkthrough/` (`commands.txt`, `GAPS.md`,
+`integration.diff`, screenshots 01–17). An agent followed the dashboard setup prompt literally on a fresh
+`flutter create` app (Home, Settings, light/dark setting, in-app English/German, name-only sign-in, fake paywall
+without a store library), with a path dependency and `configureReceptionForTesting` against the local service as the
+only deviations. Docs, prompt and plugin changed mid-run (Reception-prefixed types, entitlements file, iOS-only
+entry); the app was updated to the current text, rebuilt and checked again.
+
+PASS: package, deployment target, configure, docs comment, AGENTS.md, appearance from the theme (dark mode), German
+language override, Support icon button on Home and Settings row with live badges, identify with the entered name,
+metadata plan and sign-up date, logout on sign-out (new empty chat), entitlements without Xcode, build and install
+commands, setup check (passed on the first launch, twice), welcome and conversation previews, dashboard reply as the
+badge and in the chat, own-screen paywall card (sheet closes, Flutter paywall opens, chat reopens).
+
+NOT VERIFIED: push banner and tap. The app has no permission flow and the docs give no Flutter way to request one,
+so none was added; `xcrun simctl push` is delivered but iOS shows no banner without authorization.
+
+Gaps (details and fix text in `GAPS.md`): G1 test push needs a permission request the docs don't cover (high);
+G2 own-screen paywall file assumes a store library (medium); G3 no Material ColorScheme mapping for chatBackground
+and incoming colors (medium); G4 languageOverride type missing in the Flutter guide; G5 name-only sign-in: logout or
+not; G6 badge "on the way" vs. a toolbar button on the same screen; G7 no Flutter snippet for the iOS badge look;
+G8 paywall helper account switch without vendor accounts; G9 English example messages in previews of a German app.

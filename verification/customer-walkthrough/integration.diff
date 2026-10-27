@@ -1,0 +1,539 @@
+diff --git a/ios/Runner.xcodeproj/project.pbxproj b/ios/Runner.xcodeproj/project.pbxproj
+index f7cf943..809a9e1 100644
+--- a/ios/Runner.xcodeproj/project.pbxproj
++++ b/ios/Runner.xcodeproj/project.pbxproj
+@@ -360,7 +360,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
++				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+ 				MTL_ENABLE_DEBUG_INFO = NO;
+ 				SDKROOT = iphoneos;
+ 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+@@ -383,6 +383,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/Frameworks",
+ 				);
++				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+ 				PRODUCT_BUNDLE_IDENTIFIER = sh.reception.walkthrough;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+@@ -487,7 +488,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
++				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+ 				MTL_ENABLE_DEBUG_INFO = YES;
+ 				ONLY_ACTIVE_ARCH = YES;
+ 				SDKROOT = iphoneos;
+@@ -539,7 +540,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
++				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+ 				MTL_ENABLE_DEBUG_INFO = NO;
+ 				SDKROOT = iphoneos;
+ 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+@@ -564,6 +565,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/Frameworks",
+ 				);
++				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+ 				PRODUCT_BUNDLE_IDENTIFIER = sh.reception.walkthrough;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+@@ -586,6 +588,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/Frameworks",
+ 				);
++				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+ 				PRODUCT_BUNDLE_IDENTIFIER = sh.reception.walkthrough;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+diff --git a/lib/main.dart b/lib/main.dart
+index 2be6964..0087e6e 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -1,16 +1,39 @@
+ import 'package:flutter/material.dart';
+ import 'package:flutter_localizations/flutter_localizations.dart';
++import 'package:reception_flutter/testing.dart';
+ 
+ import 'app_state.dart';
++import 'reception_store_paywall.dart';
++import 'reception_support.dart';
+ import 'screens/home_screen.dart';
++import 'screens/paywall_screen.dart';
+ import 'strings.dart';
+ import 'theme.dart';
+ 
+ final navigatorKey = GlobalKey<NavigatorState>();
+ 
++/// Offers the paywall in the support chat.
++late ReceptionStorePaywall paywall;
++
+ Future<void> main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+   final state = await AppState.load();
++  // Reception support chat. Docs for changes: http://localhost:3123/llms.txt
++  // Walkthrough deviation: the local service instead of
++  // Reception.configure(appId: ...), which talks to the hosted service.
++  await configureReceptionForTesting(
++    appId: '<APP_ID>',
++    serviceUrl: Uri.parse('http://localhost:3123'),
++  );
++  ReceptionSupport.start(state);
++  paywall = ReceptionStorePaywall.start(
++    () => navigatorKey.currentState!.push(
++      MaterialPageRoute<void>(
++        fullscreenDialog: true,
++        builder: (_) => const PaywallScreen(),
++      ),
++    ),
++  );
+   runApp(WalkthroughApp(state: state));
+ }
+ 
+diff --git a/lib/screens/home_screen.dart b/lib/screens/home_screen.dart
+index 54abfb3..1a9f2af 100644
+--- a/lib/screens/home_screen.dart
++++ b/lib/screens/home_screen.dart
+@@ -1,7 +1,9 @@
+ import 'package:flutter/material.dart';
++import 'package:reception_flutter/reception_flutter.dart';
+ 
+ import '../app_state.dart';
+ import '../strings.dart';
++import '../widgets/support_badge.dart';
+ import 'paywall_screen.dart';
+ import 'settings_screen.dart';
+ 
+@@ -18,6 +20,25 @@ class HomeScreen extends StatelessWidget {
+       appBar: AppBar(
+         title: Text(s.get('appTitle')),
+         actions: [
++          if (supportsReception)
++            UnreadCountBuilder(
++              builder: (context, unread) => IconButton(
++                tooltip: s.get('support'),
++                icon: Stack(
++                  clipBehavior: Clip.none,
++                  children: [
++                    const Icon(Icons.support_agent_outlined),
++                    if (unread > 0)
++                      Positioned(
++                        top: -8,
++                        right: -10,
++                        child: UnreadCapsule(count: unread),
++                      ),
++                  ],
++                ),
++                onPressed: Reception.openChat,
++              ),
++            ),
+           IconButton(
+             tooltip: s.get('upgrade'),
+             icon: const Icon(Icons.workspace_premium_outlined),
+diff --git a/lib/screens/settings_screen.dart b/lib/screens/settings_screen.dart
+index ef20f6e..10f0a48 100644
+--- a/lib/screens/settings_screen.dart
++++ b/lib/screens/settings_screen.dart
+@@ -1,7 +1,9 @@
+ import 'package:flutter/material.dart';
++import 'package:reception_flutter/reception_flutter.dart';
+ 
+ import '../app_state.dart';
+ import '../strings.dart';
++import '../widgets/support_badge.dart';
+ import 'paywall_screen.dart';
+ import 'sign_in_screen.dart';
+ 
+@@ -75,6 +77,21 @@ class SettingsScreen extends StatelessWidget {
+               trailing: const Icon(Icons.chevron_right),
+               onTap: () => showPaywall(context),
+             ),
++            if (supportsReception)
++              UnreadCountBuilder(
++                builder: (context, unread) => ListTile(
++                  leading: const Icon(Icons.support_agent_outlined),
++                  title: Text(s.get('support')),
++                  trailing: Row(
++                    mainAxisSize: MainAxisSize.min,
++                    children: [
++                      if (unread > 0) UnreadCapsule(count: unread),
++                      const Icon(Icons.chevron_right),
++                    ],
++                  ),
++                  onTap: Reception.openChat,
++                ),
++              ),
+             ListTile(
+               leading: const Icon(Icons.info_outline),
+               title: Text(s.get('about')),
+diff --git a/lib/strings.dart b/lib/strings.dart
+index 942171c..3ef8e7f 100644
+--- a/lib/strings.dart
++++ b/lib/strings.dart
+@@ -20,6 +20,7 @@ class S {
+       'dailyReminder': 'Daily reminder',
+       'focus': 'Focus minutes',
+       'upgrade': 'Upgrade to Pro',
++      'support': 'Support',
+       'settings': 'Settings',
+       'account': 'Account',
+       'signIn': 'Sign in',
+@@ -47,6 +48,7 @@ class S {
+       'dailyReminder': 'Tägliche Erinnerung',
+       'focus': 'Fokusminuten',
+       'upgrade': 'Upgrade auf Pro',
++      'support': 'Support',
+       'settings': 'Einstellungen',
+       'account': 'Konto',
+       'signIn': 'Anmelden',
+diff --git a/pubspec.yaml b/pubspec.yaml
+index 95c8cea..eaf1a0e 100644
+--- a/pubspec.yaml
++++ b/pubspec.yaml
+@@ -37,6 +37,8 @@ dependencies:
+   shared_preferences: ^2.5.6
+   flutter_localizations:
+     sdk: flutter
++  reception_flutter:
++    path: /Users/andi/Code/support/reception-flutter
+ 
+ dev_dependencies:
+   flutter_test:
+diff --git a/AGENTS.md b/AGENTS.md
+new file mode 100644
+index 0000000..84ad649
+--- /dev/null
++++ b/AGENTS.md
+@@ -0,0 +1 @@
++- Reception support chat: before changing or debugging it, read http://localhost:3123/llms.txt and the page it links for the task. If the docs are unreachable, work from the Reception package source and say what you couldn't verify.
+diff --git a/ios/Runner/Runner.entitlements b/ios/Runner/Runner.entitlements
+new file mode 100644
+index 0000000..a63f00d
+--- /dev/null
++++ b/ios/Runner/Runner.entitlements
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
++<plist version="1.0">
++<dict>
++  <key>aps-environment</key>
++  <string>development</string>
++</dict>
++</plist>
+diff --git a/lib/reception_store_paywall.dart b/lib/reception_store_paywall.dart
+new file mode 100644
+index 0000000..31c72b9
+--- /dev/null
++++ b/lib/reception_store_paywall.dart
+@@ -0,0 +1,143 @@
++import 'dart:async';
++
++import 'package:flutter/foundation.dart';
++import 'package:flutter/widgets.dart';
++import 'package:reception_flutter/reception_flutter.dart';
++
++/// Offers a paywall screen built in your Flutter code as a Reception paywall
++/// card.
++///
++/// Start once in `main()` after `Reception.configure`, passing your function that shows the screen and
++/// completes when it closes, and keep the returned helper:
++///
++///     var paywall = ReceptionStorePaywall.start(presentYourPaywall);
++///
++/// The card stays available until the customer owns every product in
++/// `_products`. Call [stop] before changing accounts, then start again for the
++/// new account.
++final class ReceptionStorePaywall {
++  ReceptionStorePaywall._(this._present, this._closesChat);
++
++  // Replace with the products sold by your existing screen. Consumables never
++  // count as owned.
++  static const _products = [
++    (id: 'walkthrough_pro_monthly', consumable: false),
++    (id: 'walkthrough_pro_yearly', consumable: false),
++  ];
++
++  final Future<void> Function() _present;
++  final bool _closesChat;
++  AppLifecycleListener? _lifecycle;
++  var _active = false;
++  var _revision = 0;
++
++  /// Starts on iOS; on Android and web Reception shows no cards, so this does
++  /// nothing there. Pass `closesChatSheet: false` when the chat is a
++  /// `ReceptionChatView` inside your own route.
++  static ReceptionStorePaywall start(
++    Future<void> Function() present, {
++    bool closesChatSheet = true,
++  }) {
++    final helper = ReceptionStorePaywall._(present, closesChatSheet);
++    if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) return helper;
++    helper._active = true;
++    Reception.paywallAvailability = helper._isAvailable;
++    Reception.onPaywall = helper._open;
++    Reception.paywalls = [
++      ReceptionPaywall(
++        id: 'plans',
++        title: 'Plans',
++        source: 'app',
++        products: [
++          for (final product in _products)
++            ReceptionPaywallProduct(id: product.id),
++        ],
++      ),
++    ];
++    helper._lifecycle = AppLifecycleListener(onResume: helper._refresh);
++    helper._refresh();
++    return helper;
++  }
++
++  /// Removes the listeners, and the card while this helper still owns it.
++  void stop() {
++    if (!_active) return;
++    _active = false;
++    _lifecycle?.dispose();
++    if (Reception.paywallAvailability == _isAvailable) {
++      Reception.paywallAvailability = null;
++    }
++    if (Reception.onPaywall == _open) {
++      Reception.onPaywall = null;
++      Reception.paywalls = const [];
++    }
++  }
++
++  // The app has no store library yet, so it owns nothing and sends no
++  // subscription details; the app's own plan goes out with its user details.
++  // When purchases ship, read the store's entitlements here and in
++  // _isAvailable, and call _update from its purchase-change listener.
++  static Future<Set<String>> _ownedProductIds() async => const {};
++
++  void _update() {
++    if (!_active) return;
++    _revision += 1;
++    unawaited(Reception.refreshPaywalls(invalidate: true).catchError(_failed));
++  }
++
++  void _refresh() => unawaited(_reload().catchError(_failed));
++
++  Future<void> _reload() async {
++    final request = ++_revision;
++    await _ownedProductIds();
++    if (_active && request == _revision) _update();
++  }
++
++  Future<bool> _isAvailable(String id) async {
++    if (id != 'plans') return false;
++    final owned = await _ownedProductIds();
++    return _active &&
++        _products.any(
++          (product) => product.consumable || !owned.contains(product.id),
++        );
++  }
++
++  void _open(String id) {
++    if (!_active || id != 'plans') return;
++    unawaited(_presentPaywall().catchError(_failed));
++  }
++
++  /// Your screen renders in Flutter, below Reception's native chat sheet, so
++  /// the sheet closes first and opens again when your screen closes.
++  Future<void> _presentPaywall() async {
++    final reopen = _closesChat && Reception.isChatOpen.value;
++    if (reopen) {
++      await Reception.closeChat();
++      await _chatClosed();
++      if (!_active) return;
++    }
++    await _present();
++    if (!_active) return;
++    if (reopen) await Reception.openChat();
++    if (!_active) return;
++    await _reload();
++  }
++
++  /// Completes once the chat has closed, or after two seconds if it stays open.
++  static Future<void> _chatClosed() {
++    final open = Reception.isChatOpen;
++    if (!open.value) return Future.value();
++    final closed = Completer<void>();
++    void listener() {
++      if (!open.value && !closed.isCompleted) closed.complete();
++    }
++
++    open.addListener(listener);
++    return closed.future
++        .timeout(const Duration(seconds: 2), onTimeout: () {})
++        .whenComplete(() => open.removeListener(listener));
++  }
++
++  static void _failed(Object error) =>
++      debugPrint('Reception paywall could not refresh or present: $error');
++}
+diff --git a/lib/reception_support.dart b/lib/reception_support.dart
+new file mode 100644
+index 0000000..0b4d07c
+--- /dev/null
++++ b/lib/reception_support.dart
+@@ -0,0 +1,99 @@
++import 'dart:async';
++
++import 'package:flutter/material.dart';
++import 'package:reception_flutter/reception_flutter.dart';
++
++import 'app_state.dart';
++import 'theme.dart';
++
++/// Keeps Reception's look, language, identity and user details in step with
++/// the app's settings and the signed-in user.
++class ReceptionSupport {
++  ReceptionSupport._(this._state);
++
++  final AppState _state;
++  ThemeMode? _themeMode;
++  String? _languageCode;
++  String? _userName;
++
++  /// Applies the current state and follows later changes.
++  static void start(AppState state) {
++    final support = ReceptionSupport._(state)
++      .._userName = state.userName
++      .._applyLook(force: true)
++      .._identify();
++    state.addListener(support._changed);
++  }
++
++  void _changed() {
++    _applyLook();
++    final name = _state.userName;
++    if (name == _userName) return;
++    final signedOut = _userName != null && name == null;
++    _userName = name;
++    unawaited(_switchUser(signedOut));
++  }
++
++  Future<void> _switchUser(bool signedOut) async {
++    // Sign-out ends the signed-in session: start a new, empty chat.
++    if (signedOut) await Reception.logout();
++    await _identify();
++  }
++
++  void _applyLook({bool force = false}) {
++    if (force || _themeMode != _state.themeMode) {
++      _themeMode = _state.themeMode;
++      Reception.appearance = _appearance(_state.themeMode);
++    }
++    if (force || _languageCode != _state.languageCode) {
++      _languageCode = _state.languageCode;
++      Reception.languageOverride = _state.languageCode;
++    }
++  }
++
++  static ReceptionAppearance _appearance(ThemeMode mode) {
++    final light = lightTheme.colorScheme;
++    final dark = darkTheme.colorScheme;
++    return ReceptionAppearance(
++      accentColor: ReceptionColor.adaptiveOf(
++        light: light.primary,
++        dark: dark.primary,
++      ),
++      onAccentColor: ReceptionColor.adaptiveOf(
++        light: light.onPrimary,
++        dark: dark.onPrimary,
++      ),
++      chatBackground: ReceptionColor.adaptiveOf(
++        light: light.surface,
++        dark: dark.surface,
++      ),
++      incomingBackground: ReceptionColor.adaptiveOf(
++        light: light.surfaceContainerHighest,
++        dark: dark.surfaceContainerHighest,
++      ),
++      incomingForeground: ReceptionColor.adaptiveOf(
++        light: light.onSurface,
++        dark: dark.onSurface,
++      ),
++      preferredColorScheme: switch (mode) {
++        ThemeMode.light => ReceptionColorScheme.light,
++        ThemeMode.dark => ReceptionColorScheme.dark,
++        ThemeMode.system => null,
++      },
++    );
++  }
++
++  /// Sends the entered name and the chosen user details: plan and sign-up date.
++  Future<void> _identify() async {
++    final name = _state.userName;
++    if (name != null) {
++      await Reception.identify(ReceptionIdentity.user(name: name));
++    }
++    final signUpDate = _state.signUpDate;
++    await Reception.setMetadata({
++      'plan': _state.plan,
++      if (signUpDate != null)
++        'sign_up_date': signUpDate.toIso8601String().split('T').first,
++    });
++  }
++}
+diff --git a/lib/widgets/support_badge.dart b/lib/widgets/support_badge.dart
+new file mode 100644
+index 0000000..f305d73
+--- /dev/null
++++ b/lib/widgets/support_badge.dart
+@@ -0,0 +1,50 @@
++import 'package:flutter/cupertino.dart';
++import 'package:flutter/foundation.dart';
++import 'package:flutter/material.dart';
++import 'package:reception_flutter/reception_flutter.dart';
++
++/// Reception's chat exists only on iOS.
++final supportsReception =
++    !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
++
++/// Rebuilds with Reception's live unread count.
++class UnreadCountBuilder extends StatelessWidget {
++  const UnreadCountBuilder({super.key, required this.builder});
++
++  final Widget Function(BuildContext context, int unread) builder;
++
++  @override
++  Widget build(BuildContext context) => ValueListenableBuilder<int>(
++    valueListenable: Reception.unreadCount,
++    builder: (context, unread, _) => builder(context, unread),
++  );
++}
++
++/// The iOS unread badge: a system red capsule with the white count.
++class UnreadCapsule extends StatelessWidget {
++  const UnreadCapsule({super.key, required this.count});
++
++  final int count;
++
++  @override
++  Widget build(BuildContext context) => Container(
++    constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
++    padding: const EdgeInsets.symmetric(horizontal: 6),
++    decoration: ShapeDecoration(
++      color: CupertinoDynamicColor.resolve(CupertinoColors.systemRed, context),
++      shape: const StadiumBorder(),
++    ),
++    child: Center(
++      widthFactor: 1,
++      heightFactor: 1,
++      child: Text(
++        '$count',
++        style: const TextStyle(
++          color: Colors.white,
++          fontSize: 13,
++          fontWeight: FontWeight.w600,
++        ),
++      ),
++    ),
++  );
++}

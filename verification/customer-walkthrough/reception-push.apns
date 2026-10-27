@@ -1,0 +1,10 @@
+{
+  "Simulator Target Bundle": "sh.reception.walkthrough",
+  "aps": {
+    "alert": { "title": "New message from support", "body": "Your reply is ready." },
+    "badge": 1,
+    "sound": "default",
+    "thread-id": "<CONVERSATION_ID>"
+  },
+  "reception": { "conversationId": "<CONVERSATION_ID>" }
+}

@@ -1,0 +1,123 @@
+Integrate Reception, a native in-app support chat, into this app ("Walkthrough").
+
+App ID: <APP_ID>
+Docs for agents: http://localhost:3123/llms.txt (every page is also Markdown at http://localhost:3123/docs/<page>.md)
+
+Work through the steps in order. Keep the app's code, style and flows; change only what the integration needs. Keep every message to the developer to a few short lines, with one question at a time. Suggested answers are fine, but the developer must always be able to answer in their own words; if a form can't take a free answer, ask in a plain message.
+
+## 1. Understand the app
+
+First select the intended app and its workspace. If several app targets could match the request, ask which one to integrate before editing. Inspect that app’s own manifest, not another app’s or the repository root’s: a package.json with react-native or expo in dependencies or devDependencies means React Native/Expo; a pubspec.yaml with flutter: in its dependencies means Flutter; otherwise use native iOS (SwiftUI or UIKit). Follow only that platform’s instructions below. Reception supports iOS 17+; Android and web calls are no-ops. Inspect the app target, startup code, navigation (tabs, settings, menus), theme (color assets, theme types, custom fonts, fixed light or dark mode), sign-in, its backend or auth provider, account deletion, notification handling, an in-app language setting, paywall code, and any existing contact or feedback path.
+
+## 2. Ask two questions, then wait
+
+Ask both in one message with your recommendations and wait for the answers. Everything else up to the design round happens without asking.
+
+a) Where should Support go? Recommend a Support entry on the home screen plus a Support row in Settings: the home screen brings the most feedback early, and it can move anytime. Describe the concrete plan (screen, which existing control it copies and from where, icon only or icon with label) and invite changes. If the app already has a contact or feedback path, point it out and ask whether Support should replace it.
+b) Which user details should the team see next to each chat? List concrete fields you found that help support, for example plan, sign-up date or counts of the app's main objects. Reception already shows app version, device, OS, language, region and push status, so skip those. If the app stores the user's name or email, say it will show next to each chat. If the app sells subscriptions, its paywall file below sends plan (product ID), status and renewal or expiry date; offer them as fields. The developer picks, names others, or says none. Never propose health data, passwords, precise location or payment details.
+
+## 3. Add the package and configure
+
+Native iOS: add https://github.com/reception-sh/reception-ios.git (from 1.5.0, up to next major), product Reception, to the app target; for XcodeGen or Tuist, edit the manifest and regenerate. Configure once at launch on the main actor in the existing App initializer (UIKit: application(_:didFinishLaunchingWithOptions:)). Follow http://localhost:3123/docs/native-ios.md for configuration, appearance, entry, accounts and push code.
+
+React Native/Expo (Expo SDK 54+, verified 54–57): run npx expo install react-native-reception. Add its config plugin to the existing app config and apply it with npx expo prebuild --platform ios for generated native projects; bare React Native needs Expo Modules. Await configure once in the existing app startup before identity or chat. Follow http://localhost:3123/docs/react-native.md for configuration, appearance, entry, accounts, push and paywalls code. Use a development build; Expo Go is unsupported.
+
+Flutter (Flutter 3.38+, Dart 3.10+): run flutter pub add reception_flutter; never add the native Reception Swift package as well. Flutter projects start below iOS 17: raise the deployment target to 17.0 at the project level (the three IPHONEOS_DEPLOYMENT_TARGET entries of the project’s Debug, Release and Profile configurations in ios/Runner.xcodeproj/project.pbxproj, plus any Runner target-level IPHONEOS_DEPLOYMENT_TARGET entries below 17.0) and, only if ios/Podfile exists and pins an older platform, to platform :ios, '17.0' there; if a Podfile post_install hook forces IPHONEOS_DEPLOYMENT_TARGET below 17.0 for all pods, raise it to 17.0 or exclude reception_flutter. Tell the developer that devices below iOS 17 then can't install the app; no other Podfile edits. Await configure once in main() after WidgetsFlutterBinding.ensureInitialized(), after Firebase.initializeApp() if the app uses Firebase and after initializing any other notification plugin, before identity or chat. Show the Support entry only on iOS (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) and keep the app's existing contact path on other platforms. List the app’s languages under CFBundleLocalizations in ios/Runner/Info.plist if missing, so the chat follows the device language. Follow http://localhost:3123/docs/flutter.md for configuration, appearance, entry, accounts, push and paywalls code.
+
+All paths need iOS 17+ and Xcode 26; apart from the Flutter step above, report an older deployment target instead of changing it. Use App ID <APP_ID> in the selected guide’s configure call. Add a comment next to it: "Reception support chat. Docs for changes: http://localhost:3123/llms.txt". Read the linked guides before implementing; if unavailable, report the blocked parts instead of guessing APIs.
+
+Add this line to AGENTS.md at the project root (create the file if there is none) and, if the project has a CLAUDE.md, to that too, so later agent sessions find the docs:
+
+```markdown
+- Reception support chat: before changing or debugging it, read http://localhost:3123/llms.txt and the page it links for the task. If the docs are unreachable, work from the Reception package source and say what you couldn't verify.
+```
+
+Right after configure, match the chat to the app:
+
+- Set the selected SDK’s appearance accentColor, onAccentColor, chatBackground, incomingBackground and incomingForeground from the app's own colors, and fontFamily from its custom font. Read them from its color assets or theme type, so light and dark mode follow the app, and set them again when the app's own theme setting changes. Never hardcode or invent colors; leave an option unset when the app has no matching color.
+- If the app is always dark or always light, or has its own light/dark setting, set preferredColorScheme from it.
+- The chat follows the app's language by itself. Only if the app has its own in-app language setting, set languageOverride from it and update it when it changes.
+- Keep the chat's own texts for now; they are localized in 48 languages, and the design round offers changes.
+
+## 4. Add the support entry
+
+Build the entry the developer chose as a copy of an existing control on that screen: the same component, size, shape, colors, font and icon style. Next to round icon buttons, add a round icon button; where buttons carry text, use icon and label; in Settings, a row like its neighbors. If that screen has no comparable control, copy the closest one elsewhere in the app. Add no new colors, shadows or shapes, and don't fall back to a plain tinted button. Use the selected guide’s openChat call and unread observation; localize its label through the app's strings; when adding keys to an existing strings file, don't reformat or reorder it. Show the live unread count on each entry and on every menu row on the way; hide badges at zero. Style them like the app's existing badges; without any, use the iOS look: a system red capsule with the white count centered, on a button's straight top edge just before its top-right corner rounds, at the top right of round icon buttons, at the trailing end of list rows and row-style cards (before a chevron, if there is one), no shadow. Badge only one tab (using the app’s tab badge API): the one with the main entry, such as the home tab. Badges on several tabs count one reply twice.
+
+## 5. Connect what the app already has
+
+Name without sign-in: if the app stores a name the user entered (onboarding, profile, settings), call identify with no user ID and that name at launch and when it changes. Look for it even when the app has no accounts. Names and emails go only through identify, never into setMetadata.
+
+Accounts, only if users sign in to the app, with or without a server (skip anonymous or guest IDs the app creates by itself):
+
+- After restoring a signed-in session and after sign-in: identify with the user ID, name and email the app knows and no value for the rest; no placeholders.
+- Wherever the app ends a signed-in session (sign-out, account switch, a session found expired at launch): call logout, before the next user's identify. Never when nobody was signed in, such as a guest at launch or before a first sign-in: it starts a new, empty chat.
+- On account deletion: await deleteData() before discarding the session; on failure keep the session, show the app's error UI and allow retry.
+- logout() and deleteData() also clear the user details and the push token: send the user details again with the next identify, and register for push again if already authorized. Flutter: the plugin re-registers the push token by itself.
+
+User details: send the fields chosen in 2b with setMetadata (string values, up to 20), and again when they change. Each call replaces all fields, so set them in one place.
+
+Push, always: use the selected platform guide’s helpers once, preserving existing delegates and avoiding duplicate Reception listeners. Register at launch, foreground and after the app’s existing permission flow, only when already authorized (including provisional or ephemeral). Never request notification permission or add a permission prompt. Forward the raw APNs device token, never an Expo push token, FCM token or OneSignal ID. Forward received notifications with openChat false and tapped notifications with openChat true, including cold starts; keep other providers, notification routing and foreground presentation working. Suppress Reception banners while chat is open. On native iOS, keep the notification-center delegate methods on the main actor and never mark them nonisolated; that crashes the app on every notification tap. Add the Push Notifications capability when signing allows. If the app owns its icon badge, set updatesAppBadge false at launch. Flutter: the plugin does all of this natively (token capture, registration at configure, foreground and after logout and deletion, receipt, taps, cold start). Add only await Reception.registerForPushIfAuthorized() after the app's own permission request, and no other Reception push code. For the capability without Xcode, create ios/Runner/Runner.entitlements with aps-environment set to development and set CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements in the Runner target's Debug, Release and Profile build settings; signing assigns development or production.
+
+Paywall cards, only if the app has a paywall. Choose by where the paywall is built, not by what processes purchases, and copy the matching file from http://localhost:3123/docs/paywalls.md unchanged apart from its placeholders (and, for ReceptionStorePaywall in React Native or Flutter, the store calls named below):
+
+- RevenueCat paywall builder: ReceptionRevenueCatPaywalls (.swift for native iOS, .ts for React Native, reception_revenuecat_paywalls.dart for Flutter), then start(), which sends plan, status and renewal or expiry date as user details. React Native and Flutter: each offering with a published paywall needs offering metadata reception: true in RevenueCat; tell the developer, since without it no card opens.
+- Superwall, also with RevenueCat for purchases: ReceptionSuperwallPaywalls (.swift, .ts or reception_superwall_paywalls.dart), then start (React Native: mount its hook) with every placement the app registers, each with a title the team recognizes; it sends plan, status and renewal or expiry date as user details.
+- Adapty’s Paywall Builder: ReceptionAdaptyPaywalls (.swift, native iOS; React Native and Flutter use ReceptionStorePaywall with Adapty’s SDK), then start(placements:) with every placement ID the app uses, which sends plan, status and renewal or expiry date as user details.
+- The app's own paywall screen, with RevenueCat or StoreKit: ReceptionStorePaywall (.swift, .ts or reception_store_paywall.dart), pointed at that screen and its product IDs, then start(), which sends plan, status and renewal or expiry date as user details. In React Native and Flutter the file reads RevenueCat customer info; if the app uses another store library (such as Adapty or in_app_purchase), replace those RevenueCat calls with that library’s entitlements, subscription dates and purchase-change listener as paywalls.md describes, and never add RevenueCat for Reception.
+
+With any of these files: if the developer chose other user details too, or declined these, disable syncsSubscriptionMetadata as the selected file shows and merge only the chosen fields from the file's subscriptionMetadata into one setMetadata call, as "Your own metadata" in paywalls.md shows.
+
+Start it (React Native Superwall: mount its hook) after Reception and the vendor are configured. With RevenueCat, complete Reception’s logout or identify before Purchases.logIn or logOut; with Adapty, before Adapty.identify or Adapty.logout. Follow the selected file’s account-switch and refresh instructions.
+
+Leave identity verification for step 8; preserve it if already implemented.
+
+## 6. Build and check
+
+Native iOS: build the app’s scheme with xcodebuild in Debug for an installed iOS simulator. React Native/Expo: use npx expo run:ios --device "<simulator name>", open its development server once and keep Metro running; the React Native guide covers a build-only fallback. Or use the existing Expo development-build workflow; bare React Native can build its iOS workspace with xcodebuild in Debug. Expo Go cannot run this check. Flutter: if xcrun simctl list devices booted shows none, boot one with xcrun simctl boot <device>; run flutter build ios --simulator --debug, then install build/ios/iphonesimulator/Runner.app with xcrun simctl install; the bundle identifier is PRODUCT_BUNDLE_IDENTIFIER of the Runner target.
+
+Use normal simulator signing on all paths (without signing, the chat can’t use the Keychain and the check fails), and fix errors and warnings you introduced. Install and launch the built app below. The same native SDK contains the setup check and both previews in Debug simulator builds; for React Native and Flutter, let the JavaScript or Dart startup finish configuring Reception before reading the result:
+
+```sh
+xcrun simctl install <device> <path to the built .app>
+xcrun simctl launch --terminate-running-process <device> <bundle identifier> -ReceptionSetupCheck <APP_ID>
+xcrun simctl spawn <device> log show --last 2m --info --style compact --predicate 'subsystem BEGINSWITH "com.reception"'
+```
+
+Repeat the log command every 10 seconds, for up to 70 seconds, until a setup check result appears after this launch. "Setup check passed" means Reception received the message "Hello from setup"; it shows in the dashboard inbox and counts as the app's first message. On "Setup check failed: <reason>", fix the cause and run it again: app_id_mismatch (a different App ID is configured), send_not_allowed (sending is blocked), not_delivered (the SDK's log lines before it name the reason), app_not_active (the app didn't reach the foreground), timeout. If you can't run a simulator or no result appears, say so; never report the check as passed.
+
+When it passes, send this before anything else, in the developer's language: "✓ Your first message arrived in Reception. You can reply to it right from the Reception setup; I'll continue meanwhile." Don't wait for the reply; it shows as the unread badge in the design round.
+
+## 7. Design round
+
+Go through three looks with the developer, one at a time. For each, launch the app on the simulator, wait a few seconds for it to load, take a screenshot (xcrun simctl io <device> screenshot <file>), show it and ask whether it fits or should look different. Apply changes, rebuild and show a new screenshot until the developer says it fits, then move on.
+
+a) The Support entry: screenshot the screen with the entry. If the developer replied, the reply shows as its badge, which proves replies reach the app. If the entry sits behind onboarding, sign-in or a paywall, ask the developer to tap through once in the simulator and tell you, then take the screenshot.
+b) The welcome screen: launch with -ReceptionPreview welcome. Mention in one sentence what can change: the icon (an own image or the founder's photo, with size and rounding), the title and text (for example a personal note from the founder), or hiding any of them.
+c) The chat: launch with -ReceptionPreview conversation, which shows example messages; "Alex" is an example teammate, and their name and initial show only while team names or photos are on. Mention in one sentence what can change: colors, font, light or dark mode and the close button. Also explain that replies can show the teammate's photo and first name: turn on Show team photos and Show team names at the dashboard under Settings → your app → Appearance, and upload the photo in the profile at http://localhost:3123/settings.
+
+```sh
+xcrun simctl launch --terminate-running-process <device> <bundle identifier> -ReceptionPreview welcome
+```
+
+The previews open the chat with local example data in Debug simulator builds; they send and save nothing. Make look changes in code with the options the installed SDK version offers (check the docs and the package source). Put new texts in the app's strings file in every language the app supports.
+
+## 8. Offer identity verification
+
+Only offer this if the app has real user sign-in and a backend that can sign tokens (including Firebase or Supabase), and verification isn't already implemented. Skip apps with only guest or anonymous IDs. Ask in the developer's language: "With identity verification, your backend confirms which signed-in account a chat belongs to, so your team can trust its user ID. This requires a backend change and a secret stored there. Would you like to set it up now or later?" Wait for the answer.
+
+If later, point to Copy setup prompt at Settings → your app → Identity Verification and continue to the wrap-up. If now, read the identity verification guide at http://localhost:3123/docs/accounts.md and follow its server instructions, including token refresh and account-switch handling; use the selected platform guide for SDK calls and identityRejected events. Keep the sign-out and account-deletion hooks from step 5. If the backend code is elsewhere, ask where it is before editing it. If you can't read the guide, leave verification pending with the dashboard link and continue to the wrap-up.
+
+Have the developer reveal the secret at Settings → your app → Identity Verification and store it on their server as RECEPTION_IDENTITY_SECRET, following Add it to your server. Never ask them to paste it into the chat or put it in the app. Leave Only verified users can chat unchanged. Build after the changes and explain any remaining secret or deployment steps. Once those are done, have the developer sign in and send a support message; verify the Verified badge on that conversation in Reception, asking them to confirm it if you can't inspect it. Report whether verification was observed, confirmed by the developer, or is still pending.
+
+## 9. Wrap up
+
+End with one short message:
+
+- A result line with only what you saw yourself: build, first message, reply in the app (only if a badge showed), design, user details, paywall cards. Mark what failed or what you couldn't check.
+- If identity verification was chosen, its result and any remaining steps, distinguishing your own checks from the developer's confirmation.
+- That they can continue in the app’s dashboard settings (Settings → your app), one line each, without instructions since the dashboard guides them: Push Notifications, so users notice replies (with the Bundle ID and Team ID from the project); Telegram, to get every message there and reply from it; Review Requests, to ask happy users for an App Store review (with the App Store ID, if the project contains it).
+- Once push is set up, they can say "test push": then make sure the app has notification permission through its own flow (ask the developer to allow it in the simulator if needed), send it to the background by launching Settings (xcrun simctl launch <device> com.apple.Preferences), have them reply from the dashboard and screenshot the notification. Report push as working only when one arrived. If the app never asks for notification permission, say that replies then only show inside the app.
+- Remaining: the App Store privacy details, offering to list what to select (http://localhost:3123/docs/privacy-and-data.md, section App Store privacy), and the commit, which is theirs.
+- That they can change anything later by telling you, and the chat's look without an app update in the dashboard under Settings → your app → Appearance.
+
+Never put secrets, tokens or customer data in a message. Keep changes focused, add only dependencies required by the selected integration, preserve existing work, and leave commits to the developer.
