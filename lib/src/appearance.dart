@@ -17,6 +17,13 @@ class AppearanceColor {
   const AppearanceColor.adaptive({required this.light, required this.dark})
     : _adaptive = true;
 
+  /// One Flutter [color] for both color schemes.
+  AppearanceColor.of(Color color) : this.hex(_hexOf(color));
+
+  /// Separate Flutter colors for light and dark mode.
+  AppearanceColor.adaptiveOf({required Color light, required Color dark})
+    : this.adaptive(light: _hexOf(light), dark: _hexOf(dark));
+
   /// Hex value used in light mode.
   final String light;
 
@@ -26,6 +33,15 @@ class AppearanceColor {
   final bool _adaptive;
 
   Object _toJson() => _adaptive ? {'light': light, 'dark': dark} : light;
+
+  /// `#RRGGBB` for opaque colors, otherwise `#RRGGBBAA`.
+  static String _hexOf(Color color) {
+    String byte(double component) =>
+        (component * 255).round().toRadixString(16).padLeft(2, '0');
+    final rgb = '#${byte(color.r)}${byte(color.g)}${byte(color.b)}';
+    final alpha = byte(color.a);
+    return alpha == 'ff' ? rgb : '$rgb$alpha';
+  }
 }
 
 /// The icon above the welcome heading in an empty chat.

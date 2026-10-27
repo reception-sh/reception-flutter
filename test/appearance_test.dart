@@ -232,4 +232,38 @@ void main() {
       },
     );
   }
+
+  test('Flutter colors serialize to opaque or translucent hex', () {
+    expect(
+      Appearance(
+        accentColor: AppearanceColor.of(const Color(0xFFFF8800)),
+      ).toJson(),
+      {'accentColor': '#ff8800'},
+    );
+    expect(
+      Appearance(
+        chatBackground: AppearanceColor.adaptiveOf(
+          light: const Color(0x80FFFFFF),
+          dark: const Color(0x00010203),
+        ),
+      ).toJson(),
+      {
+        'chatBackground': {'light': '#ffffff80', 'dark': '#01020300'},
+      },
+    );
+    final json = Appearance(
+      accentColor: AppearanceColor.of(const Color.fromARGB(255, 18, 52, 86)),
+      onAccentColor: AppearanceColor.adaptiveOf(
+        light: const Color(0xFF000000),
+        dark: const Color(0x33ABCDEF),
+      ),
+    ).toJson();
+    expect(json, {
+      'accentColor': '#123456',
+      'onAccentColor': {'light': '#000000', 'dark': '#abcdef33'},
+    });
+    expect(validateAppearance(json, {}), json);
+    expect(appearanceFromJson(json).toJson(), json);
+    expect(logs, isEmpty);
+  });
 }
