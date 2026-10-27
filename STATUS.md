@@ -42,7 +42,8 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   `paywallAvailability = { _ in false }` if one was set, new observation token), revisioned snapshots,
   `withObservationTracking` → `onState`, per-key setting revisions, events, `deleteData` typed errors
   (`bridge_error`/0 otherwise), `configureForTesting` only under `#if DEBUG` and only for localhost/127.0.0.1/::1 over
-  http(s). Sync methods use `MainActor.assumeIsolated`.
+  http(s). `deleteData` and `registerForPushIfAuthorized` are completion-based (`@asyncCallback`): they run on the
+  main actor and complete once with `.success`.
 - `PaywallRequests.swift`: races `checkPaywallAvailability(id, generation)` against a 5 s timeout, SDK cancellation
   and `cancelAll()` (reconnect, callback change); any failure is `false`.
 - `ReceptionNotifications.swift`: token cache (data + environment) applied whenever configured; after configure,
@@ -61,19 +62,19 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
 
 Verification (Flutter 3.47.8, Xcode 26.5, 2026-10-27):
 - SwiftPM (default): `cd example && flutter build ios --simulator --debug` → built. Clean `xcodebuild` of the
-  workspace: 0 Swift warnings. `Runner.app/reception_flutter_reception_flutter.bundle` contains
-  `PrivacyInfo.xcprivacy` and 48 `*.lproj/Localizable.strings` compiled from `Localizable.xcstrings`.
+  workspace: 0 compiler warnings, generated `Messages.g.swift` included. The only `warning:` line in the log is
+  Xcode's `appintentsmetadataprocessor`: "Metadata extraction skipped. No AppIntents.framework dependency found."
+  `Runner.app/reception_flutter_reception_flutter.bundle` contains `PrivacyInfo.xcprivacy` and 48 `*.lproj/Localizable.strings` compiled from `Localizable.xcstrings`.
 - CocoaPods: `flutter config --no-enable-swift-package-manager && cd example && flutter build ios --simulator --debug`
-  → built (SwiftPM re-enabled afterwards). Clean `xcodebuild`: 0 warnings in plugin sources, 4 in generated
-  `Messages.g.swift` (see open questions). `Runner.app/Frameworks/reception_flutter.framework/Reception.bundle`
+  → built (SwiftPM re-enabled afterwards). Clean `xcodebuild`: 0 compiler warnings, generated code included (same
+  AppIntents note only). `Runner.app/Frameworks/reception_flutter.framework/Reception.bundle`
   contains `PrivacyInfo.xcprivacy` and the 48 string tables; with `use_frameworks! :linkage => :static` the bundle
   is at `Runner.app/Reception.bundle`, where the SDK's `Bundle(for:)` lookup (main bundle) finds it.
-- `pod lib lint ios/reception_flutter.podspec --skip-tests --use-modular-headers` (and `--use-libraries`): Trunk's
-  `Flutter` pod (last real release 2020) lacks `FlutterSceneLifeCycleDelegate`/`addSceneDelegate`, so linting against
-  it fails to compile. With a lint-only local `Flutter` podspec vendoring the installed engine's
-  `Flutter.xcframework` (`--include-podspecs=/tmp/flutter-pod/Flutter.podspec`, not committed) both modes pass with
-  `--allow-warnings`; the 5 warnings are the `:path` source (standard for Flutter plugin podspecs) and the 4
-  generated Pigeon warnings.
+- `tool/pod_lint.sh`: Trunk's `Flutter` pod (last real release 2020) lacks `FlutterSceneLifeCycleDelegate` /
+  `addSceneDelegate`, so the script lints against a temporary lint-only `Flutter` podspec vendoring the installed
+  engine's `Flutter.xcframework`, with `--use-modular-headers` and `--use-libraries`. Both pass; the only warning is
+  the plugin podspec's `:path` source ("Missing primary key for `source` attribute"), standard for Flutter plugins,
+  which needs `--allow-warnings`; the script then prints the warnings and fails on any other.
 - `tool/test_native.sh` (needs a booted simulator, or pass a device): `swiftc -swift-version 5
   -strict-concurrency=complete -warnings-as-errors` builds `PushToken`, `NotificationRouting`, `OnceCompletion`,
   `PaywallRequests` with `tool/native_tests/LogicTests.swift` (macOS) and `ReceptionColor` with
@@ -88,10 +89,11 @@ Deviations:
   snapshot revision, accepted appearance) exactly like RN's `ReceptionBridge`, and the latest `connect()` wins
   process-wide. Push state is the process-wide `ReceptionNotifications.shared`.
 - `connect()` resets setting revisions: a hot restart reuses the native host while Dart's counters restart at zero.
-- The plugin and the notification proxy are `@MainActor` with `@preconcurrency` conformances instead of
-  `assumeIsolated` bodies: under CocoaPods (`SWIFT_STRICT_CONCURRENCY=complete`, region isolation) capturing their
-  non-Sendable UIKit arguments in `assumeIsolated` closures warned. `deleteData` awaits a main-actor helper (the SDK
-  call is async, so `MainActor.run` does not fit); `registerForPushIfAuthorized` awaits the main-actor SDK method.
+- The plugin, the notification proxy and the host API are `@MainActor` with `@preconcurrency` conformances
+  (Flutter, UIKit and Pigeon call them on the main thread) instead of
+  `MainActor.assumeIsolated` bodies: under CocoaPods (`SWIFT_STRICT_CONCURRENCY=complete`, region isolation),
+  capturing non-Sendable arguments such as UIKit objects and Pigeon completion handlers in `assumeIsolated` closures
+  warned. `version()` stays nonisolated.
 - Fetch-callback receipts call the SDK directly instead of going through `NotificationRouting`: that callback has no
   request identifier, so its key could never match a `willPresent` or tap key and would only take one of the 64 slots.
 - Routing keys: `identifier|date` (proxy and scene path), `"launch"` (legacy cold start).
@@ -102,10 +104,5 @@ Deviations:
   the checkout directory name (`reception-flutter`), so SwiftPM resolution failed.
 
 Open questions:
-- Pigeon 29 generates `Task { @MainActor in try await api.… }` for the two `@async` host methods, which warns
-  ("sending 'api'/'reply' risks causing data races") under CocoaPods strict concurrency and in `pod lib lint`
-  (SwiftPM shows none). Annotating `deleteData` and `registerForPushIfAuthorized` with `@asyncCallback` instead of
-  `@async` in `pigeons/reception.dart` generates completion-handler methods without that `Task` (wire format
-  unchanged; host signatures change). Not done: contract change.
-- `pod lib lint` cannot pass against Trunk's `Flutter` pod for any plugin using the scene lifecycle API; decide
-  whether release checks use the local-engine podspec approach above.
+- Runtime behaviour (push receipt and taps, cold start, platform view) still needs simulator verification with the
+  example app.
