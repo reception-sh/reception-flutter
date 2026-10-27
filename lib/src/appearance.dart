@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
+import 'dart:ui' show Color, ColorSpace, Offset;
 
 import 'platform.dart';
 
@@ -34,12 +34,16 @@ class AppearanceColor {
 
   Object _toJson() => _adaptive ? {'light': light, 'dark': dark} : light;
 
-  /// `#RRGGBB` for opaque colors, otherwise `#RRGGBBAA`.
+  /// `#RRGGBB` for opaque colors, otherwise `#RRGGBBAA`, in sRGB. Components
+  /// outside sRGB (Display P3, extended range) are clamped.
   static String _hexOf(Color color) {
-    String byte(double component) =>
-        (component * 255).round().toRadixString(16).padLeft(2, '0');
-    final rgb = '#${byte(color.r)}${byte(color.g)}${byte(color.b)}';
-    final alpha = byte(color.a);
+    final srgb = color.withValues(colorSpace: ColorSpace.sRGB);
+    String byte(double component) => (component.clamp(0.0, 1.0) * 255)
+        .round()
+        .toRadixString(16)
+        .padLeft(2, '0');
+    final rgb = '#${byte(srgb.r)}${byte(srgb.g)}${byte(srgb.b)}';
+    final alpha = byte(srgb.a);
     return alpha == 'ff' ? rgb : '$rgb$alpha';
   }
 }
@@ -209,7 +213,8 @@ class Appearance {
   /// Hides the welcome text.
   final bool? hidesWelcomeText;
 
-  /// Returns a copy with the given fields replaced.
+  /// Returns a copy with the given fields replaced. It cannot clear a field;
+  /// assign a new [Appearance] without it to unset a field.
   Appearance copyWith({
     AppearanceColor? accentColor,
     AppearanceColor? onAccentColor,

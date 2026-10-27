@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/painting.dart' show Color;
+import 'dart:ui' show Color, ColorSpace;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reception_flutter/reception_flutter.dart';
 import 'package:reception_flutter/src/appearance.dart'
@@ -266,5 +266,31 @@ void main() {
     expect(validateAppearance(json, {}), json);
     expect(appearanceFromJson(json).toJson(), json);
     expect(logs, isEmpty);
+  });
+
+  test('Flutter colors convert to sRGB and clamp out-of-range components', () {
+    final p3Red = Color.from(
+      alpha: 1,
+      red: 1,
+      green: 0,
+      blue: 0,
+      colorSpace: ColorSpace.displayP3,
+    );
+    final extended = Color.from(
+      alpha: 0.5,
+      red: 1.5,
+      green: -0.2,
+      blue: 0.5,
+      colorSpace: ColorSpace.extendedSRGB,
+    );
+    final json = Appearance(
+      accentColor: AppearanceColor.of(p3Red),
+      chatBackground: AppearanceColor.adaptiveOf(light: extended, dark: p3Red),
+    ).toJson();
+    expect(json, {
+      'accentColor': '#ff0000',
+      'chatBackground': {'light': '#ff008080', 'dark': '#ff0000'},
+    });
+    expect(validateAppearance(json, {}), json);
   });
 }
