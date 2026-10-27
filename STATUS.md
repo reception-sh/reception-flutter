@@ -61,9 +61,9 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   open; other actions only complete), forwards everything else through `OnceCompletion` (exactly once, 10 s
   fallback `[]`/`()`), forwards `openSettingsFor`. A later opt-out makes it pass-through and restores the previous
   delegate if it still owns the center; a replacement by someone else is logged once (info) and never re-wrapped.
-- `NotificationRouting.swift` (RN state machine, at most 64 keys, oldest evicted first; a drained legacy launch tap
-  is remembered so a first proxy delivery for the same conversation dated up to 30 s after the drain is recorded as
-  opened instead of reopening the chat), `OnceCompletion.swift`,
+- `NotificationRouting.swift` (RN state machine, at most 64 keys, oldest evicted first; after the legacy launch tap is
+  drained, a first proxy tap for its conversation whose notification was delivered before this launch is recorded as
+  opened instead of reopening the chat; anything delivered after launch routes), `OnceCompletion.swift`,
   `PushToken.swift`, `ReceptionColor.swift`, `ReceptionAppearance.swift`, `PaywallValues.swift`,
   `ReceptionChatPlatformView.swift` (hosts `UIHostingController(rootView: ReceptionChatView())` as a child of the
   nearest view controller while in a window, removes it when leaving the window). Logger subsystem
@@ -113,6 +113,11 @@ Deviations:
   the checkout directory name (`reception-flutter`), so SwiftPM resolution failed.
 
 Open questions:
+- `PaywallRequests` awaits the generated `async` `checkPaywallAvailability`; if Dart never replies (hot restart, dead
+  isolate) that inner task stays suspended with its captures, while the SDK-facing request still fails closed after
+  5 s. A completion-based call (capturing only a request id and `[weak self]`) needs `@asyncCallback` instead of
+  `@async` on `ReceptionFlutterApi.checkPaywallAvailability` in `pigeons/reception.dart` (contract change; Pigeon 29
+  generates no completion variant otherwise). Not done pending that decision.
 - Runtime behaviour (push receipt and taps, cold start, platform view) still needs simulator verification with the
   example app.
 
