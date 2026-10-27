@@ -6,6 +6,8 @@
 # warning. If that warning makes the lint fail, the lint is repeated with --allow-warnings and all warnings are
 # printed for review; any other warning or error fails the script.
 set -eu
+# CocoaPods needs a UTF-8 locale; non-interactive shells often have none.
+export LANG="${LANG:-en_US.UTF-8}"
 root=$(cd "$(dirname "$0")/.." && pwd)
 flutter_root=$(dirname "$(dirname "$(readlink -f "$(which flutter)")")")
 engine="$flutter_root/bin/cache/artifacts/engine/ios/Flutter.xcframework"
