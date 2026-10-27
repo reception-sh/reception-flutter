@@ -6,10 +6,12 @@ Implemented in `lib/` per SPEC.md "Dart public API": the static `Reception` faca
 options and events (`src/types.dart`), `Appearance` with `copyWith`, native JSON shape and validation
 (`src/appearance.dart`), snapshot mirror with per-key revisioned settings (`src/state.dart`), `ReceptionChatView`
 (`src/chat_view.dart`), iOS guard and log helpers (`src/platform.dart`) and `ReceptionError` (`src/errors.dart`).
-The host is connected lazily on the first real call (`connect()` + `ReceptionFlutterApi.setUp`); unsupported
-platforms never reach it.
+The host is connected lazily on the first real call (`connect()` + `ReceptionFlutterApi.setUp`); all host calls,
+including fire-and-forget setters, await that one shared connection, and a failed connect is retried by the next
+call. Unsupported platforms never reach the host. Paywall availability callbacks are answered within 5 s (false on
+timeout) so native never waits indefinitely.
 
-Tests: 45 in `test/` (Reception, settings, appearance, platforms, testing), ported from the RN suites. Host→Dart calls
+Tests: 49 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout), ported from the RN suites. Host→Dart calls
 go through the real binary messenger.
 
 Deviations and notes:
@@ -22,7 +24,8 @@ Deviations and notes:
 - Every `PlatformException` becomes `ReceptionError('bridge_error', 0)`: generic Swift errors carry private
   diagnostics in their Pigeon code. Typed SDK errors arrive only through `deleteData` and `IdentityRejectedEvent`, as in RN.
 - Events are a sealed `ReceptionEvent` with one final subclass per case (`ChatOpenedEvent`, …, `IdentityRejectedEvent`).
-- `AppearanceColor.of`/`adaptiveOf` convert Flutter `Color`s to `#RRGGBB` (opaque) or `#RRGGBBAA`.
+- `AppearanceColor.of`/`adaptiveOf` convert Flutter `Color`s to sRGB, clamp components to 0–1 and emit `#RRGGBB`
+  (opaque) or `#RRGGBBAA`.
 - `package:reception_flutter/testing.dart` (not exported) offers `configureReceptionForTesting` for Debug simulator
   builds against a localhost service; native enforces the guard.
 - `resetReception()` (`@visibleForTesting`, not exported) simulates a hot restart in tests.
