@@ -203,7 +203,7 @@ class ReceptionAppearance {
   /// Corner radius of welcome images in points, 0 to 80.
   final double? welcomeIconCornerRadius;
 
-  /// Welcome icon position offset in points.
+  /// Welcome icon position offset in points, each axis -1000 to 1000.
   final Offset? welcomeIconOffset;
 
   /// Hides the navigation title.
@@ -379,7 +379,8 @@ final Map<String, bool Function(Object?)> _validators = {
   'welcomeIconSize': _range(16, 160),
   'welcomeIconCornerRadius': _range(0, 80),
   'welcomeIconOffset': (value) => switch (value) {
-    {'x': final double x, 'y': final double y} => x.isFinite && y.isFinite,
+    {'x': final double x, 'y': final double y} =>
+      x.abs() <= 1000 && y.abs() <= 1000,
     _ => false,
   },
 };

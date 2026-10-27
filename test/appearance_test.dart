@@ -158,12 +158,19 @@ void main() {
     const ReceptionAppearance(welcomeIconCornerRadius: -1),
     const ReceptionAppearance(welcomeIconCornerRadius: 81),
     const ReceptionAppearance(welcomeIconOffset: Offset(double.infinity, 0)),
+    const ReceptionAppearance(welcomeIconOffset: Offset(1e20, 0)),
+    const ReceptionAppearance(welcomeIconOffset: Offset(0, -1000.5)),
   ]) {
     test('invalid field is logged and ignored: ${value.toJson()}', () {
       expect(validateAppearance(value.toJson(), {}), isEmpty);
       expect(logs, hasLength(1));
     });
   }
+
+  test('welcome icon offsets up to 1000 points per axis are valid', () {
+    const limits = ReceptionAppearance(welcomeIconOffset: Offset(1000, -1000));
+    expect(validateAppearance(limits.toJson(), {}), limits.toJson());
+  });
 
   test('range limits are inclusive', () {
     const limits = ReceptionAppearance(
