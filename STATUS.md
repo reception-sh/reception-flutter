@@ -125,35 +125,29 @@ example is still the template and that runtime behaviour is unverified.
 Example: `example/lib/main.dart` exercises the whole public API (configure at startup when
 `RECEPTION_APP_ID` is defined, `RECEPTION_AUTOSTART=false` for the Configure button), `example/integration_test/`
 drives it on a simulator, `example/ios/Runner/AppDelegate.swift` adds the example's own notification-permission
-channel (`xcrun simctl privacy` has no notifications service), and `Info.plist` declares `en`/`de` localizations.
+channel (`xcrun simctl privacy` has no notifications service), `Info.plist` declares `en`/`de` localizations, and
+`Runner/Runner.entitlements` adds the Push Notifications entitlement (`aps-environment` development).
 
-Passed: analyze, format, 45 Dart tests, SDK sync check, native tests, pod lint (with a UTF-8 locale), SwiftPM and
-CocoaPods builds and setup checks, previews, integration test, dashboard reply → unread badge → reply in chat,
-identity and metadata on the server (database read), `hidden` never offered, foreground banner with chat closed,
+Passed: analyze, format, 45 Dart tests, SDK sync check, native tests, pod lint, `flutter pub publish --dry-run`
+(0 warnings), SwiftPM and CocoaPods builds and setup checks, previews, integration test, dashboard reply → unread badge → reply in chat,
+identity and metadata in the inbox details, `hidden` never offered (also absent from the Send offer dialog), offer
+card tap (`paywallOpened`, `onPaywall('plans')` with the chat still open, click recorded), simulator APNs token
+registered (sandbox) after `registerForPushIfAuthorized`, foreground banner with chat closed,
 no banner with chat open, receipt refreshes unread, background tap and cold-start tap open the chat, German via
 device language (both package managers) and via `languageOverride`, light/dark, embedded view, deleteData
 (`dataDeleted`, server data gone), logout (empty chat), hot restart (state re-read, availability works), and a
 fresh `flutter create` app with SwiftPM and CocoaPods without Podfile edits.
 
-Not verified: dashboard paywall card and its tap (`onPaywall`, `paywallOpened`) and the dashboard's conversation
-details — the local workspace has no subscription, so the inbox redirects to billing and only the setup chat can
-reply; APNs token registration (the example has no Push capability) and real APNs delivery; a server-side
-`IdentityRejectedEvent` (a malformed token is ignored locally by the SDK with "Identity token ignored, its user_id
-could not be read"); automations; photos; release builds.
+Not verified: the review card (`reviewOpened`) — the dashboard disables it until the app has an App Store ID,
+and none was invented; real APNs delivery from the backend (pushes were simulated with `xcrun simctl push`); a
+server-side `IdentityRejectedEvent` (a malformed token is ignored locally by the SDK with "Identity token ignored,
+its user_id could not be read"); automations; photos; release builds.
 
 ### Bugs found during verification
 
-1. `pubspec.yaml` (dependencies) / `lib/src/messages.g.dart:10`: the generated file imports
-   `package:meta/meta.dart`, but `meta` is not a dependency. Expected: `flutter pub publish --dry-run` validates;
-   actual: "Package validation found the following error: … This package does not have meta in the `dependencies`
-   section of `pubspec.yaml`" (exit 65). Reproduce: `flutter pub publish --dry-run` at the repository root
-   (`verification/publish-dry-run.log`). Analysis and tests pass because Flutter provides `meta` transitively.
-   Fix: add `meta` to `dependencies` with a lower bound no higher than the version pinned by the oldest supported
-   Flutter (3.38); Flutter 3.47 itself requires `meta: ^1.18.3`.
-2. `tool/pod_lint.sh`: fails when the shell has no UTF-8 locale. Expected: both lints pass; actual: CocoaPods
-   "ERROR | [iOS] unknown: Encountered an unknown error (Unicode Normalization not appropriate for ASCII-8BIT)",
-   exit 1 (`verification/pod-lint-no-utf8.log`). Reproduce: `env -u LANG -u LC_ALL tool/pod_lint.sh`. Passes with
-   `LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8`. Fix: export a UTF-8 locale in the script.
+None open. The two found in the first round (`meta` missing from `dependencies`; `tool/pod_lint.sh` failing
+without a UTF-8 locale) were fixed in 8b37473 and re-verified: the publish dry-run reports 0 warnings and pod
+lint passes with `LANG`/`LC_ALL` unset.
 
 ### Docs discrepancies
 

@@ -24,13 +24,13 @@ a. Repository checks (reception-flutter/)
   tool/test_native.sh
     PASS; routing, push token, once-completion, paywall requests (macOS) and ReceptionColor (simulator) (test-native.log).
   tool/pod_lint.sh
-    FAIL in the default agent shell (no UTF-8 locale): CocoaPods "Unicode Normalization not appropriate for
-    ASCII-8BIT" (pod-lint-no-utf8.log). Recorded in STATUS.md.
-  LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 tool/pod_lint.sh
+    First run FAIL in a shell without a UTF-8 locale (CocoaPods "Unicode Normalization not appropriate for
+    ASCII-8BIT"). After the fix in 8b37473 (script exports a UTF-8 LANG):
+  env -u LANG -u LC_ALL -u LC_CTYPE tool/pod_lint.sh
     PASS; both lints pass with --allow-warnings; only warning: missing `source` primary key (pod-lint.log).
   flutter pub publish --dry-run
-    FAIL; package validation error: lib/src/messages.g.dart imports package:meta, which pubspec.yaml does not
-    declare (publish-dry-run.log; bug recorded in STATUS.md). Archive 201 KB after adding .pubignore: lib/, ios/
+    First run FAIL (lib/src/messages.g.dart imports package:meta, undeclared). After the fix in 8b37473
+    (meta declared): PASS, "Package has 0 warnings." (publish-dry-run.log). Archive 201 KB with .pubignore: lib/, ios/
     (plugin + vendored SDK, Localizable.xcstrings, PrivacyInfo.xcprivacy), test/, pigeons/, vendor/ios-sdk.json,
     example sources, README, CHANGELOG, LICENSE. Not included: example/build, verification/, .dart_tool,
     tool/, CLAUDE.md, PLAN.md, PUSH-DESIGN.md, SPEC.md, STATUS.md. Before .pubignore: 224 KB including those
@@ -67,7 +67,7 @@ c. Dashboard (headless Chrome, http://localhost:3123)
     PASS. Note: after login the backend redirects to AUTH_URL=http://localhost:3000 (connection refused);
     navigating to http://localhost:3123 again shows the session.
   /inbox?project=<Flutter Example>
-    BLOCKED; the workspace has no subscription, so requireOpenWorkspace redirects every inbox, users and
+    BLOCKED in the first round; the workspace had no subscription, so requireOpenWorkspace redirected every inbox, users and
     automations page to /settings/billing. Only the setup chat (/setup/<project>?step=connect) allows replying
     to the device that sent the app's first message.
   Setup chat: reply "Hello back from the dashboard" to "Hello from setup"
@@ -77,11 +77,22 @@ c. Dashboard (headless Chrome, http://localhost:3123)
   Identify and metadata, then a message from the app ("Identity check from Flutter")
     PASS by database read: Device.externalUserId flutter-verification-user, name Flutter Test Customer, email
     flutter-test@example.test, metadata {"plan":"Pro","source":"Flutter example"}, paywalls [plans] (hidden
-    filtered by availability). Dashboard conversation details: NOT VERIFIED (inbox billing-gated; the setup chat
-    shows no details, 06).
-  Paywall offer card for `plans`, tap in app, onPaywall + paywallOpened
-    NOT VERIFIED; sending cards exists only in the billing-gated inbox. availablePaywalls == [plans] and the
-    device's server-side paywall list [plans] are verified; the card tap is not.
+    filtered by availability). Dashboard conversation details: see the second round below.
+  Second round, after the coordinator activated a subscription for the organization in the local database:
+  /inbox/<conversation>?project=<Flutter Example> (new device after reinstall; identify + metadata, message
+  "Paywall check from Flutter")
+    PASS; details panel shows Flutter Test Customer, flutter-test@example.test, User ID
+    flutter-verification-user, custom fields plan Pro, source Flutter example (26).
+  Send offer dialog
+    PASS; the Paywall choice lists only "Plans"; `hidden` is not offered (27).
+  Send offer (Plans, "View offer") with the chat open in the app
+    PASS; card arrived live (28). The first XCUITest tap on it only dismissed the open keyboard (no click,
+    no event). Repeated under flutter run (paywall-run.log): tap → "event paywallOpened", then
+    "event onPaywall:plans, chat:true"; the chat stayed open (29); Message.actionClickedAt set on the server.
+    An accidental extra tap on "Delete support data" afterwards produced "event dataDeleted" in the same log.
+  Ask for review
+    NOT AVAILABLE; the button is disabled: "Add the App Store ID in the app settings first." The test app has
+    no App Store ID and none was invented, so reviewOpened was not exercised.
   Identify with an invalid token ("invalid.test.token")
     Observed: SDK logs "Identity token ignored, its user_id could not be read" locally; no IdentityRejectedEvent
     (the token never reaches the server). The server-side rejection path was not exercised.
@@ -90,8 +101,15 @@ d. Push (verification/reception-push.apns, conversation cmvquf3nu000500qfvsluhmg
   "Enable notifications" (example's own MethodChannel → UNUserNotificationCenter.requestAuthorization, then
   Reception.registerForPushIfAuthorized()); XCUITest tapped "Allow"
     PASS (07). `xcrun simctl privacy` has no notifications service, hence the example's own channel.
-    APNs token: NOT REGISTERED; the example has no aps-environment entitlement (no Push capability / team), so
-    iOS issues no token (Device.pushToken stays null). simctl push delivery does not need a token.
+    APNs token, first round: not registered; the example had no aps-environment entitlement, so iOS issued no
+    token. simctl push delivery does not need one.
+  Second round: example/ios/Runner/Runner.entitlements (aps-environment development) via CODE_SIGN_ENTITLEMENTS
+  in Debug/Release/Profile; flutter build ios --simulator --debug embeds it as a simulated entitlement.
+  xcrun simctl spawn D log config --subsystem com.reception.sdk --mode "level:debug,persist:debug"
+  (debug Logger lines are not persisted otherwise), launch, "Enable notifications"
+    PASS; "DEBUG Push token staged, 160 hex chars, sandbox" at configure and again after
+    registerForPushIfAuthorized, then "Device updated"; the server stores a push token with environment
+    SANDBOX (push-token.log). This Mac's simulator issues APNs tokens.
   (1) foreground, chat closed: xcrun simctl push D sh.reception.receptionFlutterExample verification/reception-push.apns
     PASS; banner shown (08). With a fresh dashboard reply sent just before the push, unread changed 0 → 1 within
     2 s of the push (14), i.e. receipt refreshed unread.
@@ -159,8 +177,7 @@ h. Customer-style install (/tmp/reception-customer-check)
     Restored.
 
 Not verified
-  * Paywall offer card from the dashboard, its tap, onPaywall with chat:true and paywallOpened (billing gate).
-  * Identity and metadata in the dashboard's conversation details (billing gate; verified in the database only).
-  * APNs token registration (no Push capability in the example) and real APNs delivery on a device.
-  * Server-side IdentityRejectedEvent; automations reacting to track() (none configured, page billing-gated).
+  * Review card and reviewOpened (the test app has no App Store ID, so the dashboard disables it).
+  * Real APNs delivery from the backend to a device (the simulator token is registered; delivery used simctl push).
+  * Server-side IdentityRejectedEvent; automations reacting to track() (none configured).
   * Photo sending, review cards, Release builds of the example, Android/web no-op at runtime (unit tests only).

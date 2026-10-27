@@ -12,7 +12,7 @@ Publishing reception_flutter 1.0.0 to https://pub.dev:
 ├── README.md (2 KB)
 ├── analysis_options.yaml (<1 KB)
 ├── example
-│   ├── README.md (<1 KB)
+│   ├── README.md (2 KB)
 │   ├── analysis_options.yaml (1 KB)
 │   ├── integration_test
 │   │   └── app_test.dart (5 KB)
@@ -240,12 +240,6 @@ Publishing reception_flutter 1.0.0 to https://pub.dev:
 
 Total compressed archive size: 201 KB.
 Validating package...
-Package validation found the following error:
-* line 10, column 1 of lib/src/messages.g.dart: This package does not have meta in the `dependencies` section of `pubspec.yaml`.
-     ╷
-  10 │ import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
-     │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     ╵
-Sorry, your package is missing a requirement and can't be published yet.
-For more information, see: https://dart.dev/tools/pub/cmd/pub-lish.
-Failed to update packages.
+The server may enforce additional checks.
+
+Package has 0 warnings.

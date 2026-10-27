@@ -1,0 +1,14 @@
+Timestamp               Ty Process[PID:TID]
+2026-10-27 17:12:35.762 I  Runner[507:6d870f7] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 17:13:17.573 I  Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 17:13:17.623 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 17:13:18.203 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-27 17:13:18.203 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Access token refreshed
+2026-10-27 17:13:18.470 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 17:13:18.522 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 17:13:29.750 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 17:13:30.221 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 17:13:30.276 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+Device cmvqv8rfh002500qfe8nxrncf pushToken set: false, environment -
+Device cmvqva5tq002n00qf7fsp182u pushToken set: true, environment SANDBOX
+Device cmvqvgig2002z00qft7r5dcg5 pushToken set: true, environment SANDBOX

@@ -34,8 +34,11 @@ accepts a localhost service; release builds call `Reception.configure`.
   `xcrun simctl privacy` has no notifications service), then calls
   `registerForPushIfAuthorized`. Send `../verification/reception-push.apns` with
   `xcrun simctl push <device> sh.reception.receptionFlutterExample <file>` after
-  replacing the conversation ID. The example has no Push capability, so no APNs
-  token is registered; simulated pushes work without one.
+  replacing the conversation ID. `ios/Runner/Runner.entitlements` enables push
+  (`aps-environment` development); on Apple silicon the simulator then issues an
+  APNs token, visible as "Push token staged" at `LogLevel.debug` once debug logs are
+  persisted: `xcrun simctl spawn <device> log config --subsystem com.reception.sdk
+  --mode "level:debug,persist:debug"`.
 - **Integration test:** `flutter test integration_test -d <device>
   --dart-define=RECEPTION_APP_ID=app_... --dart-define=RECEPTION_AUTOSTART=false`.
   Add `--dart-define=EXPECT_UNREAD=true` after a dashboard reply to wait for unread.

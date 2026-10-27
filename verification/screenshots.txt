@@ -8,7 +8,7 @@
 /Users/andi/Code/support/reception-flutter/verification/03-unread-badge.png — Unread 1 and the Material badge on Open chat after returning to the app.
 /Users/andi/Code/support/reception-flutter/verification/04-reply-in-chat.png — Dashboard reply inside the native chat.
 /Users/andi/Code/support/reception-flutter/verification/05-message-sent.png — Message sent from the app after identify + setMetadata.
-/Users/andi/Code/support/reception-flutter/verification/06-dashboard-setup-chat.png — Dashboard setup chat with the app's messages (inbox and details are billing-gated).
+/Users/andi/Code/support/reception-flutter/verification/06-dashboard-setup-chat.png — Dashboard setup chat with the app's messages (first round, before the subscription; inbox then billing-gated).
 /Users/andi/Code/support/reception-flutter/verification/07-notifications-granted.png — Permission granted through the example's own channel; registerForPushIfAuthorized called.
 /Users/andi/Code/support/reception-flutter/verification/08-push-foreground-banner.png — Foreground push with chat closed: banner shown.
 /Users/andi/Code/support/reception-flutter/verification/09-push-chat-open-no-banner.png — Push while the chat is open: no banner.
@@ -28,3 +28,7 @@
 /Users/andi/Code/support/reception-flutter/verification/23-cocoapods-german.png — CocoaPods build launched with -AppleLanguages (de): German SDK strings.
 /Users/andi/Code/support/reception-flutter/verification/24-swiftpm-german.png — SwiftPM build, same German launch check.
 /Users/andi/Code/support/reception-flutter/verification/25-customer-check-spm.png — Fresh customer app built with SwiftPM after raising the target to 17.0.
+/Users/andi/Code/support/reception-flutter/verification/26-dashboard-identity-details.png — Inbox details: name, email, user ID and metadata (plan, source).
+/Users/andi/Code/support/reception-flutter/verification/27-dashboard-offer-dialog.png — Send offer dialog lists only Plans; `hidden` is not offered.
+/Users/andi/Code/support/reception-flutter/verification/28-offer-card-in-chat.png — Offer card arrived live in the open chat.
+/Users/andi/Code/support/reception-flutter/verification/29-offer-tapped-chat-open.png — After tapping View offer: chat stays open (events in paywall-run.log).
