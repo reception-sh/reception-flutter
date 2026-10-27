@@ -8,11 +8,12 @@ options and events (`src/types.dart`), `Appearance` with `copyWith`, native JSON
 (`src/chat_view.dart`), iOS guard and log helpers (`src/platform.dart`) and `ReceptionError` (`src/errors.dart`).
 The host is connected lazily on the first real call (`connect()` + `ReceptionFlutterApi.setUp`); all host calls,
 including fire-and-forget setters, await that one shared connection, and a failed connect is retried by the next
-call. Unsupported platforms never reach the host. Paywall availability callbacks are answered within 5 s (false on
-timeout) so native never waits indefinitely. Setting payloads (paywall messages, appearance JSON) are built at
+call. Unsupported platforms never reach the host. Paywall availability follows the RN request/resolve model: each
+`requestPaywallAvailability` is always answered with `resolvePaywallAvailability` (false for a stale generation, a
+missing, failing or replaced callback, or after 5 s), sent through the shared connection; host errors only log. Setting payloads (paywall messages, appearance JSON) are built at
 assignment time, so mutating the caller's list before the connection resolves has no effect.
 
-Tests: 50 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout), ported from the RN suites. Host→Dart calls
+Tests: 51 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout), ported from the RN suites. Host→Dart calls
 go through the real binary messenger.
 
 Deviations and notes:
