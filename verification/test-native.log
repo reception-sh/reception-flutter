@@ -1,0 +1,5 @@
+NotificationRouting: receipts, taps, repeats and eviction at 64 keys passed
+PushToken: valid, odd length, non-hex and oversized tokens passed
+OnceCompletion: exactly once, fallback and late completion passed
+PaywallRequests: answer, concurrency, cancellation, reconnect and timeout checks passed
+ReceptionColor: hex, alpha, dynamic light/dark pairs and malformed input passed

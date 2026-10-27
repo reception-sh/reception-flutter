@@ -1,0 +1,10 @@
+{
+  "Simulator Target Bundle": "sh.reception.receptionFlutterExample",
+  "aps": {
+    "alert": { "title": "Reception Verification", "body": "Tap to open your support conversation" },
+    "badge": 1,
+    "thread-id": "cmvquf3nu000500qfvsluhmg1",
+    "sound": "default"
+  },
+  "reception": { "conversationId": "cmvquf3nu000500qfvsluhmg1" }
+}

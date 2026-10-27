@@ -1,0 +1,27 @@
+Timestamp               Ty Process[PID:TID]
+2026-10-27 16:47:47.606 I  Runner[90101:6d73a97] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 16:49:03.939 I  Runner[90275:6d745e9] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 16:50:06.077 I  Runner[90412:6d74fef] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+Timestamp               Ty Process[PID:TID]
+2026-10-27 16:43:40.676 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 16:43:40.749 Df SpringBoard[62474:6d71071] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:89545] Initial launch state: FV-Focal[100].
+2026-10-27 16:43:42.171 Df SpringBoard[62474:6d71073] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:89545] Dropping launch assertion.
+2026-10-27 16:45:27.909 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 16:47:46.785 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 16:47:46.870 Df SpringBoard[62474:6d73a82] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90101] Initial launch state: FV-Focal[100].
+2026-10-27 16:47:48.215 Df SpringBoard[62474:6d73a84] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90101] Dropping launch assertion.
+2026-10-27 16:48:13.026 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 16:48:51.650 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 16:49:03.070 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 16:49:03.145 Df SpringBoard[62474:6d74243] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90275] Initial launch state: FV-Focal[100].
+2026-10-27 16:49:04.476 Df SpringBoard[62474:6d7426f] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90275] Dropping launch assertion.
+2026-10-27 16:49:25.005 Df SpringBoard[62474:6d746c0] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Launch application in foreground for notification response action com.apple.UNNotifi
+2026-10-27 16:49:25.044 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 16:49:25.060 Df SpringBoard[62474:6d74981] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.apple.UNNotificationD
+2026-10-27 16:49:26.099 Df SpringBoard[62474:6d4c030] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Application foreground launch action for notification response action com.apple.UNNo
+2026-10-27 16:50:04.700 Df SpringBoard[62474:6d74ccb] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Launch application in foreground for notification response action com.apple.UNNotifi
+2026-10-27 16:50:04.726 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 16:50:04.809 Df SpringBoard[62474:6d74c74] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90412] Initial launch state: FV-Focal[100].
+2026-10-27 16:50:04.809 Df SpringBoard[62474:6d74fb5] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.apple.UNNotificationD
+2026-10-27 16:50:05.809 Df SpringBoard[62474:6d4c030] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Application foreground launch action for notification response action com.apple.UNNo
+2026-10-27 16:50:06.150 Df SpringBoard[62474:6d74fb2] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90412] Dropping launch assertion.

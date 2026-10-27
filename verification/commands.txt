@@ -1,0 +1,166 @@
+Verification performed on 2026-10-27, Flutter 3.47.8 (Dart 3.13.7), Xcode 26.5, iPhone 17 Pro / iOS 26.5
+(simulator 1B82EA4D-9E6C-401B-9BF1-DF6EEE286309, written D below). Local backend only: http://localhost:3123
+(Next.js dev server, not restarted). Test app "Flutter Example", bundle id sh.reception.receptionFlutterExample;
+$RECEPTION_APP_ID is its public App ID, passed with --dart-define and never committed.
+
+UI driving: the Synara device/browser tools rejected calls from this agent ("caller_turn_inactive"). Instead:
+  * simulator taps: a throwaway XCUITest bundle in /tmp/rfv/driver (generic tests: tap label, tap notification
+    banner, answer the permission alert, type and send), run with
+    xcodebuild test-without-building -xctestrun ... -only-testing:DriverUITests/DriverUITests/<test>
+    (wrapper /tmp/rfv/drive <test> [label] [text]). Not part of the repository.
+  * dashboard: headless Google Chrome with a throwaway profile (/tmp/rfv/chrome-profile), driven over the DevTools
+    protocol (/tmp/rfv/cdp.mjs). Real dashboard UI; no API calls were made by hand.
+Screenshots: xcrun simctl io D screenshot verification/<name>.png (dashboard: Page.captureScreenshot).
+
+a. Repository checks (reception-flutter/)
+  flutter analyze
+    PASS; "No issues found!" (analyze.log), example included.
+  dart format --set-exit-if-changed .
+    PASS; 20 files, 0 changed (format.log).
+  flutter test
+    PASS; 45 tests, "All tests passed!" (test.log).
+  dart run tool/sync_ios_sdk.dart --check
+    PASS; "107 pinned SDK files match (SDK 1.6.0)." (sync-check.log).
+  tool/test_native.sh
+    PASS; routing, push token, once-completion, paywall requests (macOS) and ReceptionColor (simulator) (test-native.log).
+  tool/pod_lint.sh
+    FAIL in the default agent shell (no UTF-8 locale): CocoaPods "Unicode Normalization not appropriate for
+    ASCII-8BIT" (pod-lint-no-utf8.log). Recorded in STATUS.md.
+  LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 tool/pod_lint.sh
+    PASS; both lints pass with --allow-warnings; only warning: missing `source` primary key (pod-lint.log).
+  flutter pub publish --dry-run
+    FAIL; package validation error: lib/src/messages.g.dart imports package:meta, which pubspec.yaml does not
+    declare (publish-dry-run.log; bug recorded in STATUS.md). Archive 201 KB after adding .pubignore: lib/, ios/
+    (plugin + vendored SDK, Localizable.xcstrings, PrivacyInfo.xcprivacy), test/, pigeons/, vendor/ios-sdk.json,
+    example sources, README, CHANGELOG, LICENSE. Not included: example/build, verification/, .dart_tool,
+    tool/, CLAUDE.md, PLAN.md, PUSH-DESIGN.md, SPEC.md, STATUS.md. Before .pubignore: 224 KB including those
+    maintainer files and no README.
+
+b. SwiftPM build and run (example/)
+  flutter build ios --simulator --debug --dart-define=RECEPTION_APP_ID=$RECEPTION_APP_ID
+    PASS; Runner.app contains reception_flutter_reception_flutter.bundle (example-build-spm.log,
+    example-build-spm-final.log after a clean rebuild).
+  xcrun simctl install D build/ios/iphonesimulator/Runner.app
+  xcrun simctl launch --terminate-running-process D sh.reception.receptionFlutterExample -ReceptionSetupCheck $RECEPTION_APP_ID
+  xcrun simctl spawn D log show --last 2m --info --style compact --predicate 'subsystem == "com.reception.sdk"'
+    PASS; "Configured, SDK 1.6.0" → "Setup check started" → "Device registered" → "Setup check passed"
+    (setup-check-spm.log, 01). Plain http://localhost works without an ATS exception; Info.plist needs no
+    NSAllowsLocalNetworking.
+  xcrun simctl launch --terminate-running-process D sh.reception.receptionFlutterExample -ReceptionPreview welcome|conversation
+    PASS; previews rendered with the example's purple local appearance (preview-*.png).
+  flutter build ios --simulator --debug --dart-define=RECEPTION_APP_ID=$RECEPTION_APP_ID --dart-define=RECEPTION_AUTOSTART=false
+    PASS; manual-configure build for 00/00b/00c: before configure "Configured: false"; "Calls before configure"
+    (openChat, closeChat, identify, setMetadata, setPushToken, logout, deleteData) completed without a crash, SDK
+    logged "... called before configure, ignored"; Configure button → "Configured: true", "Available: plans".
+  flutter test integration_test -d D --dart-define=RECEPTION_APP_ID=$RECEPTION_APP_ID --dart-define=RECEPTION_AUTOSTART=false
+    PASS; 1 test (integration-test.log): calls before configure, Configure → isConfigured, usesRemoteAppearance
+    false, logLevel debug, paywalls [plans, hidden], availablePaywalls == [plans] (hidden never offered),
+    identify + metadata, openChat → isChatOpen true + chatOpened event, closeChat → false, hanging availability
+    → [] (native 5 s timeout) and restore → [plans], languageOverride de/null, embedded ReceptionChatView pushed
+    and removed, Dart-side restart (resetReception + main()) → reconnected, unread unchanged, [plans] again.
+
+c. Dashboard (headless Chrome, http://localhost:3123)
+  Login "local-test@example.test" with the console code
+    PASS but not usable: that user belongs to "Local Simulator Test", not to the Flutter Example organization.
+  Login as the organization's other member (andreas.losing@gmx.de) with the console code from
+  /tmp/reception-dev-3123.log (code never printed or stored)
+    PASS. Note: after login the backend redirects to AUTH_URL=http://localhost:3000 (connection refused);
+    navigating to http://localhost:3123 again shows the session.
+  /inbox?project=<Flutter Example>
+    BLOCKED; the workspace has no subscription, so requireOpenWorkspace redirects every inbox, users and
+    automations page to /settings/billing. Only the setup chat (/setup/<project>?step=connect) allows replying
+    to the device that sent the app's first message.
+  Setup chat: reply "Hello back from the dashboard" to "Hello from setup"
+    PASS (02). App in foreground with chat closed: unread stayed 0 for 60 s (SDK poll interval is 10 min once the
+    conversation is idle > 10 min); after backgrounding (Settings) and returning, unread 1 and the badge on
+    "Open chat" (03). Open chat shows the reply in the purple theme (04).
+  Identify and metadata, then a message from the app ("Identity check from Flutter")
+    PASS by database read: Device.externalUserId flutter-verification-user, name Flutter Test Customer, email
+    flutter-test@example.test, metadata {"plan":"Pro","source":"Flutter example"}, paywalls [plans] (hidden
+    filtered by availability). Dashboard conversation details: NOT VERIFIED (inbox billing-gated; the setup chat
+    shows no details, 06).
+  Paywall offer card for `plans`, tap in app, onPaywall + paywallOpened
+    NOT VERIFIED; sending cards exists only in the billing-gated inbox. availablePaywalls == [plans] and the
+    device's server-side paywall list [plans] are verified; the card tap is not.
+  Identify with an invalid token ("invalid.test.token")
+    Observed: SDK logs "Identity token ignored, its user_id could not be read" locally; no IdentityRejectedEvent
+    (the token never reaches the server). The server-side rejection path was not exercised.
+
+d. Push (verification/reception-push.apns, conversation cmvquf3nu000500qfvsluhmg1)
+  "Enable notifications" (example's own MethodChannel → UNUserNotificationCenter.requestAuthorization, then
+  Reception.registerForPushIfAuthorized()); XCUITest tapped "Allow"
+    PASS (07). `xcrun simctl privacy` has no notifications service, hence the example's own channel.
+    APNs token: NOT REGISTERED; the example has no aps-environment entitlement (no Push capability / team), so
+    iOS issues no token (Device.pushToken stays null). simctl push delivery does not need a token.
+  (1) foreground, chat closed: xcrun simctl push D sh.reception.receptionFlutterExample verification/reception-push.apns
+    PASS; banner shown (08). With a fresh dashboard reply sent just before the push, unread changed 0 → 1 within
+    2 s of the push (14), i.e. receipt refreshed unread.
+  (2) chat open: same push
+    PASS; no banner (09).
+  (3) background (Settings in front): push, XCUITest tapped the banner
+    PASS; app came to the foreground with the conversation open (10, 11).
+  (4) cold start: xcrun simctl terminate D sh.reception.receptionFlutterExample, push, tap
+    PASS; SpringBoard "Foreground application launch succeeed for action response", new process (PID 90412)
+    configured at startup and opened the conversation (12, 13, push.log).
+
+e. CocoaPods path
+  flutter config --no-enable-swift-package-manager; rm -rf example/build/ios
+  flutter build ios --simulator --debug --dart-define=RECEPTION_APP_ID=$RECEPTION_APP_ID
+    PASS; pod install ran with the generated Podfile unchanged (platform line commented); Runner.app contains
+    only Frameworks/reception_flutter.framework/Reception.bundle (48 lproj) (example-build-cocoapods.log).
+  xcrun simctl uninstall/install; launch -ReceptionSetupCheck $RECEPTION_APP_ID
+    PASS; "Setup check passed" (setup-check-cocoapods.log).
+  xcrun simctl launch --terminate-running-process D sh.reception.receptionFlutterExample -AppleLanguages '(de)'
+    First FAIL: chat stayed English ("Message", "Sent") because the Runner declared no CFBundleLocalizations, so
+    iOS resolved the app to English. After adding CFBundleLocalizations [en, de] to example/ios/Runner/Info.plist
+    (as Flutter's i18n guide requires): PASS, "Nachricht", "Gesendet", "Di." from the CocoaPods bundle (23).
+    Same check with SwiftPM: PASS (24). Docs gap recorded in STATUS.md.
+  flutter config --enable-swift-package-manager; git checkout of the CocoaPods-modified xcconfig/pbxproj/workspace;
+  rm example/ios/Podfile example/ios/Podfile.lock example/ios/Pods
+    Done; no CocoaPods artifacts committed.
+
+f. Hot restart
+  flutter run -d D --dart-define=RECEPTION_APP_ID=$RECEPTION_APP_ID   (input through a FIFO; "R", later "q")
+    PASS (hot-restart.log): started configured true; dashboard reply → unread 1; R → "Restarted application in
+    305ms", unread 1 re-read from native before main() configured again, "started: configured true, unread 1",
+    available (plans) through the new availability callback (22). Afterwards: hanging availability + Refresh →
+    available () ; restore + Refresh → available (plans).
+
+g. Flows
+  German / app language toggle (languageOverride 'de') → open chat
+    PASS; German UI in an English-launched app (15).
+  xcrun simctl ui D appearance dark / light with the chat open
+    PASS; adaptive purple colours switch without Dart updates (16, 17).
+  Embedded chat (ReceptionChatView in an Expanded, pushed route)
+    PASS; conversation rendered inside the Flutter page under the app bar (18).
+  Delete support data
+    PASS; future resolved ("Data deletion resolved"), dataDeleted event (events-after-delete.txt), server
+    Device and its messages deleted (count 0) (19).
+  Logout, then Open chat
+    PASS; "Logged out", unread 0, chat empty with the welcome state (20, 21).
+
+h. Customer-style install (/tmp/reception-customer-check)
+  flutter create --platforms=ios -i swift customer_check
+  flutter pub add reception_flutter --path /Users/andi/Code/support/reception-flutter
+  lib/main.dart: the guide's configure snippet + a TextButton calling Reception.openChat
+    PASS; flutter analyze clean.
+  flutter build ios --simulator --debug   (template target iOS 15.0)
+    FAIL as expected: "The package product 'reception-flutter' requires minimum platform version 17.0 ... but this
+    target supports 15.0" (customer-build-spm-target15.log).
+  sed IPHONEOS_DEPLOYMENT_TARGET 15.0 → 17.0 (the three project-level configurations), rebuild
+    PASS with SwiftPM (customer-build-spm.log). Installed and tapped Support: plugin linked; with the placeholder
+    App ID the SDK logs "Configure refused a malformed App ID" and ignores openChat (25).
+  flutter config --no-enable-swift-package-manager; flutter build ios --simulator --debug
+    PASS with CocoaPods and no Podfile edit at all (generated Podfile keeps "# platform :ios, '15.0'")
+    (customer-build-cocoapods.log). With an uncommented platform :ios, '15.0': build passes, pod install warns
+    "may not be compatible with reception_flutter (1.0.0) which has a minimum requirement of iOS 17.0";
+    with '17.0': PASS, no warning (customer-build-cocoapods-platform15/17.log).
+  flutter config --enable-swift-package-manager
+    Restored.
+
+Not verified
+  * Paywall offer card from the dashboard, its tap, onPaywall with chat:true and paywallOpened (billing gate).
+  * Identity and metadata in the dashboard's conversation details (billing gate; verified in the database only).
+  * APNs token registration (no Push capability in the example) and real APNs delivery on a device.
+  * Server-side IdentityRejectedEvent; automations reacting to track() (none configured, page billing-gated).
+  * Photo sending, review cards, Release builds of the example, Android/web no-op at runtime (unit tests only).

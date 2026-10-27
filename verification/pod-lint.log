@@ -1,0 +1,6 @@
+== pod lib lint --use-modular-headers
+passed with --allow-warnings; warnings:
+    - WARN  | [iOS] keys: Missing primary key for `source` attribute. The acceptable ones are: `git, hg, http, svn`.
+== pod lib lint --use-libraries
+passed with --allow-warnings; warnings:
+    - WARN  | [iOS] keys: Missing primary key for `source` attribute. The acceptable ones are: `git, hg, http, svn`.

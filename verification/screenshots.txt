@@ -1,0 +1,30 @@
+/Users/andi/Code/support/reception-flutter/verification/00-before-configure.png — Manual-configure build at launch: Configured false, nothing available.
+/Users/andi/Code/support/reception-flutter/verification/00b-calls-before-configure.png — API calls before configure completed without a crash.
+/Users/andi/Code/support/reception-flutter/verification/00c-configured-by-button.png — Configure button: Configured true, Available: plans.
+/Users/andi/Code/support/reception-flutter/verification/01-setup-check-spm.png — SwiftPM build configured at startup after the setup check; only `plans` available.
+/Users/andi/Code/support/reception-flutter/verification/preview-welcome.png — -ReceptionPreview welcome.
+/Users/andi/Code/support/reception-flutter/verification/preview-conversation.png — -ReceptionPreview conversation with the purple local appearance.
+/Users/andi/Code/support/reception-flutter/verification/02-dashboard-reply.png — Dashboard setup chat: "Hello back from the dashboard" sent to "Hello from setup".
+/Users/andi/Code/support/reception-flutter/verification/03-unread-badge.png — Unread 1 and the Material badge on Open chat after returning to the app.
+/Users/andi/Code/support/reception-flutter/verification/04-reply-in-chat.png — Dashboard reply inside the native chat.
+/Users/andi/Code/support/reception-flutter/verification/05-message-sent.png — Message sent from the app after identify + setMetadata.
+/Users/andi/Code/support/reception-flutter/verification/06-dashboard-setup-chat.png — Dashboard setup chat with the app's messages (inbox and details are billing-gated).
+/Users/andi/Code/support/reception-flutter/verification/07-notifications-granted.png — Permission granted through the example's own channel; registerForPushIfAuthorized called.
+/Users/andi/Code/support/reception-flutter/verification/08-push-foreground-banner.png — Foreground push with chat closed: banner shown.
+/Users/andi/Code/support/reception-flutter/verification/09-push-chat-open-no-banner.png — Push while the chat is open: no banner.
+/Users/andi/Code/support/reception-flutter/verification/10-push-background-banner.png — Push while the app is in the background (Settings in front).
+/Users/andi/Code/support/reception-flutter/verification/11-push-background-tap-opened-chat.png — Tapping the background notification opened the conversation.
+/Users/andi/Code/support/reception-flutter/verification/12-push-cold-banner.png — Push with the app terminated.
+/Users/andi/Code/support/reception-flutter/verification/13-push-cold-start-opened-chat.png — Cold start from the notification tap opened the conversation.
+/Users/andi/Code/support/reception-flutter/verification/14-push-receipt-unread.png — Reply + push in the foreground: banner and unread 1 within 2 s.
+/Users/andi/Code/support/reception-flutter/verification/15-language-override-german.png — languageOverride 'de' applied to an English-launched app.
+/Users/andi/Code/support/reception-flutter/verification/16-dark-appearance-chat.png — Dark appearance: adaptive purple colours.
+/Users/andi/Code/support/reception-flutter/verification/17-light-appearance-chat.png — Light appearance again.
+/Users/andi/Code/support/reception-flutter/verification/18-embedded-chat.png — ReceptionChatView embedded in a Flutter page (Expanded).
+/Users/andi/Code/support/reception-flutter/verification/19-delete-resolved.png — deleteData resolved.
+/Users/andi/Code/support/reception-flutter/verification/20-logout-resolved.png — logout resolved, unread 0.
+/Users/andi/Code/support/reception-flutter/verification/21-logout-empty-chat.png — Chat empty (welcome state) after deleteData and logout.
+/Users/andi/Code/support/reception-flutter/verification/22-after-hot-restart.png — Right after hot restart: Unread 1 and badge kept, Configured true, Available: plans.
+/Users/andi/Code/support/reception-flutter/verification/23-cocoapods-german.png — CocoaPods build launched with -AppleLanguages (de): German SDK strings.
+/Users/andi/Code/support/reception-flutter/verification/24-swiftpm-german.png — SwiftPM build, same German launch check.
+/Users/andi/Code/support/reception-flutter/verification/25-customer-check-spm.png — Fresh customer app built with SwiftPM after raising the target to 17.0.
