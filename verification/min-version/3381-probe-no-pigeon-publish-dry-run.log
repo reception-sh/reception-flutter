@@ -1,0 +1,251 @@
+$ (cwd /tmp/minver/reception-flutter) flutter pub publish --dry-run
+Resolving dependencies...
+Downloading packages...
+  characters 1.4.0 (1.4.1 available)
+  clock 1.1.2 (1.1.3 available)
+  matcher 0.12.17 (0.12.20 available)
+  material_color_utilities 0.11.1 (0.13.1 available)
+  meta 1.17.0 (1.19.0 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.7 (0.7.15 available)
+  vector_math 2.2.0 (2.4.4 available)
+Got dependencies!
+8 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Publishing reception_flutter 1.0.0 to https://pub.dev:
+├── CHANGELOG.md (<1 KB)
+├── LICENSE (1 KB)
+├── README.md (2 KB)
+├── analysis_options.yaml (<1 KB)
+├── example
+│   ├── README.md (2 KB)
+│   ├── analysis_options.yaml (1 KB)
+│   ├── integration_test
+│   │   └── app_test.dart (5 KB)
+│   ├── ios
+│   │   ├── Flutter
+│   │   │   ├── AppFrameworkInfo.plist (<1 KB)
+│   │   │   ├── Debug.xcconfig (<1 KB)
+│   │   │   └── Release.xcconfig (<1 KB)
+│   │   ├── Runner
+│   │   │   ├── AppDelegate.swift (1 KB)
+│   │   │   ├── Assets.xcassets
+│   │   │   │   ├── AppIcon.appiconset
+│   │   │   │   │   ├── Contents.json (2 KB)
+│   │   │   │   │   ├── Icon-App-1024x1024@1x.png (10 KB)
+│   │   │   │   │   ├── Icon-App-20x20@1x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-20x20@2x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-20x20@3x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-29x29@1x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-29x29@2x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-29x29@3x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-40x40@1x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-40x40@2x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-40x40@3x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-60x60@2x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-60x60@3x.png (1 KB)
+│   │   │   │   │   ├── Icon-App-76x76@1x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-76x76@2x.png (1 KB)
+│   │   │   │   │   └── Icon-App-83.5x83.5@2x.png (1 KB)
+│   │   │   │   └── LaunchImage.imageset
+│   │   │   │       ├── Contents.json (<1 KB)
+│   │   │   │       ├── LaunchImage.png (<1 KB)
+│   │   │   │       ├── LaunchImage@2x.png (<1 KB)
+│   │   │   │       ├── LaunchImage@3x.png (<1 KB)
+│   │   │   │       └── README.md (<1 KB)
+│   │   │   ├── Base.lproj
+│   │   │   │   ├── LaunchScreen.storyboard (2 KB)
+│   │   │   │   └── Main.storyboard (1 KB)
+│   │   │   ├── Info.plist (2 KB)
+│   │   │   ├── Runner-Bridging-Header.h (<1 KB)
+│   │   │   ├── Runner.entitlements (<1 KB)
+│   │   │   └── SceneDelegate.swift (<1 KB)
+│   │   ├── Runner.xcodeproj
+│   │   │   ├── project.pbxproj (25 KB)
+│   │   │   ├── project.xcworkspace
+│   │   │   │   ├── contents.xcworkspacedata (<1 KB)
+│   │   │   │   └── xcshareddata
+│   │   │   │       ├── IDEWorkspaceChecks.plist (<1 KB)
+│   │   │   │       └── WorkspaceSettings.xcsettings (<1 KB)
+│   │   │   └── xcshareddata
+│   │   │       └── xcschemes
+│   │   │           └── Runner.xcscheme (4 KB)
+│   │   ├── Runner.xcworkspace
+│   │   │   ├── contents.xcworkspacedata (<1 KB)
+│   │   │   └── xcshareddata
+│   │   │       ├── IDEWorkspaceChecks.plist (<1 KB)
+│   │   │       └── WorkspaceSettings.xcsettings (<1 KB)
+│   │   └── RunnerTests
+│   │       └── RunnerTests.swift (<1 KB)
+│   ├── lib
+│   │   └── main.dart (11 KB)
+│   └── pubspec.yaml (<1 KB)
+├── ios
+│   ├── reception_flutter
+│   │   ├── Package.swift (<1 KB)
+│   │   └── Sources
+│   │       └── reception_flutter
+│   │           ├── Messages.g.swift (43 KB)
+│   │           ├── NotificationRouting.swift (2 KB)
+│   │           ├── OnceCompletion.swift (1 KB)
+│   │           ├── PaywallRequests.swift (1 KB)
+│   │           ├── PaywallValues.swift (<1 KB)
+│   │           ├── PushToken.swift (<1 KB)
+│   │           ├── ReceptionAppearance.swift (4 KB)
+│   │           ├── ReceptionChatPlatformView.swift (1 KB)
+│   │           ├── ReceptionColor.swift (<1 KB)
+│   │           ├── ReceptionFlutterPlugin.swift (2 KB)
+│   │           ├── ReceptionHost.swift (10 KB)
+│   │           ├── ReceptionNotifications.swift (8 KB)
+│   │           └── Vendor
+│   │               └── Reception
+│   │                   ├── LICENSE (1 KB)
+│   │                   └── Sources
+│   │                       └── Reception
+│   │                           ├── Appearance.swift (4 KB)
+│   │                           ├── Client
+│   │                           │   ├── ActionClickDelivery.swift (2 KB)
+│   │                           │   ├── AppBadge.swift (1 KB)
+│   │                           │   ├── AppearanceRequest.swift (2 KB)
+│   │                           │   ├── ApplicationLifecycle.swift (1 KB)
+│   │                           │   ├── AttachmentImageLoader.swift (4 KB)
+│   │                           │   ├── AttachmentImages.swift (<1 KB)
+│   │                           │   ├── Automations.swift (9 KB)
+│   │                           │   ├── Backoff.swift (2 KB)
+│   │                           │   ├── ChatCache.swift (6 KB)
+│   │                           │   ├── ChatPreview.swift (2 KB)
+│   │                           │   ├── DeviceInfo.swift (2 KB)
+│   │                           │   ├── DeviceInputValidation.swift (1 KB)
+│   │                           │   ├── DeviceSession.swift (9 KB)
+│   │                           │   ├── DeviceStore.swift (7 KB)
+│   │                           │   ├── IdentityToken.swift (2 KB)
+│   │                           │   ├── ImageUploader.swift (4 KB)
+│   │                           │   ├── KeychainStore.swift (2 KB)
+│   │                           │   ├── LogoutRevocations.swift (4 KB)
+│   │                           │   ├── PaidAccess.swift (2 KB)
+│   │                           │   ├── PushEnvironment.swift (1 KB)
+│   │                           │   ├── ReceptionAPI.swift (9 KB)
+│   │                           │   ├── ReceptionAPIError.swift (4 KB)
+│   │                           │   ├── RetryScope.swift (1 KB)
+│   │                           │   ├── ServerCooldowns.swift (5 KB)
+│   │                           │   ├── SessionAuthorization.swift (6 KB)
+│   │                           │   ├── SessionCooldowns.swift (1 KB)
+│   │                           │   ├── SessionCredentials.swift (<1 KB)
+│   │                           │   ├── SessionIdentity.swift (1 KB)
+│   │                           │   ├── SessionRequests.swift (1 KB)
+│   │                           │   ├── SetupCheck.swift (2 KB)
+│   │                           │   ├── StoreSubscriptions.swift (3 KB)
+│   │                           │   ├── TeamProfileCache.swift (3 KB)
+│   │                           │   ├── TeamProfiles.swift (3 KB)
+│   │                           │   ├── UnreadMonitor.swift (3 KB)
+│   │                           │   ├── UnreadSchedule.swift (<1 KB)
+│   │                           │   ├── UploadProgress.swift (<1 KB)
+│   │                           │   └── UserIdentity.swift (<1 KB)
+│   │                           ├── CloseIcon.swift (<1 KB)
+│   │                           ├── Configuration
+│   │                           │   ├── AdaptiveAppearanceColor.swift (<1 KB)
+│   │                           │   ├── AppearanceCache.swift (<1 KB)
+│   │                           │   ├── AppearanceConfiguration.swift (3 KB)
+│   │                           │   ├── AppearanceIcon.swift (1 KB)
+│   │                           │   ├── HostAppearanceReport.swift (4 KB)
+│   │                           │   └── RemoteAppearance.swift (6 KB)
+│   │                           ├── Localization.swift (3 KB)
+│   │                           ├── Log.swift (2 KB)
+│   │                           ├── Models
+│   │                           │   ├── Attachment.swift (<1 KB)
+│   │                           │   ├── Conversation.swift (1 KB)
+│   │                           │   ├── Message.swift (2 KB)
+│   │                           │   └── MessageStatus.swift (<1 KB)
+│   │                           ├── Reception.swift (19 KB)
+│   │                           ├── ReceptionAutomations.swift (1 KB)
+│   │                           ├── ReceptionError.swift (<1 KB)
+│   │                           ├── ReceptionIdentity.swift (4 KB)
+│   │                           ├── ReceptionPaywall.swift (5 KB)
+│   │                           ├── ReceptionPush.swift (2 KB)
+│   │                           ├── ReceptionResources.swift (<1 KB)
+│   │                           ├── Resources
+│   │                           │   ├── Localizable.xcstrings (284 KB)
+│   │                           │   └── PrivacyInfo.xcprivacy (4 KB)
+│   │                           ├── Theme+Fonts.swift (1 KB)
+│   │                           ├── Theme.swift (7 KB)
+│   │                           ├── Version.swift (<1 KB)
+│   │                           ├── ViewModel
+│   │                           │   ├── ChatConnection.swift (7 KB)
+│   │                           │   ├── ChatCooldowns.swift (5 KB)
+│   │                           │   ├── ChatDelivery.swift (8 KB)
+│   │                           │   ├── ChatLimitRelease.swift (1 KB)
+│   │                           │   ├── ChatLoading.swift (3 KB)
+│   │                           │   ├── ChatModel.swift (11 KB)
+│   │                           │   ├── ChatPending.swift (<1 KB)
+│   │                           │   ├── ChatRead.swift (3 KB)
+│   │                           │   ├── ChatRecovery.swift (1 KB)
+│   │                           │   ├── ChatSendingPermission.swift (1 KB)
+│   │                           │   ├── ChatStream.swift (4 KB)
+│   │                           │   ├── ChatTyping.swift (1 KB)
+│   │                           │   ├── ComposerModel.swift (2 KB)
+│   │                           │   ├── CooldownText.swift (1 KB)
+│   │                           │   └── MessageLayout.swift (2 KB)
+│   │                           ├── Views
+│   │                           │   ├── ActionCard.swift (2 KB)
+│   │                           │   ├── BubbleShape.swift (<1 KB)
+│   │                           │   ├── ChatContent.swift (2 KB)
+│   │                           │   ├── ChatHistory.swift (7 KB)
+│   │                           │   ├── ChatPresenter.swift (6 KB)
+│   │                           │   ├── ChatTitle.swift (<1 KB)
+│   │                           │   ├── Composer.swift (7 KB)
+│   │                           │   ├── ComposerDimensions.swift (2 KB)
+│   │                           │   ├── ComposerSurface.swift (1 KB)
+│   │                           │   ├── ConnectionBanner.swift (1 KB)
+│   │                           │   ├── ConnectionDots.swift (<1 KB)
+│   │                           │   ├── CooldownNotice.swift (<1 KB)
+│   │                           │   ├── DismissButton.swift (1 KB)
+│   │                           │   ├── EmptyState.swift (1 KB)
+│   │                           │   ├── ImageLightbox.swift (1 KB)
+│   │                           │   ├── LinkedText.swift (1 KB)
+│   │                           │   ├── MessageBubble.swift (6 KB)
+│   │                           │   ├── MessageImage.swift (1 KB)
+│   │                           │   ├── MessageRow.swift (2 KB)
+│   │                           │   ├── PaywallCard.swift (<1 KB)
+│   │                           │   ├── ReceptionChatView.swift (1 KB)
+│   │                           │   ├── RemoteAttachmentImage.swift (1 KB)
+│   │                           │   ├── ReviewCard.swift (<1 KB)
+│   │                           │   ├── SendingDisabledNotice.swift (<1 KB)
+│   │                           │   ├── SendingStatus.swift (1 KB)
+│   │                           │   ├── TeamAvatar.swift (<1 KB)
+│   │                           │   └── TypingIndicator.swift (1 KB)
+│   │                           └── WelcomeIcon.swift (<1 KB)
+│   └── reception_flutter.podspec (1 KB)
+├── lib
+│   ├── reception_flutter.dart (1 KB)
+│   ├── src
+│   │   ├── appearance.dart (13 KB)
+│   │   ├── chat_view.dart (<1 KB)
+│   │   ├── errors.dart (1 KB)
+│   │   ├── messages.g.dart (37 KB)
+│   │   ├── platform.dart (<1 KB)
+│   │   ├── reception.dart (13 KB)
+│   │   ├── sdk_version.dart (<1 KB)
+│   │   ├── state.dart (3 KB)
+│   │   └── types.dart (6 KB)
+│   └── testing.dart (<1 KB)
+├── pigeons
+│   └── reception.dart (4 KB)
+├── pubspec.yaml (<1 KB)
+├── test
+│   ├── appearance_test.dart (9 KB)
+│   ├── availability_timeout_test.dart (<1 KB)
+│   ├── exports_test.dart (2 KB)
+│   ├── fake_host.dart (4 KB)
+│   ├── platforms_test.dart (4 KB)
+│   ├── reception_test.dart (15 KB)
+│   ├── settings_test.dart (6 KB)
+│   └── testing_test.dart (1 KB)
+└── vendor
+    └── ios-sdk.json (12 KB)
+
+Total compressed archive size: 205 KB.
+Validating package...
+The server may enforce additional checks.
+
+Package has 0 warnings.
+exit=0

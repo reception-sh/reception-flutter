@@ -1,0 +1,22 @@
+$ (cwd /tmp/minver/reception-flutter/example) flutter build ios --simulator --debug
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+2 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Building sh.reception.receptionFlutterExample for simulator (ios)...
+Adding Swift Package Manager integration...                        772ms
+Plugin reception_flutter has a Package.swift for ios but is missing a dependency on FlutterFramework. Add the following to your Package.swift dependencies:
+    .package(name: "FlutterFramework", path: "../FlutterFramework")
+And add FlutterFramework as a target dependency:
+    .product(name: "FlutterFramework", package: "FlutterFramework")
+See https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-plugin-authors for more information.
+Warning: Missing build name (CFBundleShortVersionString).
+Warning: Missing build number (CFBundleVersion).
+Action Required: You must set a build name and number in the pubspec.yaml file version field before submitting to the App Store.
+Running Xcode build...                                          
+Xcode build done.                                           29.3s
+✓ Built build/ios/iphonesimulator/Runner.app
+exit=0

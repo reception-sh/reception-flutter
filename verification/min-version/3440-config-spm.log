@@ -1,0 +1,5 @@
+$ (cwd /tmp/minver/r344/reception-flutter) flutter config --enable-swift-package-manager
+Setting "enable-swift-package-manager" value to "true".
+
+You may need to restart any open editors for them to read new settings.
+exit=0

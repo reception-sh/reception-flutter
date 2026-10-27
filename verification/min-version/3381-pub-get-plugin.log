@@ -1,0 +1,11 @@
+$ (cwd /tmp/minver/reception-flutter) flutter pub get
+Resolving dependencies...
+The current Dart SDK version is 3.10.0.
+
+Because reception_flutter depends on pigeon >=27.3.1 which requires SDK version >=3.11.0 <4.0.0, version solving failed.
+
+
+You can try the following suggestion to make the pubspec resolve:
+* Consider downgrading your constraint on pigeon: flutter pub add dev:pigeon:^27.3.0
+Failed to update packages.
+exit=1

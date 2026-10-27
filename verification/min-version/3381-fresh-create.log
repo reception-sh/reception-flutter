@@ -1,0 +1,18 @@
+Creating project fresh338...
+Resolving dependencies in `fresh338`...
+Downloading packages...
+Got dependencies in `fresh338`.
+Wrote 51 files.
+
+All done!
+You can find general documentation for Flutter at: https://docs.flutter.dev/
+Detailed API documentation is available at: https://api.flutter.dev/
+If you prefer video documentation, consider: https://www.youtube.com/c/flutterdev
+
+In order to run your application, type:
+
+  $ cd fresh338
+  $ flutter run
+
+Your application code is in fresh338/lib/main.dart.
+

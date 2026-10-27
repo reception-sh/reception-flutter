@@ -1,0 +1,10 @@
+$ (cwd /tmp/minver/reception-flutter/example) flutter build ios --simulator --debug
+Building sh.reception.receptionFlutterExample for simulator (ios)...
+Warning: Missing build name (CFBundleShortVersionString).
+Warning: Missing build number (CFBundleVersion).
+Action Required: You must set a build name and number in the pubspec.yaml file version field before submitting to the App Store.
+Running pod install...                                             686ms
+Running Xcode build...                                          
+Xcode build done.                                           30.6s
+✓ Built build/ios/iphonesimulator/Runner.app
+exit=0

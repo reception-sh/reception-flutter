@@ -1,0 +1,4 @@
+$ (cwd /tmp/minver/r344/reception-flutter) flutter analyze
+Analyzing reception-flutter...                                  
+No issues found! (ran in 8.3s)
+exit=0

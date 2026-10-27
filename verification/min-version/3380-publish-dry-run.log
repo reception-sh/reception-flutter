@@ -1,0 +1,7 @@
+$ (cwd /tmp/minver/reception-flutter) flutter pub publish --dry-run
+Resolving dependencies...
+The current Dart SDK version is 3.10.0-290.4.beta.
+
+Because reception_flutter requires SDK version ^3.10.0, version solving failed.
+Failed to update packages.
+exit=1

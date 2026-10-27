@@ -1,0 +1,8 @@
+$ (cwd /tmp/minver/reception-flutter/example) flutter build ios --simulator --debug
+Unable to get Xcode project information:
+ 2026-10-27 20:55:34.002 xcodebuild[67289:115341422] Writing error result bundle to /var/folders/5n/f10879md74d8gvnd1pc171r00000gn/T/ResultBundle_2026-27-10_20-55-0033.xcresult
+xcodebuild: error: Could not resolve package dependencies:
+  the package at '/tmp/minver/reception-flutter/example/ios/Flutter/ephemeral/Packages/.packages/FlutterFramework' cannot be accessed (/tmp/minver/reception-flutter/example/ios/Flutter/ephemeral/Packages/.packages/FlutterFramework doesn't exist in file system)
+
+
+exit=1

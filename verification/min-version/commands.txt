@@ -1,0 +1,60 @@
+Minimum version and pub score verification, 2026-10-27 20:29-21:10 CET, Xcode 26.5, macOS 26 (arm64).
+Package content verified: main at 13ca309 (identical package files at 4f18624, which only adds docs/verification).
+
+SDKs
+- Flutter 3.38.0 / 3.38.1: git clone -b 3.38.0 --depth 1 https://github.com/flutter/flutter.git /tmp/flutter-3.38,
+  local branch "stable" with branch.stable.remote/merge set so the tool reports channel stable (feature flags follow
+  the channel), then `git fetch --depth 1 origin tag 3.38.1 && git checkout -B stable 3.38.1`; `flutter precache --ios`
+  after each switch (3380-sdk-setup.log, 3381-sdk.log). /tmp/flutter-3.38 is left at 3.38.1.
+- Flutter 3.44.0: same procedure in /tmp/flutter-3.44 (3440-sdk-setup.log).
+- Stable: /opt/homebrew/bin/flutter = Flutter 3.47.8, Dart 3.13.7.
+- The Flutter config file is per user (~/.config/flutter/settings), shared by all SDKs. Every 3.38/3.44 command ran
+  with XDG_CONFIG_HOME=/tmp/flutter-3.38-xdg or /tmp/flutter-3.44-xdg, so `flutter config --[no-]enable-swift-package-manager`
+  only affected that SDK; the stable settings file was never touched (still enable-swift-package-manager: true).
+  Both isolated configs end with SwiftPM enabled (3381-config-spm.log, 3440-config-spm.log).
+- All 3.38/3.44 commands ran in throwaway clones of main (/tmp/minver/reception-flutter, /tmp/minver/r344/reception-flutter),
+  so the shared checkout's generated files (Generated.xcconfig, ephemeral packages, pubspec.lock) were not rewritten by
+  old SDKs. Podfile, Podfile.lock and Pods were removed from the clones after the CocoaPods builds; nothing from them
+  was committed. No simulator was booted, and nothing was installed or launched (simulator builds only).
+
+Flutter 3.38.0 (Dart 3.10.0-290.4.beta)
+  flutter pub get (plugin, example)                     3380-pub-get-plugin.log, 3380-pub-get-example.log
+  flutter pub publish --dry-run                         3380-publish-dry-run.log
+  flutter create app + reception_flutter path dep       3380-fresh-pub-get.log
+
+Flutter 3.38.1 (Dart 3.10.0), clone of 13ca309, run by one script
+  flutter pub get / analyze / test (plugin)             3381-pub-get-plugin.log, 3381-analyze-plugin.log, 3381-test.log
+  flutter pub get / analyze (example)                   3381-pub-get-example.log, 3381-analyze-example.log
+  flutter pub publish --dry-run                         3381-publish-dry-run.log
+  probe: pigeon dev dependency removed, pigeons/ excluded from analysis (3381-probe-no-pigeon.diff):
+    pub get / analyze / test / publish --dry-run        3381-probe-no-pigeon-*.log
+  cd example && flutter build ios --simulator --debug   3381-build-ios-spm.log (SwiftPM)
+  flutter config --no-enable-swift-package-manager      3381-config-no-spm.log
+  cd example && flutter build ios --simulator --debug   3381-build-ios-cocoapods.log (CocoaPods; project changes made by
+                                                        pod install: 3381-build-ios-cocoapods-project.diff, discarded;
+                                                        Reception.bundle contents: 3381-build-ios-cocoapods-bundle.txt)
+  flutter config --enable-swift-package-manager         3381-config-spm.log
+  flutter create --platforms=ios fresh338, IPHONEOS_DEPLOYMENT_TARGET 13.0 -> 17.0, reception_flutter path dependency,
+  main.dart shows ReceptionChatView:                    3381-fresh-create.log, 3381-fresh-pub-get.log,
+                                                        3381-fresh-analyze.log, 3381-fresh-build-ios-spm.log
+  probe: Package.swift without the FlutterFramework dependency (3381-probe-no-flutterframework.diff):
+                                                        3381-probe-no-flutterframework-fresh-build-ios-spm.log,
+                                                        3381-probe-no-flutterframework-example-build-ios-spm.log
+                                                        (rerun after `flutter clean`: the first attempt in the
+                                                        re-created clone failed on a stale precompiled Flutter module
+                                                        in DerivedData)
+
+Flutter 3.44.0 (Dart 3.12.0), clone of 13ca309
+  pub get / analyze / test / publish --dry-run          3440-pub-get-*.log, 3440-analyze-*.log, 3440-test.log, 3440-publish-dry-run.log
+  example SwiftPM and CocoaPods builds                  3440-build-ios-spm.log, 3440-build-ios-cocoapods.log, 3440-config-*.log
+  fresh app (target 17.0), SwiftPM build                3440-fresh-*.log
+
+Stable 3.47.8 (Dart 3.13.7)
+  dart pub global activate pana                         pana-activate.log (pana 0.23.19)
+  dart pub global run pana --no-warning --flutter-sdk /opt/homebrew/share/flutter /Users/andi/Code/support/reception-flutter
+                                                        pana.log (HEAD before/after: stable-commit.txt)
+  dart doc --output /tmp/minver/doc-api .               dart-doc.log
+  probe: example SwiftPM build without the FlutterFramework dependency
+                                                        stable-probe-no-flutterframework-example-build-ios-spm.log
+
+Release data: sdk-versions.txt

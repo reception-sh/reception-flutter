@@ -1,0 +1,24 @@
+diff --git a/analysis_options.yaml b/analysis_options.yaml
+index dfdeb1e..7e2b2ac 100644
+--- a/analysis_options.yaml
++++ b/analysis_options.yaml
+@@ -5,6 +5,7 @@ analyzer:
+     - build/**
+     - ios/**
+     - example/**
++    - pigeons/**
+   language:
+     strict-casts: true
+     strict-inference: true
+diff --git a/pubspec.yaml b/pubspec.yaml
+index cbb4810..ebbabff 100644
+--- a/pubspec.yaml
++++ b/pubspec.yaml
+@@ -26,7 +26,6 @@ dev_dependencies:
+   flutter_test:
+     sdk: flutter
+   flutter_lints: ^6.0.0
+-  pigeon: ^29.0.11
+ 
+ flutter:
+   plugin:

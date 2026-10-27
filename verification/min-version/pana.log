@@ -1,0 +1,172 @@
+$ dart pub global run pana --no-warning --flutter-sdk /opt/homebrew/share/flutter /Users/andi/Code/support/reception-flutter
+Flutter 3.47.8 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision 737ba8f885 (5 days ago) • 2026-10-22 21:37:31 -0700
+Engine • hash dfd2e6cb7d319db05e3bf1503f3e2ac60f6288a2 (revision cf636b1dfb) (5 days ago) • 2026-10-23 02:13:38.000Z
+Tools • Dart 3.13.7 • DevTools 2.60.0
+2026-10-27 20:59:53.721780 INFO: Running `dart --version`...
+2026-10-27 20:59:57.404109 INFO: Running `dart pub get --no-example`...
+2026-10-27 20:59:58.447941 INFO: Running `dart pub get --no-example`...
+2026-10-27 20:59:58.556226 INFO: Running `dart pub outdated --json --up-to-date --no-dev-dependencies --no-dependency-overrides`...
+2026-10-27 20:59:58.858888 INFO: Analyzing package...
+2026-10-27 20:59:58.860916 INFO: Running `dart pub get --no-example`...
+2026-10-27 21:00:01.455909 INFO: Running `dart analyze --format machine --no-plugins .`...
+2026-10-27 21:00:13.551579 INFO: Running `dart pub get --no-example`...
+2026-10-27 21:00:13.707572 INFO: Running `dart format --output=none --set-exit-if-changed /private/var/folders/5n/f10879md74d8gvnd1pc171r00000gn/T/pana_dC0LBI/.`...
+2026-10-27 21:00:13.907875 INFO: Analyzing pub downgrade...
+2026-10-27 21:00:13.909677 INFO: Running `dart pub downgrade --no-example`...
+2026-10-27 21:00:17.262060 INFO: Running `dart analyze --format machine --no-plugins .`...
+2026-10-27 21:00:21.938527 INFO: [pub-downgrade-success]
+2026-10-27 21:00:21.940603 INFO: Running `dart pub upgrade --no-example`...
+2026-10-27 21:00:22.475963 INFO: Running `dart pub global activate dartdoc`...
+2026-10-27 21:00:26.881147 INFO: Running `dart pub global run dartdoc --output /private/var/folders/5n/f10879md74d8gvnd1pc171r00000gn/T/pana.1793131193708.lKWDRd/doc --sanitize-html --max-file-count 10000000 --max-total-size 2147483648 --no-validate-links --sdk-dir /opt/homebrew/share/flutter/bin/cache/dart-sdk`...
+2026-10-27 21:00:57.072042 INFO: `dartdoc` completed:
+                                 Documenting reception_flutter...
+                                 Discovering libraries...
+                                 Linking elements...
+                                 Precaching local docs for 655171 elements...
+                                 Initialized dartdoc with 812 libraries
+                                 Generating docs for library reception_flutter.dart from package:reception_flutter/reception_flutter.dart...
+                                 Generating docs for library testing.dart from package:reception_flutter/testing.dart...
+                                 Documented 2 public libraries in 29.6 seconds
+                                 Success! Docs generated into /private/var/folders/5n/f10879md74d8gvnd1pc171r00000gn/T/pana.1793131193708.lKWDRd/doc
+                                 Found 0 warnings and 0 errors.
+
+## ✓ Follow Dart file conventions (30 / 30)
+### [~] 10/10 points: Provide a valid `pubspec.yaml`
+
+<details>
+<summary>
+Repository URL doesn't exist.
+</summary>
+
+At the time of the analysis `https://github.com/reception-sh/reception-flutter` was unreachable. Make sure that the website is reachable via [`HEAD`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD) requests.
+</details>
+
+<details>
+<summary>
+Issue tracker URL doesn't exist.
+</summary>
+
+At the time of the analysis `https://github.com/reception-sh/reception-flutter/issues` was unreachable. Make sure that the website is reachable via [`HEAD`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD) requests.
+</details>
+
+<details>
+<summary>
+Documentation URL doesn't exist.
+</summary>
+
+At the time of the analysis `https://reception.sh/docs/flutter` was unreachable. Make sure that the website is reachable via [`HEAD`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD) requests.
+</details>
+
+### [*] 5/5 points: Provide a valid `README.md`
+
+### [*] 5/5 points: Provide a valid `CHANGELOG.md`
+
+### [*] 10/10 points: Use an OSI-approved license
+
+Detected license: `MIT`.
+
+
+## ✓ Provide documentation (20 / 20)
+### [*] 10/10 points: 20% or more of the public API has dartdoc comments
+
+125 out of 125 API elements (100.0 %) have documentation comments.
+
+### [*] 10/10 points: Package has an example
+
+
+## ✓ Platform support (20 / 20)
+### [*] 20/20 points: Supports 1 of 6 possible platforms (**iOS**, Android, Web, Windows, macOS, Linux)
+
+* ✓ iOS
+
+
+These platforms are not supported:
+
+<details>
+<summary>
+Package does not support platform `Android`.
+</summary>
+
+Because:
+* `package:reception_flutter/reception_flutter.dart` that declares support for platforms: `iOS`.
+</details>
+
+<details>
+<summary>
+Package does not support platform `Windows`.
+</summary>
+
+Because:
+* `package:reception_flutter/reception_flutter.dart` that declares support for platforms: `iOS`.
+</details>
+
+<details>
+<summary>
+Package does not support platform `Linux`.
+</summary>
+
+Because:
+* `package:reception_flutter/reception_flutter.dart` that declares support for platforms: `iOS`.
+</details>
+
+<details>
+<summary>
+Package does not support platform `macOS`.
+</summary>
+
+Because:
+* `package:reception_flutter/reception_flutter.dart` that declares support for platforms: `iOS`.
+</details>
+
+<details>
+<summary>
+Package does not support platform `Web`.
+</summary>
+
+Because:
+* `package:reception_flutter/reception_flutter.dart` that declares support for platforms: `iOS`.
+</details>
+
+
+**Swift PM-ready:** This iOS or macOS plugin supports the Swift Package Manager. See https://docs.flutter.dev/to/spm for details.
+
+
+## ✓ Pass static analysis (50 / 50)
+### [*] 50/50 points: code has no errors, warnings, lints, or formatting issues
+
+
+## ✓ Support up-to-date dependencies (40 / 40)
+### [*] 10/10 points: All of the package dependencies are supported in the latest version
+
+|Package|Constraint|Compatible|Latest|Notes|
+|:-|:-|:-|:-|:-|
+|[`meta`]|`^1.16.0`|1.19.0|1.19.0||
+
+<details><summary>Transitive dependencies</summary>
+
+|Package|Constraint|Compatible|Latest|Notes|
+|:-|:-|:-|:-|:-|
+|[`characters`]|-|1.4.1|1.4.1||
+|[`collection`]|-|1.19.1|1.19.1||
+|[`material_color_utilities`]|-|0.13.0|0.13.1||
+|[`vector_math`]|-|2.4.4|2.4.4||
+</details>
+
+To reproduce run `dart pub outdated --no-dev-dependencies --up-to-date --no-dependency-overrides`.
+
+[`meta`]: https://pub.dev/packages/meta
+[`characters`]: https://pub.dev/packages/characters
+[`collection`]: https://pub.dev/packages/collection
+[`material_color_utilities`]: https://pub.dev/packages/material_color_utilities
+[`vector_math`]: https://pub.dev/packages/vector_math
+
+### [*] 10/10 points: Package supports latest stable Dart and Flutter SDKs
+
+### [*] 20/20 points: Compatible with dependency constraint lower bounds
+
+`pub downgrade` does not expose any static analysis error.
+
+
+Points: 160/160.
+exit=0

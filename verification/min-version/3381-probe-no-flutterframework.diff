@@ -1,0 +1,18 @@
+diff --git a/ios/reception_flutter/Package.swift b/ios/reception_flutter/Package.swift
+index 401ca68..348980d 100644
+--- a/ios/reception_flutter/Package.swift
++++ b/ios/reception_flutter/Package.swift
+@@ -8,11 +8,11 @@ let package = Package(
+     defaultLocalization: "en",
+     platforms: [.iOS("17.0")],
+     products: [.library(name: "reception-flutter", targets: ["reception_flutter"])],
+-    dependencies: [.package(name: "FlutterFramework", path: "../FlutterFramework")],
++    dependencies: [],
+     targets: [
+         .target(
+             name: "reception_flutter",
+-            dependencies: [.product(name: "FlutterFramework", package: "FlutterFramework")],
++            dependencies: [],
+             exclude: ["Vendor/Reception/LICENSE"],
+             resources: [.process("Vendor/Reception/Sources/Reception/Resources")],
+             swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
