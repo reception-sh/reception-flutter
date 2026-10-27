@@ -36,7 +36,7 @@ accepts a localhost service; release builds call `Reception.configure`.
   `xcrun simctl push <device> sh.reception.receptionFlutterExample <file>` after
   replacing the conversation ID. `ios/Runner/Runner.entitlements` enables push
   (`aps-environment` development); on Apple silicon the simulator then issues an
-  APNs token, visible as "Push token staged" at `LogLevel.debug` once debug logs are
+  APNs token, visible as "Push token staged" at `ReceptionReceptionLogLevel.debug` once debug logs are
   persisted: `xcrun simctl spawn <device> log config --subsystem com.reception.sdk
   --mode "level:debug,persist:debug"`.
 - **Integration test:** `flutter test integration_test -d <device>
