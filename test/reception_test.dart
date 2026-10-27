@@ -402,4 +402,52 @@ void main() {
       expect(host.callsTo('connect'), hasLength(2));
     },
   );
+
+  test('a failed connect is retried by the next call', () async {
+    var attempts = 0;
+    host.handlers['connect'] = (_) => ++attempts == 1
+        ? throw PlatformException(code: 'channel-error')
+        : snapshot();
+    await expectLater(
+      Reception.openChat(),
+      throwsA(const ReceptionError('bridge_error', 0)),
+    );
+    Reception.logLevel = LogLevel.debug;
+    await pumpEventQueue();
+    expect(host.callsTo('setLogLevel'), hasLength(1));
+    await Reception.openChat();
+    expect(host.calls.map((call) => call.$1), [
+      'connect',
+      'connect',
+      'setLogLevel',
+      'openChat',
+    ]);
+    expect(Reception.logLevel, LogLevel.debug);
+  });
+
+  test(
+    'concurrent first calls share one connect and keep their order',
+    () async {
+      final connected = Completer<SnapshotMessage>();
+      host.handlers['connect'] = (_) => connected.future;
+      final calls = [
+        Reception.openChat(),
+        Reception.track('first'),
+        Reception.closeChat(),
+      ];
+      Reception.updatesAppBadge = false;
+      await pumpEventQueue();
+      expect(host.calls.map((call) => call.$1), ['connect']);
+      connected.complete(snapshot());
+      await Future.wait(calls);
+      await pumpEventQueue();
+      expect(host.calls.map((call) => call.$1), [
+        'connect',
+        'openChat',
+        'track',
+        'closeChat',
+        'setUpdatesAppBadge',
+      ]);
+    },
+  );
 }

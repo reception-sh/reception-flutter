@@ -15,28 +15,31 @@ import 'types.dart';
 /// completes immediately, state keeps its defaults, and a notice is logged
 /// once.
 abstract final class Reception {
-  static final _host = ReceptionHostApi();
+  static final _api = ReceptionHostApi();
   static var _state = ReceptionState();
-  static var _connected = false;
+  static Future<void>? _connection;
   static void Function(ReceptionEvent event)? _onEvent;
   static void Function(String id)? _onPaywall;
   static FutureOr<bool> Function(String id)? _availability;
   static var _generation = 0;
 
   /// The host API, connected on first use. Connecting replaces the previous
-  /// Dart connection after a hot restart and hydrates state.
-  static ReceptionHostApi get _api {
-    if (!_connected) {
-      _connected = true;
-      ReceptionFlutterApi.setUp(_FlutterApi());
-      unawaited(
-        _host.connect().then(
-          _state.update,
-          onError: (Object _) => bridgeFailure(),
-        ),
-      );
+  /// Dart connection after a hot restart and hydrates state. Concurrent
+  /// callers share one attempt; a failed attempt is retried by the next call.
+  static Future<ReceptionHostApi> _host() async {
+    final connection = _connection ??= _connect();
+    try {
+      await connection;
+    } catch (_) {
+      if (identical(_connection, connection)) _connection = null;
+      rethrow;
     }
-    return _host;
+    return _api;
+  }
+
+  static Future<void> _connect() async {
+    ReceptionFlutterApi.setUp(_FlutterApi());
+    _state.update(await _api.connect());
   }
 
   static Future<T?> _call<T>(
@@ -44,7 +47,7 @@ abstract final class Reception {
   ) async {
     if (!checkSupported()) return null;
     try {
-      return await action(_api);
+      return await action(await _host());
     } catch (error) {
       throw ReceptionError.from(error);
     }
@@ -191,11 +194,11 @@ abstract final class Reception {
       value.toJson(),
       _state.setting<Appearance>('appearance').toJson(),
     );
-    final host = _api;
     _state.assign(
       'appearance',
       appearanceFromJson(valid),
-      (revision) => host.setAppearance(jsonEncode(valid), revision),
+      (revision) async =>
+          (await _host()).setAppearance(jsonEncode(valid), revision),
     );
   }
 
@@ -271,8 +274,11 @@ abstract final class Reception {
     commit,
   ) {
     if (!checkSupported()) return;
-    final host = _api;
-    _state.assign(key, value, (revision) => commit(host, revision));
+    _state.assign(
+      key,
+      value,
+      (revision) async => commit(await _host(), revision),
+    );
   }
 
   /// Receives chat events. Assignment replaces the previous handler; null
@@ -291,8 +297,8 @@ abstract final class Reception {
     if (!checkSupported()) return;
     _onPaywall = value;
     unawaited(
-      _api
-          .setPaywallHandler(value != null)
+      _host()
+          .then((host) => host.setPaywallHandler(value != null))
           .catchError((Object _) => bridgeFailure()),
     );
   }
@@ -306,10 +312,12 @@ abstract final class Reception {
   static set paywallAvailability(FutureOr<bool> Function(String id)? value) {
     if (!checkSupported()) return;
     _availability = value;
-    _generation += 1;
+    final generation = ++_generation;
     unawaited(
-      _api
-          .setPaywallAvailability(value != null, _generation)
+      _host()
+          .then(
+            (host) => host.setPaywallAvailability(value != null, generation),
+          )
           .then(_state.update, onError: (Object _) => bridgeFailure()),
     );
   }
@@ -328,7 +336,7 @@ Future<void> configureForTesting(String appId, String serviceUrl) =>
 @visibleForTesting
 void resetReception() {
   Reception._state = ReceptionState();
-  Reception._connected = false;
+  Reception._connection = null;
   Reception._onEvent = null;
   Reception._onPaywall = null;
   Reception._availability = null;
@@ -355,7 +363,10 @@ class _FlutterApi implements ReceptionFlutterApi {
     var allowed = false;
     try {
       if (handler != null && generation == Reception._generation) {
-        allowed = await handler(id);
+        // Always answer: native waits for this reply.
+        allowed = await Future.value(
+          handler(id),
+        ).timeout(const Duration(seconds: 5), onTimeout: () => false);
       }
     } catch (_) {
       debugPrint(
