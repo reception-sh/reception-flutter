@@ -984,7 +984,7 @@ protocol ReceptionFlutterApiProtocol {
   @MainActor func onEvent(event eventArg: EventMessage) async throws
   @MainActor func onPaywall(id idArg: String) async throws
   /// Asked for each registered paywall; the host fails closed after five seconds or on a stale generation.
-  @MainActor func checkPaywallAvailability(id idArg: String, generation generationArg: Int64) async throws -> Bool
+  func checkPaywallAvailability(id idArg: String, generation generationArg: Int64, completion: @escaping (Result<Bool, ReceptionBridgeError>) -> Void)
 }
 class ReceptionFlutterApi: ReceptionFlutterApiProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
@@ -1057,26 +1057,24 @@ class ReceptionFlutterApi: ReceptionFlutterApiProtocol {
     }
   }
   /// Asked for each registered paywall; the host fails closed after five seconds or on a stale generation.
-  @MainActor func checkPaywallAvailability(id idArg: String, generation generationArg: Int64) async throws -> Bool {
-    return try await withCheckedThrowingContinuation { continuation in
-      let channelName: String = "dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.checkPaywallAvailability\(messageChannelSuffix)"
-      let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-      channel.sendMessage([idArg, generationArg] as [Any?]) { response in
-        guard let listResponse = response as? [Any?] else {
-          continuation.resume(throwing: createConnectionError(withChannelName: channelName))
-          return
-        }
-        if listResponse.count > 1 {
-          let code: String = listResponse[0] as! String
-          let message: String? = nilOrValue(listResponse[1])
-          let details: String? = nilOrValue(listResponse[2])
-          continuation.resume(throwing: ReceptionBridgeError(code: code, message: message, details: details))
-        } else if MessagesPigeonInternal.isNullish(listResponse[0]) {
-          continuation.resume(throwing: ReceptionBridgeError(code: "null-error", message: "Flutter api returned null value for non-null return value.", details: ""))
-        } else {
-          let result = listResponse[0] as! Bool
-          continuation.resume(returning: result)
-        }
+  func checkPaywallAvailability(id idArg: String, generation generationArg: Int64, completion: @escaping (Result<Bool, ReceptionBridgeError>) -> Void) {
+    let channelName: String = "dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.checkPaywallAvailability\(messageChannelSuffix)"
+    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([idArg, generationArg] as [Any?]) { response in
+      guard let listResponse = response as? [Any?] else {
+        completion(.failure(createConnectionError(withChannelName: channelName)))
+        return
+      }
+      if listResponse.count > 1 {
+        let code: String = listResponse[0] as! String
+        let message: String? = nilOrValue(listResponse[1])
+        let details: String? = nilOrValue(listResponse[2])
+        completion(.failure(ReceptionBridgeError(code: code, message: message, details: details)))
+      } else if MessagesPigeonInternal.isNullish(listResponse[0]) {
+        completion(.failure(ReceptionBridgeError(code: "null-error", message: "Flutter api returned null value for non-null return value.", details: "")))
+      } else {
+        let result = listResponse[0] as! Bool
+        completion(.success(result))
       }
     }
   }

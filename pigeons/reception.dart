@@ -137,6 +137,6 @@ abstract class ReceptionFlutterApi {
   void onPaywall(String id);
 
   /// Asked for each registered paywall; the host fails closed after five seconds or on a stale generation.
-  @async
+  @asyncCallback
   bool checkPaywallAvailability(String id, int generation);
 }
