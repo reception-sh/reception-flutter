@@ -1,7 +1,9 @@
 import Foundation
 
 /// Asks Dart whether a paywall is available. Every request fails closed: after five seconds, when the SDK cancels
-/// it, or when `cancelAll()` runs because the callback changed or the Dart connection was replaced.
+/// it, or when `cancelAll()` runs because the callback changed or the Dart connection was replaced. Dart answers
+/// through a reply callback that holds only the request id, so a late or lost reply keeps nothing else alive and
+/// is ignored once the request was resolved.
 @MainActor
 internal final class PaywallRequests {
   private struct Pending {
@@ -9,7 +11,8 @@ internal final class PaywallRequests {
     let timeout: Task<Void, Never>
   }
   private var pending: [UUID: Pending] = [:]
-  var ask: (@MainActor (String) async -> Bool)?
+  /// Sends the question to Dart; `reply` may be called from any thread, once or never.
+  var ask: (@MainActor (_ paywall: String, _ reply: @escaping @Sendable (Bool) -> Void) -> Void)?
 
   func check(_ paywall: String) async -> Bool {
     guard !Task.isCancelled, ask != nil else { return false }
@@ -25,9 +28,8 @@ internal final class PaywallRequests {
           self?.resolve(requestId, allowed: false)
         }
         pending[requestId] = Pending(continuation: continuation, timeout: timeout)
-        Task { [weak self] in
-          let allowed = await ask(paywall)
-          self?.resolve(requestId, allowed: allowed)
+        ask(paywall) { [weak self] allowed in
+          Task { @MainActor in self?.resolve(requestId, allowed: allowed) }
         }
       }
     } onCancel: {

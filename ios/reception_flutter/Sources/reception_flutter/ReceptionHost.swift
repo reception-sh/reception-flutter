@@ -238,7 +238,9 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
       return snapshot()
     }
     let api = flutterApi
-    requests.ask = { id in (try? await api.checkPaywallAvailability(id: id, generation: generation)) ?? false }
+    requests.ask = { id, reply in
+      api.checkPaywallAvailability(id: id, generation: generation) { result in reply((try? result.get()) ?? false) }
+    }
     Reception.shared.paywallAvailability = { [weak self] id in
       guard let self, self.connected else { return false }
       return await self.requests.check(id)

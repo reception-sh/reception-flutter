@@ -93,52 +93,70 @@ struct LogicTests {
     let missing = await requests.check("missing")
     precondition(!missing, "No Dart callback must fail closed")
 
-    requests.ask = { _ in true }
+    requests.ask = { _, reply in reply(true) }
     let accepted = await requests.check("accepted")
     precondition(accepted, "Dart answer must resume the request")
 
+    requests.ask = { _, reply in
+      reply(false)
+      reply(true)
+    }
+    let duplicate = await requests.check("duplicate")
+    precondition(!duplicate, "A duplicate reply must not resume twice")
+
     var asked: [String] = []
-    var answers: [String: CheckedContinuation<Bool, Never>] = [:]
-    requests.ask = { id in
+    var replies: [String: @Sendable (Bool) -> Void] = [:]
+    requests.ask = { id, reply in
       asked.append(id)
-      return await withCheckedContinuation { answers[id] = $0 }
+      replies[id] = reply
     }
     let first = Task { await requests.check("first") }
     let second = Task { await requests.check("second") }
-    while answers.count < 2 { await Task.yield() }
-    answers["second"]?.resume(returning: true)
-    answers["first"]?.resume(returning: false)
+    while replies.count < 2 { await Task.yield() }
+    replies["second"]?(true)
+    replies["first"]?(false)
     let concurrent = await (first.value, second.value)
     precondition(!concurrent.0 && concurrent.1, "Concurrent answers must stay independent")
 
-    answers = [:]
+    replies = [:]
     let cancelled = Task { await requests.check("cancelled") }
-    while answers.isEmpty { await Task.yield() }
+    while replies.isEmpty { await Task.yield() }
     cancelled.cancel()
     let cancellation = await cancelled.value
     precondition(!cancellation, "SDK cancellation must release its continuation")
-    answers["cancelled"]?.resume(returning: true)
+    replies["cancelled"]?(true)
+    await settle()
 
-    answers = [:]
+    replies = [:]
     let reconnect = Task { await requests.check("reconnect") }
-    while answers.isEmpty { await Task.yield() }
+    while replies.isEmpty { await Task.yield() }
     requests.cancelAll()
     let reconnected = await reconnect.value
     precondition(!reconnected && requests.ask == nil, "Reconnect must drain pending requests")
-    answers["reconnect"]?.resume(returning: true)
-    for _ in 0..<10 { await Task.yield() }
+    replies["reconnect"]?(true)
+    await settle()
 
-    requests.ask = { _ in
-      try? await Task.sleep(for: .seconds(60))
-      return true
-    }
+    var late: (@Sendable (Bool) -> Void)?
+    requests.ask = { _, reply in late = reply }
     let started = ContinuousClock.now
     let timedOut = await requests.check("never-answers")
     let elapsed = started.duration(to: .now)
     precondition(
       !timedOut && elapsed >= .seconds(5) && elapsed < .seconds(8),
       "An unresponsive callback must time out safely")
+    late?(true)
+    await settle()
+
+    // Late replies above resolved nothing: the next request still gets its own answer.
+    requests.ask = { _, reply in DispatchQueue.global().async { reply(true) } }
+    let offMain = await requests.check("off-main")
+    precondition(offMain, "A reply from another thread resolves on the main actor")
     precondition(asked == ["first", "second", "cancelled", "reconnect"])
-    print("PaywallRequests: answer, concurrency, cancellation, reconnect and timeout checks passed")
+    print("PaywallRequests: answer, duplicate, concurrency, cancellation, reconnect, timeout and late reply checks passed")
+  }
+
+  @MainActor
+  static func settle() async {
+    for _ in 0..<10 { await Task.yield() }
   }
 }
