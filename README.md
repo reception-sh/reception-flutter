@@ -3,7 +3,7 @@
 Native support chat, with replies managed in the Reception dashboard.
 The chat runs entirely in the official Reception iOS SDK.
 
-Requires Flutter 3.38+ (verified on 3.47), Dart 3.10+, iOS 17+, and Xcode 26.
+Requires Flutter 3.44+ (verified on 3.44 and 3.47), Dart 3.12+, iOS 17+, and Xcode 26.
 The plugin runs on iOS only; Android and web calls do nothing.
 
 ## 1. Install

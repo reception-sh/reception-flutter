@@ -118,4 +118,4 @@ notifications (equivalent to completing with `[]`).
 - firebase_messaging ≥ 17.0.0 for apps that use Firebase (older versions complete unrelated notifications and
   mis-implement the scene callback). Configure Reception after `Firebase.initializeApp()`.
 - flutter_local_notifications: keep its documented AppDelegate setup; Reception wraps whatever delegate exists at configure.
-- Flutter ≥ 3.38 (scene delegate API). Verified on current stable 3.47.
+- Flutter ≥ 3.44: SwiftPM plugins need the FlutterFramework package that Flutter creates from 3.44 (verified on 3.44.0 and 3.47.8); the scene delegate API itself exists since 3.38.
