@@ -14,7 +14,9 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   private let requests = PaywallRequests()
   private var connected = false
   private var settingRevisions: [String: Int64] = [:]
-  private var observation = UUID()
+  /// Identifies the current connection; replaced when it starts and when it ends, so work queued for an earlier
+  /// connection (state observation, calls to Dart) never reaches a later one.
+  private var connection = UUID()
   /// Calls to Dart awaiting Pigeon's acknowledgement, cancelled when this connection ends.
   private var calls: [UUID: Task<Void, Never>] = [:]
 
@@ -24,7 +26,7 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
 
   func invalidate() {
     connected = false
-    observation = UUID()
+    connection = UUID()
     requests.cancelAll()
     for call in calls.values { call.cancel() }
     calls = [:]
@@ -66,13 +68,13 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   /// Publishes a snapshot now and after every change of the SDK state it reads.
   private func observe() {
     guard connected else { return }
-    let token = observation
+    let token = connection
     withObservationTracking {
       let state = snapshot()
       send { try await $0.onState(state: state) }
     } onChange: { [weak self] in
       Task { @MainActor in
-        guard let self, self.connected, self.observation == token else { return }
+        guard let self, self.connected, self.connection == token else { return }
         self.observe()
       }
     }
@@ -82,10 +84,13 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     guard connected else { return }
     let api = flutterApi
     let id = UUID()
+    let token = connection
     // The task starts after this main-actor turn, so it is registered before it can remove itself.
     calls[id] = Task { [weak self] in
+      guard let self else { return }
+      defer { self.calls[id] = nil }
+      guard self.connected, self.connection == token else { return }
       try? await call(api)
-      self?.calls[id] = nil
     }
   }
 
@@ -113,6 +118,7 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     Self.current?.invalidate()
     Self.current = self
     connected = true
+    connection = UUID()
     // Dart counts setting revisions from zero again after a hot restart.
     settingRevisions = [:]
     Reception.shared.onEvent = { [weak self] event in self?.send(event) }
