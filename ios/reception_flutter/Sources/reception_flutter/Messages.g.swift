@@ -583,12 +583,12 @@ protocol ReceptionHostApi {
   func identifyToken(token: String) throws
   func setMetadata(metadata: [String: String]) throws
   func logout() throws -> SnapshotMessage
-  func deleteData() async throws -> DeleteResultMessage
+  func deleteData(completion: @escaping (Result<DeleteResultMessage, Error>) -> Void)
   func openChat() throws
   func closeChat() throws
   func track(event: String, opensChat: Bool) throws
   func setPushToken(hexToken: String, environment: String) throws
-  func registerForPushIfAuthorized() async throws
+  func registerForPushIfAuthorized(completion: @escaping (Result<Void, Error>) -> Void)
   func handlePushNotification(conversationId: String, openChat: Bool) throws -> Bool
   func setAppearance(json: String, revision: Int64) throws -> SnapshotMessage
   func setUpdatesAppBadge(value: Bool, revision: Int64) throws -> SnapshotMessage
@@ -730,11 +730,11 @@ class ReceptionHostApiSetup {
     let deleteDataChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.reception_flutter.ReceptionHostApi.deleteData\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       deleteDataChannel.setMessageHandler { _, reply in
-        Task { @MainActor in
-          do {
-            let result = try await api.deleteData()
-            reply(wrapResult(result))
-          } catch {
+        api.deleteData { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -803,11 +803,11 @@ class ReceptionHostApiSetup {
     let registerForPushIfAuthorizedChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.reception_flutter.ReceptionHostApi.registerForPushIfAuthorized\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       registerForPushIfAuthorizedChannel.setMessageHandler { _, reply in
-        Task { @MainActor in
-          do {
-            try await api.registerForPushIfAuthorized()
+        api.registerForPushIfAuthorized { result in
+          switch result {
+          case .success:
             reply(wrapResult(nil))
-          } catch {
+          case .failure(let error):
             reply(wrapError(error))
           }
         }

@@ -105,7 +105,7 @@ abstract class ReceptionHostApi {
   void identifyToken(String token);
   void setMetadata(Map<String, String> metadata);
   SnapshotMessage logout();
-  @async
+  @asyncCallback
   DeleteResultMessage deleteData();
 
   void openChat();
@@ -113,7 +113,7 @@ abstract class ReceptionHostApi {
   void track(String event, bool opensChat);
 
   void setPushToken(String hexToken, String environment);
-  @async
+  @asyncCallback
   void registerForPushIfAuthorized();
   bool handlePushNotification(String conversationId, bool openChat);
 
