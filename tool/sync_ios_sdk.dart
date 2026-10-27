@@ -56,18 +56,21 @@ Future<bool> check(String root) async {
   final version = await sdkVersion(
     '$root/$vendorDir/Sources/Reception/Version.swift',
   );
-  if (version != manifest['sdkVersion'])
+  if (version != manifest['sdkVersion']) {
     problems.add('version mismatch: $version vs ${manifest['sdkVersion']}');
+  }
   final dartVersion = await File(
     '$root/lib/src/sdk_version.dart',
   ).readAsString();
-  if (!dartVersion.contains("'$version'"))
+  if (!dartVersion.contains("'$version'")) {
     problems.add('lib/src/sdk_version.dart does not match $version');
+  }
   for (final problem in problems) {
     stderr.writeln(problem);
   }
-  if (problems.isEmpty)
+  if (problems.isEmpty) {
     stdout.writeln('${expected.length} pinned SDK files match (SDK $version).');
+  }
   return problems.isEmpty;
 }
 
@@ -81,8 +84,9 @@ Future<String> sdkVersion(String versionFile) async {
 
 Future<String> git(List<String> arguments) async {
   final result = await Process.run('git', ['-C', sdkRepository, ...arguments]);
-  if (result.exitCode != 0)
+  if (result.exitCode != 0) {
     throw StateError('git ${arguments.join(' ')}: ${result.stderr}');
+  }
   return (result.stdout as String).trim();
 }
 
@@ -103,8 +107,9 @@ Future<void> sync(String root, String revision) async {
     ]);
     final tar = await Process.start('tar', ['-x', '-C', scratch.path]);
     await archive.stdout.pipe(tar.stdin);
-    if (await tar.exitCode != 0 || await archive.exitCode != 0)
+    if (await tar.exitCode != 0 || await archive.exitCode != 0) {
       throw StateError('git archive failed');
+    }
     final destination = Directory('$root/$vendorDir');
     if (destination.existsSync()) await destination.delete(recursive: true);
     await destination.create(recursive: true);
