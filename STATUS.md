@@ -121,10 +121,11 @@ Deviations:
   the checkout directory name (`reception-flutter`), so SwiftPM resolution failed.
 
 Known limitations:
-- Fire-and-forget calls to Dart (`onState`, `onEvent`, `onPaywall`, `requestPaywallAvailability`) await Pigeon's
-  acknowledgement in a per-connection task that `invalidate()` cancels; a missing handler replies nil, which ends the
-  call with a connection error. Only a message dispatched to an isolate that dies at that instant (hot restart, debug
-  only) leaves its task suspended, bounded by the calls in flight at that moment.
+- Cancellation does not finish Pigeon continuations. Fire-and-forget calls to Dart (`onState`, `onEvent`,
+  `onPaywall`, `requestPaywallAvailability`) run in per-connection tasks that `invalidate()` cancels; a task whose
+  connection has ended skips sending. A continuation already awaiting an acknowledgement from an
+  isolate that died at that instant stays suspended until process exit. Debug only (hot restart), bounded by the
+  calls in flight at that moment.
 
 Open questions: none.
 
