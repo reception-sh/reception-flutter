@@ -29,6 +29,7 @@ no-ops. Customers read https://reception.sh/docs/flutter; this file is for maint
 
 ## Checks before a release
 
-`flutter analyze`, `dart format --set-exit-if-changed .`, `flutter test`, `tool/test_native.sh`,
-`dart run tool/sync_ios_sdk.dart --check`, example build with SwiftPM on and off, `pod lib lint ios/reception_flutter.podspec --skip-tests --use-modular-headers`,
+`flutter analyze`, `dart format --set-exit-if-changed .`, `flutter test`, `tool/test_native.sh` (needs a booted
+simulator, or pass a device), `dart run tool/sync_ios_sdk.dart --check`, example build with SwiftPM on and off,
+`tool/pod_lint.sh`,
 `flutter pub publish --dry-run`, simulator verification per `verification/commands.txt`.
