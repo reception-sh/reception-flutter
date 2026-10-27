@@ -34,6 +34,7 @@ final configured = ValueNotifier(false);
 final hangingAvailability = ValueNotifier(false);
 
 void record(String event) {
+  debugPrint('[example] event $event');
   final previous = events.value;
   events.value = [...previous.skip(max(0, previous.length - 7)), event];
 }
@@ -55,7 +56,22 @@ Future<void> main() async {
   Reception.onPaywall = (id) =>
       record('onPaywall:$id, chat:${Reception.isChatOpen.value}');
   Reception.paywallAvailability = plansOnly;
+  // Console trace for `flutter run`, for example to watch a hot restart
+  // re-read native state.
+  Reception.unreadCount.addListener(
+    () => debugPrint('[example] unread ${Reception.unreadCount.value}'),
+  );
+  Reception.availablePaywalls.addListener(
+    () => debugPrint(
+      '[example] available '
+      '${Reception.availablePaywalls.value.map((paywall) => paywall.id)}',
+    ),
+  );
   if (autostart) await run(configure, 'Configured at startup');
+  debugPrint(
+    '[example] started: configured ${Reception.isConfigured}, '
+    'unread ${Reception.unreadCount.value}',
+  );
   runApp(const ExampleApp());
 }
 
@@ -95,11 +111,12 @@ Future<void> configure() async {
   await Reception.refreshPaywalls(invalidate: true);
 }
 
-/// Runs [action] and reports the outcome in the status line.
-Future<void> run(Future<void> Function() action, String success) async {
+/// Runs [action] and reports the outcome in the status line; a null
+/// [success] keeps the status that [action] set.
+Future<void> run(Future<void> Function() action, String? success) async {
   try {
     await action();
-    status.value = success;
+    if (success != null) status.value = success;
   } on ReceptionError catch (error) {
     status.value = 'Failed: ${error.code} (${error.status})';
   } catch (error) {
@@ -253,7 +270,7 @@ class HomePage extends StatelessWidget {
             );
           }),
           button('Enable notifications', () {
-            run(enableNotifications, 'Notifications requested');
+            run(enableNotifications, null);
           }),
           button('Logout', () => run(Reception.logout, 'Logged out')),
           button(
