@@ -1,14 +1,29 @@
 Timestamp               Ty Process[PID:TID]
-2026-10-27 17:12:35.762 I  Runner[507:6d870f7] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
-2026-10-27 17:13:17.573 I  Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
-2026-10-27 17:13:17.623 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
-2026-10-27 17:13:18.203 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
-2026-10-27 17:13:18.203 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Access token refreshed
-2026-10-27 17:13:18.470 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
-2026-10-27 17:13:18.522 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
-2026-10-27 17:13:29.750 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
-2026-10-27 17:13:30.221 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
-2026-10-27 17:13:30.276 Db Runner[1121:6d87eab] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
-Device cmvqv8rfh002500qfe8nxrncf pushToken set: false, environment -
-Device cmvqva5tq002n00qf7fsp182u pushToken set: true, environment SANDBOX
-Device cmvqvgig2002z00qft7r5dcg5 pushToken set: true, environment SANDBOX
+2026-10-27 18:51:02.761 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:51:02.793 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:51:09.440 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:51:15.200 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:51:15.221 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:51:22.941 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Configure ignored, same App ID already active
+2026-10-27 18:51:23.422 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:51:23.615 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:51:30.586 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:51:34.729 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:51:45.680 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:51:49.216 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:51:52.387 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:51:52.677 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:52:01.058 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:52:09.054 I  Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 18:52:09.565 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-27 18:52:09.593 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Access token refreshed
+2026-10-27 18:52:09.612 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:52:09.626 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:52:09.756 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:52:21.774 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 18:52:21.852 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:52:21.871 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:52:21.940 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 18:52:21.980 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-27 18:52:22.046 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+Device cmvqz7gpr004j00qf2kn3z9tu pushToken set: true, environment SANDBOX

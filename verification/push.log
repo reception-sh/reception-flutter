@@ -1,27 +1,117 @@
 Timestamp               Ty Process[PID:TID]
-2026-10-27 16:47:47.606 I  Runner[90101:6d73a97] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
-2026-10-27 16:49:03.939 I  Runner[90275:6d745e9] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
-2026-10-27 16:50:06.077 I  Runner[90412:6d74fef] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 18:49:43.987 I  Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 18:49:44.632 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:49:54.861 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-27 18:49:56.228 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-27 18:51:02.793 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:51:09.440 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:51:15.221 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:51:30.586 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:51:45.680 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:52:01.058 Db Runner[28648:6db6a67] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:52:09.054 I  Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 18:52:09.626 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:52:21.774 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 18:52:21.871 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:52:21.940 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 18:52:22.046 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:53:09.168 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 18:53:09.302 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 2 unread
+2026-10-27 18:53:23.681 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-27 18:53:25.109 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-27 18:53:31.376 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:53:36.150 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvqz9ydc004r00qfip5koyz3
+2026-10-27 18:53:36.168 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:53:52.149 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:53:57.717 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvqz9ydc004r00qfip5koyz3
+2026-10-27 18:53:57.765 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:54:13.684 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 1 unread
+2026-10-27 18:54:20.111 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-27 18:54:20.810 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-27 18:54:27.837 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvqz9ydc004r00qfip5koyz3
+2026-10-27 18:54:27.879 Db Runner[29100:6db879c] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:54:41.450 I  Runner[29559:6dba2de] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 18:54:41.492 Db Runner[29559:6dba2de] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 18:54:42.077 Db Runner[29559:6dba2de] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:55:02.474 Db Runner[29559:6dba2de] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvqz9ydc004r00qfip5koyz3
+2026-10-27 18:55:02.474 Db Runner[29559:6dba2de] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-27 18:55:03.516 Db Runner[29559:6dba2de] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 18:55:03.741 Db Runner[29559:6dba2de] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-27 18:55:03.801 Db Runner[29559:6dba2de] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:55:42.179 I  Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 18:55:43.000 Db Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] DEBUG Push token staged, 160 hex chars, sandbox
+2026-10-27 18:55:43.543 Db Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-27 18:55:43.642 Db Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:55:58.467 Db Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:56:11.409 Db Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvqz9ydc004r00qfip5koyz3
+2026-10-27 18:56:11.440 Db Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-27 18:56:13.119 Db Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-27 18:56:13.763 Db Runner[29693:6dbab85] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
 Timestamp               Ty Process[PID:TID]
-2026-10-27 16:43:40.676 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
-2026-10-27 16:43:40.749 Df SpringBoard[62474:6d71071] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:89545] Initial launch state: FV-Focal[100].
-2026-10-27 16:43:42.171 Df SpringBoard[62474:6d71073] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:89545] Dropping launch assertion.
-2026-10-27 16:45:27.909 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
-2026-10-27 16:47:46.785 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
-2026-10-27 16:47:46.870 Df SpringBoard[62474:6d73a82] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90101] Initial launch state: FV-Focal[100].
-2026-10-27 16:47:48.215 Df SpringBoard[62474:6d73a84] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90101] Dropping launch assertion.
-2026-10-27 16:48:13.026 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
-2026-10-27 16:48:51.650 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
-2026-10-27 16:49:03.070 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
-2026-10-27 16:49:03.145 Df SpringBoard[62474:6d74243] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90275] Initial launch state: FV-Focal[100].
-2026-10-27 16:49:04.476 Df SpringBoard[62474:6d7426f] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90275] Dropping launch assertion.
-2026-10-27 16:49:25.005 Df SpringBoard[62474:6d746c0] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Launch application in foreground for notification response action com.apple.UNNotifi
-2026-10-27 16:49:25.044 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
-2026-10-27 16:49:25.060 Df SpringBoard[62474:6d74981] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.apple.UNNotificationD
-2026-10-27 16:49:26.099 Df SpringBoard[62474:6d4c030] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Application foreground launch action for notification response action com.apple.UNNo
-2026-10-27 16:50:04.700 Df SpringBoard[62474:6d74ccb] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Launch application in foreground for notification response action com.apple.UNNotifi
-2026-10-27 16:50:04.726 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
-2026-10-27 16:50:04.809 Df SpringBoard[62474:6d74c74] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90412] Initial launch state: FV-Focal[100].
-2026-10-27 16:50:04.809 Df SpringBoard[62474:6d74fb5] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.apple.UNNotificationD
-2026-10-27 16:50:05.809 Df SpringBoard[62474:6d4c030] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Application foreground launch action for notification response action com.apple.UNNo
-2026-10-27 16:50:06.150 Df SpringBoard[62474:6d74fb2] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:90412] Dropping launch assertion.
+2026-10-27 18:49:41.603 Df SpringBoard[62474:6db696d] [com.apple.launchservices:appinstallation] LaunchServices observer: InstallsStarted (
+    "<LSApplicationProxy: 0x121e41980> sh.reception.receptionFlutterExample file:///Users/andi/Library/Developer/CoreSimulator/Devices/1B82EA4D-9E6C-401B-9BF1-DF6EEE286309/data/Containers/Bundle/Application/446A7B2A-FE2C
+)
+2026-10-27 18:49:41.647 Df SpringBoard[62474:6db696d] [com.apple.launchservices:appinstallation] LaunchServices observer: MetadataUpdate (
+    "sh.reception.receptionFlutterExample"
+)
+2026-10-27 18:49:41.668 Df SpringBoard[62474:6db696d] [com.apple.launchservices:appinstallation] LaunchServices observer: InstallsStarted (
+    "<LSApplicationProxy: 0x121e40300> sh.reception.receptionFlutterExample file:///Users/andi/Library/Developer/CoreSimulator/Devices/1B82EA4D-9E6C-401B-9BF1-DF6EEE286309/data/Containers/Bundle/Application/446A7B2A-FE2C
+)
+2026-10-27 18:49:41.678 Df SpringBoard[62474:6db696d] [com.apple.launchservices:appinstallation] LaunchServices observer: Will install (
+    "<LSApplicationProxy: 0x121e41440> sh.reception.receptionFlutterExample file:///Users/andi/Library/Developer/CoreSimulator/Devices/1B82EA4D-9E6C-401B-9BF1-DF6EEE286309/data/Containers/Bundle/Application/446A7B2A-FE2C
+)
+2026-10-27 18:49:41.748 Df SpringBoard[62474:6db696d] [com.apple.SplashBoard:FileManifest] Applications were replaced. Updating launch images for: (
+    "sh.reception.receptionFlutterExample"
+)
+2026-10-27 18:49:41.779 Df SpringBoard[62474:6db696d] [com.apple.SplashBoard:FileManifest] <XBApplicationSnapshotManifestImpl: 0x11d300c80> [sh.reception.receptionFlutterExample] Deleting snapshots: (
+    "<XBApplicationSnapshot: 0x121ea3d40; identifier: 215AF403-FE21-4632-820F-C11E434419D8; launchInterfaceIdentifier: __from_UILaunchStoryboardName__; contentType: GeneratedDefault; referenceSize: {402, 874}; interfaceO
+    "<XBApplicationSnapshot: 0x121ea2d80; identifier: B2822B08-1419-4645-9DB2-0B06B7AD4A56; launchInterfaceIdentifier: __from_UILaunchStoryboardName__; contentType: GeneratedDefault; referenceSize: {402, 874}; interfaceO
+    "<XBApplicationSnapshot: 0x121f4af40; identifier: 9E15C342-5326-4AD7-A97D-84AB99403D04; launchInterfaceIdentifier: __from_UILaunchStoryboardName__; contentType: GeneratedDefault; referenceSize: {402, 874}; interfaceO
+    "<XBApplicationSnapshot: 0x121ea3800; identifier: 8860C13F-B12C-4BAE-8CDC-CE5F56AE34FD; launchInterfaceIdentifier: __from_UILaunchStoryboardName__; contentType: GeneratedDefault; referenceSize: {402, 874}; interfaceO
+) matching predicate: <XBApplicationSnapshotPredicate: 0x11fb50870> {
+    contentTypeMask = GeneratedDefault;
+}
+2026-10-27 18:49:41.793 Df SpringBoard[62474:6db696d] [com.apple.SplashBoard:Capture] Processing launch request <XBLaunchStateRequest: 0x11f85fcd0> for app: sh.reception.receptionFlutterExample.
+2026-10-27 18:49:41.834 Df SpringBoard[62474:6db696d] [com.apple.SplashBoard:Capture] Processing launch request <XBLaunchStateRequest: 0x11f85caf0> for app: sh.reception.receptionFlutterExample.
+2026-10-27 18:49:41.835 Df SpringBoard[62474:6db6987] [com.apple.SplashBoard:Capture] Asynchronously generating image data for request: <XBLaunchStateRequest: 0x11f85fcd0; groupID: sh.reception.receptionFlutterExample - 
+2026-10-27 18:49:41.836 Df SpringBoard[62474:6db696d] [com.apple.SplashBoard:Capture] Processing launch request <XBLaunchStateRequest: 0x11f85d110> for app: sh.reception.receptionFlutterExample.
+2026-10-27 18:49:41.836 Df SpringBoard[62474:6db696d] [com.apple.SplashBoard:Capture] Processing launch request <XBLaunchStateRequest: 0x11f85d340> for app: sh.reception.receptionFlutterExample.
+2026-10-27 18:49:41.986 Df SpringBoard[62474:6db699e] [com.apple.SplashBoard:Capture] Image generation complete for: <XBLaunchStateRequest: 0x11f85fcd0; groupID: sh.reception.receptionFlutterExample - {DEFAULT GROUP}; st
+2026-10-27 18:49:41.986 Df SpringBoard[62474:6db6987] [com.apple.SplashBoard:Capture] Asynchronously generating image data for request: <XBLaunchStateRequest: 0x11f85caf0; groupID: sh.reception.receptionFlutterExample - 
+2026-10-27 18:49:42.039 Df SpringBoard[62474:6db6a16] [com.apple.SplashBoard:Capture] Image generation complete for: <XBLaunchStateRequest: 0x11f85caf0; groupID: sh.reception.receptionFlutterExample - {DEFAULT GROUP}; st
+2026-10-27 18:49:42.040 Df SpringBoard[62474:6db6987] [com.apple.SplashBoard:Capture] Asynchronously generating image data for request: <XBLaunchStateRequest: 0x11f85d110; groupID: sh.reception.receptionFlutterExample - 
+2026-10-27 18:49:42.088 Df SpringBoard[62474:6db6a19] [com.apple.SplashBoard:Capture] Image generation complete for: <XBLaunchStateRequest: 0x11f85d110; groupID: sh.reception.receptionFlutterExample - {DEFAULT GROUP}; st
+2026-10-27 18:49:42.088 Df SpringBoard[62474:6db6987] [com.apple.SplashBoard:Capture] Asynchronously generating image data for request: <XBLaunchStateRequest: 0x11f85d340; groupID: sh.reception.receptionFlutterExample - 
+2026-10-27 18:49:42.129 Df SpringBoard[62474:6db6a17] [com.apple.SplashBoard:Capture] Image generation complete for: <XBLaunchStateRequest: 0x11f85d340; groupID: sh.reception.receptionFlutterExample - {DEFAULT GROUP}; st
+2026-10-27 18:49:42.621 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:49:42.867 Df SpringBoard[62474:6db6a19] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:28648] Initial launch state: FV-Focal[100].
+2026-10-27 18:49:44.307 Df SpringBoard[62474:6db69a0] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:28648] Dropping launch assertion.
+2026-10-27 18:51:02.144 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:51:14.695 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:52:08.278 Df SpringBoard[62474:6d4c030] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:52:08.356 Df SpringBoard[62474:6db8748] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:29100] Initial launch state: FV-Focal[100].
+2026-10-27 18:52:09.646 Df SpringBoard[62474:6db83b3] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:29100] Dropping launch assertion.
+2026-10-27 18:52:23.694 Df SpringBoard[29146:6db8afa] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:29100] Initial launch state: BG-Active[40].
+2026-10-27 18:52:24.733 Df SpringBoard[29146:6db8b8c] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:29100] Dropping launch assertion.
+2026-10-27 18:53:08.698 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:53:36.143 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:53:57.715 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:54:27.828 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:54:40.497 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:54:40.573 Df SpringBoard[29146:6db9ecd] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:29559] Initial launch state: FV-Focal[100].
+2026-10-27 18:54:41.928 Df SpringBoard[29146:6db9ecd] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:29559] Dropping launch assertion.
+2026-10-27 18:55:02.165 Df SpringBoard[29146:6dba38d] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Launch application in foreground for notification response action com.apple.UNNotifi
+2026-10-27 18:55:02.189 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:55:02.206 Df SpringBoard[29146:6dba2cd] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.apple.UNNotificationD
+2026-10-27 18:55:03.239 Df SpringBoard[29146:6db8afa] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Application foreground launch action for notification response action com.apple.UNNo
+2026-10-27 18:55:40.860 Df SpringBoard[29146:6dba88a] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Launch application in foreground for notification response action com.apple.UNNotifi
+2026-10-27 18:55:40.888 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:55:40.979 Df SpringBoard[29146:6dbab39] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:29693] Initial launch state: FV-Focal[100].
+2026-10-27 18:55:40.981 Df SpringBoard[29146:6dba888] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.apple.UNNotificationD
+2026-10-27 18:55:41.897 Df SpringBoard[29146:6db8afa] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Application foreground launch action for notification response action com.apple.UNNo
+2026-10-27 18:55:42.303 Df SpringBoard[29146:6dba8bf] [com.apple.FrontBoard:ProcessWorkspace] [app<sh.reception.receptionFlutterExample>:29693] Dropping launch assertion.
+2026-10-27 18:56:11.397 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:56:13.092 Df SpringBoard[29146:6dbab48] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Launch application in foreground for notification response action com.apple.UNNotifi
+2026-10-27 18:56:13.112 Df SpringBoard[29146:6db8afa] [com.apple.SpringBoard:Common] No capture application found for the sh.reception.receptionFlutterExample, launchCameraCapture: NO, isCaptureApplication: NO
+2026-10-27 18:56:13.118 Df SpringBoard[29146:6dbb065] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.apple.UNNotificationD
+2026-10-27 18:56:13.123 Df SpringBoard[29146:6db8afa] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Application foreground launch action for notification response action com.apple.UNNo

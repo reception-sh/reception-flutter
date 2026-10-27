@@ -1,11 +1,20 @@
 00:00 +0: loading /Users/andi/Code/support/reception-flutter/example/integration_test/app_test.dart
-Adding Swift Package Manager integration...                        826ms
+Adding Swift Package Manager integration...                      1,042ms
 Warning: Missing build name (CFBundleShortVersionString).
 Warning: Missing build number (CFBundleVersion).
 Action Required: You must set a build name and number in the pubspec.yaml file version field before submitting to the App Store.
 Running Xcode build...                                          
-Xcode build done.                                           23.6s
+Xcode build done.                                           25.5s
 00:00 +0: exercises the public API on iOS
+[example] started: configured false, unread 0
+[example] available (plans)
+[example] event chatOpened
+[example] available ()
+[example] available (plans)
+[example] event chatOpened
+[example] started: configured false, unread 0
+[example] available (plans)
 RESULT unread=0 available=[plans]
-00:09 +1: (tearDownAll)
+[example] available ()
+00:08 +1: (tearDownAll)
 00:09 +1: All tests passed!

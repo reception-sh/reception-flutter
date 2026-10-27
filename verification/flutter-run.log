@@ -1,14 +1,14 @@
 Launching lib/main.dart on iPhone 17 Pro in debug mode...
-Adding Swift Package Manager integration...                      1,164ms
+Adding Swift Package Manager integration...                        838ms
 Warning: Missing build name (CFBundleShortVersionString).
 Warning: Missing build number (CFBundleVersion).
 Action Required: You must set a build name and number in the pubspec.yaml file version field before submitting to the App Store.
 Running Xcode build...                                          
-Xcode build done.                                           29.0s
+Xcode build done.                                           17.7s
 [IMPORTANT:flutter/shell/platform/darwin/graphics/FlutterDarwinContextMetalImpeller.mm(45)] Using the Impeller rendering backend (Metal).
 Syncing files to device iPhone 17 Pro...                        
 flutter: [example] started: configured true, unread 0
-Syncing files to device iPhone 17 Pro...                            96ms
+Syncing files to device iPhone 17 Pro...                           107ms
 
 Flutter run key commands.
 r Hot reload. 🔥🔥🔥
@@ -27,9 +27,21 @@ Running tests...
 flutter: [example] event paywallOpened
 flutter: [example] event onPaywall:plans, chat:true
 Running tests...
+flutter: [example] event reviewOpened
+Running tests...
+flutter: [example] unread 1
+
+Performing hot restart...                                       
+Restarted application in 386ms.
+flutter: [example] unread 1
+flutter: [example] started: configured true, unread 1
+flutter: [example] available (plans)
+Running tests...
+flutter: [example] available ()
 Running tests...
 Running tests...
-flutter: [example] event dataDeleted
+flutter: [example] available (plans)
+Running tests...
 flutter: [example] available ()
 flutter: [example] available (plans)
 

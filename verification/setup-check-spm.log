@@ -1,5 +1,4 @@
 Timestamp               Ty Process[PID:TID]
-2026-10-27 16:31:14.215 I  Runner[87154:6d6afff] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
-2026-10-27 16:31:14.230 Df Runner[87154:6d6afff] [com.reception.sdk:SetupCheck] [Reception] Setup check started
-2026-10-27 16:31:15.193 I  Runner[87154:6d6afff] [com.reception.sdk:Reception] [Reception] INFO Device registered
-2026-10-27 16:31:16.433 Df Runner[87154:6d6afff] [com.reception.sdk:SetupCheck] [Reception] Setup check passed
+2026-10-27 18:47:13.529 I  Runner[27958:6db5136] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-27 18:47:13.530 Df Runner[27958:6db5136] [com.reception.sdk:SetupCheck] [Reception] Setup check started
+2026-10-27 18:47:14.214 Df Runner[27958:6db5136] [com.reception.sdk:SetupCheck] [Reception] Setup check passed

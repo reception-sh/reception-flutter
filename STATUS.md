@@ -119,10 +119,12 @@ Open questions: none.
 
 ## Verification
 
-Simulator verification of the example app (Flutter 3.47.8, Xcode 26.5, iPhone 17 Pro / iOS 26.5, local backend on
-:3123, 2026-10-27). Exact commands, results and evidence: `verification/commands.txt`, `verification/screenshots.txt`,
-`verification/*.log`; summary in German: `verification/EXPLAINER.md`. This supersedes the notes above that the
-example is still the template and that runtime behaviour is unverified.
+Final simulator verification of the example app on the final plugin code (main at a2b487f: Dart connection path,
+request/resolve paywall availability, launch-tap dedupe, callback guards, color conversion), 2026-10-27
+18:41–19:02 CET, Flutter 3.47.8, Xcode 26.5, iPhone 17 Pro / iOS 26.5, local backend on :3123. Exact commands,
+results and evidence: `verification/commands.txt`, `verification/screenshots.txt`, `verification/*.log`; summary in
+German: `verification/EXPLAINER.md`. This supersedes the earlier rounds and the notes above that the example is
+still the template and that runtime behaviour is unverified.
 
 Example: `example/lib/main.dart` exercises the whole public API (configure at startup when
 `RECEPTION_APP_ID` is defined, `RECEPTION_AUTOSTART=false` for the Configure button), `example/integration_test/`
@@ -130,24 +132,33 @@ drives it on a simulator, `example/ios/Runner/AppDelegate.swift` adds the exampl
 channel (`xcrun simctl privacy` has no notifications service), `Info.plist` declares `en`/`de` localizations, and
 `Runner/Runner.entitlements` adds the Push Notifications entitlement (`aps-environment` development).
 
-Passed: analyze, format, 45 Dart tests, SDK sync check, native tests, pod lint, `flutter pub publish --dry-run`
-(0 warnings), SwiftPM and CocoaPods builds and setup checks, previews, integration test, dashboard reply → unread badge → reply in chat,
-identity and metadata in the inbox details, `hidden` never offered (also absent from the Send offer dialog), offer
-card tap (`paywallOpened`, `onPaywall('plans')` with the chat still open, click recorded), simulator APNs token
-registered (sandbox) after `registerForPushIfAuthorized`, foreground banner with chat closed,
-no banner with chat open, receipt refreshes unread, background tap and cold-start tap open the chat, German via
-device language (both package managers) and via `languageOverride`, light/dark, embedded view, deleteData
-(`dataDeleted`, server data gone), logout (empty chat), hot restart (state re-read, availability works), and a
-fresh `flutter create` app with SwiftPM and CocoaPods without Podfile edits.
+All sections passed:
+- a. analyze, format, 51 Dart tests, SDK sync check (107 files), native tests (incl. launch-tap dedupe and
+  duplicate/unknown/late availability answers), pod lint with `LANG` unset, `flutter pub publish --dry-run`
+  (204 KB, 0 warnings).
+- b. clean SwiftPM build (0 warning lines), setup check, both previews, integration test (1 test).
+- c. inbox reply → unread badge → reply in chat; identity and metadata in the inbox details; `hidden` absent from
+  the Send offer dialog; offer card tap → `paywallOpened` and `onPaywall('plans')` with the chat still open;
+  review card tap → `reviewOpened` (iOS hands the App Store link to Safari on the simulator; the app keeps running).
+- d. simulator APNs token registered (sandbox); foreground banner with chat closed and unread refreshed by the
+  receipt; no banner with chat open; background tap and cold-start tap open the chat; a second push tapped 33 s
+  after the cold-start tap opens the chat again (the dedupe only suppresses the repeated launch tap).
+- e. CocoaPods build, setup check and German strings from `Reception.bundle`; SwiftPM restored, no artifacts.
+- f. hot restart under `flutter run`: unread and configuration re-read, availability (including the hanging
+  callback failing closed and restoring) works.
+- g. language override, dark/light, embedded view, deleteData (`dataDeleted`, server data gone), logout (empty chat).
+- h. fresh `flutter create` app: SwiftPM and CocoaPods builds after raising the deployment target, no Podfile edits.
 
-Not verified: the review card (`reviewOpened`) — the dashboard disables it until the app has an App Store ID,
-and none was invented; real APNs delivery from the backend (pushes were simulated with `xcrun simctl push`); a
-server-side `IdentityRejectedEvent` (a malformed token is ignored locally by the SDK with "Identity token ignored,
-its user_id could not be read"); automations; photos; release builds.
+Observed, not bugs: `setPushToken` called before configure is cached by the plugin and applied after configure (as
+PUSH-DESIGN specifies), so the example's "Calls before configure" registers its dummy `aabb` token until the real
+APNs token replaces it; `flutter test integration_test` uninstalls the app afterwards, so the next install is a new
+device with a new conversation.
 
-After the availability contract became the request/resolve pair (a221133, 5e9dacc), the iOS checks were re-run:
-both example builds with 0 compiler warnings (generated code included), `tool/test_native.sh` and `tool/pod_lint.sh`
-(only the `:path` source warning) pass. The simulator round above predates that change.
+Not verified: real APNs delivery from the backend to a physical device (pushes were simulated with
+`xcrun simctl push`); the App Store review sheet itself (no App Store on the simulator); a server-side
+`IdentityRejectedEvent` (a malformed token is ignored locally by the SDK with "Identity token ignored, its user_id
+could not be read"); automations reacting to `track`; photo sending; release builds; Android/web at runtime (unit
+tests only).
 
 ### Bugs found during verification
 
@@ -173,7 +184,7 @@ Against `reception/content/docs/flutter.md` (served at /docs/flutter):
    guide requires for iOS.
 3. Install (CocoaPods): the Podfile platform line is optional in practice. The generated Podfile keeps
    `# platform :ios, '15.0'` commented and builds; an explicit `'15.0'` still builds with a CocoaPods warning
-   ("may not be compatible … minimum requirement of iOS 17.0"). The guide's advice is correct, but "Flutter apps
+   ("may not be compatible … minimum requirement of iOS 17.0"; checked in the first round). The guide's advice is correct, but "Flutter apps
    need no Podfile edits" holds even without it.
 4. Local verification environment (not the guide): the backend's `AUTH_URL=http://localhost:3000` sends the
    post-login redirect of the :3123 dev server to :3000; `local-test@example.test` is not a member of the

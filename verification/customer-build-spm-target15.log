@@ -1,6 +1,6 @@
 Building com.example.customerCheck for simulator (ios)...
 Running Xcode build...                                          
-Xcode build done.                                            5.3s
+Xcode build done.                                            5.2s
 Failed to build iOS app
 Target Integrity (Xcode): The package product 'reception-flutter' requires minimum platform version 17.0 for the iOS platform, but this target supports 15.0
 
