@@ -81,6 +81,15 @@ class ReceptionPaywall {
       Object.hash(id, title, source, Object.hashAll(products), presentable);
 }
 
+/// A copy of [paywall] whose products cannot change after assignment.
+ReceptionPaywall frozenPaywall(ReceptionPaywall paywall) => ReceptionPaywall(
+  id: paywall.id,
+  title: paywall.title,
+  source: paywall.source,
+  products: List.unmodifiable(paywall.products),
+  presentable: paywall.presentable,
+);
+
 /// Converts [paywall] to its bridge message.
 PaywallMessage paywallMessage(ReceptionPaywall paywall) => PaywallMessage(
   id: paywall.id,

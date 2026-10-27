@@ -143,3 +143,12 @@ List<String> captureLogs() {
   addTearDown(() => debugPrint = original);
   return logs;
 }
+
+/// Captures errors reported through `FlutterError.reportError`.
+List<FlutterErrorDetails> captureErrors() {
+  final errors = <FlutterErrorDetails>[];
+  final original = FlutterError.onError;
+  FlutterError.onError = errors.add;
+  addTearDown(() => FlutterError.onError = original);
+  return errors;
+}

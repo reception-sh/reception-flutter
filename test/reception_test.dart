@@ -13,11 +13,13 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late FakeHost host;
   late List<String> logs;
+  late List<FlutterErrorDetails> errors;
   setUp(() {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     resetReception();
     host = FakeHost();
     logs = captureLogs();
+    errors = captureErrors();
   });
   tearDown(() => debugDefaultTargetPlatformOverride = null);
 
@@ -295,9 +297,9 @@ void main() {
       Reception.paywallAvailability = (_) =>
           throw StateError('private details');
       expect(await check('b', 2), isFalse);
-      expect(logs, [
-        '[Reception] Paywall availability callback failed; offer unavailable.',
-      ]);
+      expect(errors.single.exception, isA<StateError>());
+      expect(errors.single.library, 'reception_flutter');
+      expect(logs, isEmpty);
       final pending = Completer<bool>();
       Reception.paywallAvailability = (_) => pending.future;
       await request('c', 3);
@@ -506,4 +508,61 @@ void main() {
       ]);
     },
   );
+
+  test(
+    'throwing app callbacks are reported and never reach the host as errors',
+    () async {
+      Reception.onEvent = (_) => throw StateError('event failed');
+      Reception.onPaywall = (_) => throw StateError('paywall failed');
+      await Reception.openChat();
+      // FakeHost.send throws if Dart replied with an error.
+      await host.send('onEvent', [EventMessage(type: 'chatOpened')]);
+      await host.send('onPaywall', ['plans']);
+      expect(errors.map((error) => '${error.exception}'), [
+        'Bad state: event failed',
+        'Bad state: paywall failed',
+      ]);
+      expect(
+        errors.map((error) => error.library),
+        everyElement('reception_flutter'),
+      );
+    },
+  );
+
+  test('paywalls are frozen at assignment', () async {
+    final products = [const ReceptionPaywallProduct(id: 'pro')];
+    Reception.paywalls = [
+      ReceptionPaywall(id: 'plans', title: 'Plans', products: products),
+    ];
+    products.add(const ReceptionPaywallProduct(id: 'later'));
+    await pumpEventQueue();
+    expect(Reception.paywalls.single.products, [
+      const ReceptionPaywallProduct(id: 'pro'),
+    ]);
+    expect(
+      () => Reception.paywalls.single.products.add(products.last),
+      throwsUnsupportedError,
+    );
+    final sent = host.callsTo('setPaywalls').single[0]! as List<Object?>;
+    expect((sent.single! as PaywallMessage).products, hasLength(1));
+  });
+
+  test('metadata and push payloads are read at call time', () async {
+    final connected = Completer<SnapshotMessage>();
+    host.handlers['connect'] = (_) => connected.future;
+    final metadata = {'plan': 'Pro'};
+    final routing = <String, Object?>{'conversationId': 'thread'};
+    final calls = [
+      Reception.setMetadata(metadata),
+      Reception.handlePushNotification({'reception': routing}),
+    ];
+    metadata['plan'] = 'Free';
+    routing['conversationId'] = 'other';
+    connected.complete(snapshot());
+    await Future.wait(calls);
+    expect(host.callsTo('setMetadata').single, [
+      {'plan': 'Pro'},
+    ]);
+    expect(host.callsTo('handlePushNotification').single, ['thread', true]);
+  });
 }

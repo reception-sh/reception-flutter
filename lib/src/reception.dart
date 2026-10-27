@@ -115,8 +115,10 @@ abstract final class Reception {
 
   /// Replaces the whole metadata dictionary (at most 20 fields). Names and
   /// emails belong in [identify].
-  static Future<void> setMetadata(Map<String, String> metadata) =>
-      _call((host) => host.setMetadata(metadata));
+  static Future<void> setMetadata(Map<String, String> metadata) {
+    final snapshot = Map<String, String>.of(metadata);
+    return _call((host) => host.setMetadata(snapshot));
+  }
 
   /// Ends a real signed-in session; server history is kept. Reapply identity
   /// and metadata for the next session.
@@ -124,7 +126,9 @@ abstract final class Reception {
       _call((host) async => _state.update(await host.logout()));
 
   /// Deletes this device's support data. Call before [logout]; throws a
-  /// [ReceptionError] with code and HTTP status on failure.
+  /// [ReceptionError] with code and HTTP status on failure. Without a session,
+  /// after it ended, or when the App ID is unavailable, deletion can complete
+  /// locally without erasing earlier server records.
   static Future<void> deleteData() => _call((host) async {
     final result = await host.deleteData();
     _state.update(result.state);
@@ -164,17 +168,18 @@ abstract final class Reception {
   static Future<bool> handlePushNotification(
     Map<String, Object?> payload, {
     bool openChat = true,
-  }) async =>
-      await _call((host) async {
-        // Only this routing field is consumed natively.
-        if (payload['reception'] case {
-          'conversationId': final String id,
-        } when id.isNotEmpty) {
-          return host.handlePushNotification(id, openChat);
-        }
-        return false;
-      }) ??
-      false;
+  }) async {
+    // Only this routing field is consumed natively; read it before any await.
+    final id = switch (payload['reception']) {
+      {'conversationId': final String id} when id.isNotEmpty => id,
+      _ => null,
+    };
+    return await _call(
+          (host) async =>
+              id != null && await host.handlePushNotification(id, openChat),
+        ) ??
+        false;
+  }
 
   /// Re-evaluates paywall availability; with [invalidate] after subscription
   /// changes. The result arrives asynchronously in [availablePaywalls].
@@ -262,7 +267,9 @@ abstract final class Reception {
 
   static set paywalls(List<ReceptionPaywall> value) {
     if (!checkSupported()) return;
-    final paywalls = List<ReceptionPaywall>.unmodifiable(value);
+    final paywalls = List<ReceptionPaywall>.unmodifiable(
+      value.map(frozenPaywall),
+    );
     final messages = paywalls.map(paywallMessage).toList();
     _assign(
       'paywalls',
@@ -355,13 +362,24 @@ class _FlutterApi implements ReceptionFlutterApi {
 
   @override
   void onEvent(EventMessage event) {
-    if (eventFromMessage(event) case final mapped?) {
-      Reception._onEvent?.call(mapped);
+    final handler = Reception._onEvent;
+    final mapped = eventFromMessage(event);
+    if (handler == null || mapped == null) return;
+    try {
+      handler(mapped);
+    } catch (error, stack) {
+      reportCallbackError(error, stack, 'while handling a Reception event');
     }
   }
 
   @override
-  void onPaywall(String id) => Reception._onPaywall?.call(id);
+  void onPaywall(String id) {
+    try {
+      Reception._onPaywall?.call(id);
+    } catch (error, stack) {
+      reportCallbackError(error, stack, 'while opening paywall "$id"');
+    }
+  }
 
   @override
   void requestPaywallAvailability(
@@ -384,9 +402,11 @@ class _FlutterApi implements ReceptionFlutterApi {
           handler(id),
         ).timeout(const Duration(seconds: 5), onTimeout: () => false);
       }
-    } catch (_) {
-      debugPrint(
-        '[Reception] Paywall availability callback failed; offer unavailable.',
+    } catch (error, stack) {
+      reportCallbackError(
+        error,
+        stack,
+        'while checking paywall availability; offer unavailable',
       );
     }
     allowed =

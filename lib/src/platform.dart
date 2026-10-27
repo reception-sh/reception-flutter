@@ -17,5 +17,17 @@ bool checkSupported() {
 void warnInvalid(String field) =>
     debugPrint('[Reception] Invalid $field; ignored.');
 
+/// Reports an exception thrown by an app callback without letting it reach
+/// the host: Pigeon error replies with non-string details crash the Swift side.
+void reportCallbackError(Object error, StackTrace stack, String context) =>
+    FlutterError.reportError(
+      FlutterErrorDetails(
+        exception: error,
+        stack: stack,
+        library: 'reception_flutter',
+        context: ErrorDescription(context),
+      ),
+    );
+
 /// Logs a failed fire-and-forget host call without its private diagnostics.
 void bridgeFailure() => debugPrint('[Reception] Native bridge call failed.');
