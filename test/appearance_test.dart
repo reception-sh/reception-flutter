@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/painting.dart' show Color;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reception_flutter/reception_flutter.dart';
 import 'package:reception_flutter/src/appearance.dart'
