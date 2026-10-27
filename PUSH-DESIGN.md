@@ -46,3 +46,76 @@ Nothing beyond configuring Reception after `Firebase.initializeApp()`; their `on
 1. Any case where calling the completion handler ourselves for Reception payloads while another delegate also receives the same call (Flutter forwarding to all plugins when the app delegate is the center delegate) leads to a double completion? Mitigation: we only act on the call path we own: if `center.delegate === proxy`, we handle in the proxy and NOT in the FlutterPlugin forwarding method (the plugin's `userNotificationCenter…` implementations are omitted entirely; only the proxy implements them). Is that sufficient?
 2. Any risk in reading `connectionOptions.notificationResponse` when Firebase is present (it may have consumed it)? Mitigation: the proxy is not installed at launch, Firebase forwards non-gcm taps to its saved original only if one existed at its setup time; at cold start that is nil. So with Firebase present, a cold-start Reception tap arrives only via `connectionOptions.notificationResponse` (scene) or `launchOptions` (legacy). Is `connectionOptions` nil for later plugins when Firebase returns true from `scene:willConnectToSession:options:`?
 3. Should the proxy be installed at plugin registration time instead of at configure (so it exists at launch and before Firebase's setup)? Trade-off: then Firebase would wrap us as its original and forward everything to us, and we'd have to complete non-Reception notifications for Firebase with `[]`, overriding the app's `setForegroundNotificationPresentationOptions`. Configure-time install seems cleaner, but confirm.
+
+---
+
+## Final decisions after review (Codex gpt-6-astra xhigh, 2026-10-27) — binding for implementation
+
+Corrections to the facts above: plugin callback order is delegate insertion order (dependency-ordered registration,
+alphabetical tie-break), not simply alphabetical. Under UIScene, UIKit passes nil launch options; Flutter's launch
+fallback passes an empty dictionary. Without any notification-center delegate iOS does not present foreground
+notifications (equivalent to completing with `[]`).
+
+### Token
+- Plugin captures `didRegisterForRemoteNotificationsWithDeviceToken` → `cachedToken = (data, .automatic)`; Dart
+  `setPushToken(hex, environment)` → `cachedToken = (data, environment)`. Whenever configured, apply immediately via
+  `Reception.shared.setPushToken`.
+- `configure` (and `configureForTesting`): after configuring, apply `cachedToken` if any, then call
+  `await Reception.shared.registerForPushIfAuthorized()` (never prompts; authorized, provisional and ephemeral).
+- Re-apply `cachedToken` after `logout()` and after successful `deleteData()`, then call `registerForPushIfAuthorized()`
+  again. No assumption that APNs returns a token quickly; the cache covers the gap.
+- Foreground: plugin's `sceneDidBecomeActive`/`applicationDidBecomeActive` → if configured, `registerForPushIfAuthorized()`.
+- Dart `registerForPushIfAuthorized()` remains available for the app's own permission flow.
+
+### Receipt and taps: `ReceptionNotificationCenter` proxy
+- Installed once per process at the first `configure(handlesNotifications: true)` on the main actor; strongly retained
+  by the plugin singleton. `previous = center.delegate` (may be nil, an app delegate, Firebase, FLN, …).
+  If `center.delegate` is later replaced by someone else, log once at info level and do nothing (never rewrap).
+- The `FlutterPlugin` class implements **no** `userNotificationCenter…` selectors; only the proxy does, so Flutter's
+  forwarding to all plugins can never double-complete a Reception notification.
+- Every forwarded completion handler is wrapped in an exactly-once gate (`OnceCompletion`): the first call wins, later
+  calls are ignored; a 10 s fallback timer completes with `[]` (willPresent) or `()` (didReceive) if nobody did. The
+  gate runs on the main actor.
+- `willPresent`: Reception payload → `handlePushNotification(userInfo, openChat: false)` routed through
+  `NotificationRouting` (receipt), complete `[]` while `isChatOpen`, else `[.banner, .list, .sound]`; never forwarded.
+  Otherwise forward to `previous` if it implements the selector; if no previous delegate, complete `[]` (preserves the
+  app's behaviour before Reception: iOS showed nothing in the foreground without a delegate).
+- `didReceive response`: Reception payload and `actionIdentifier == UNNotificationDefaultActionIdentifier` → route as
+  tap (`openChat: true` or `.open` per routing state); dismiss/custom actions → route nothing but still complete; never
+  forwarded. Otherwise forward to `previous` if it implements the selector; else complete.
+- `openSettingsFor` → forward only when implemented by previous.
+- Everything on the main actor; the proxy is `@MainActor final class … : NSObject, UNUserNotificationCenterDelegate`
+  using the completion-handler variants only (never the async variants).
+
+### Cold start and background taps
+- Scene path (Flutter ≥ 3.38, default ≥ 3.41): `registrar.addSceneDelegate(plugin)`;
+  `scene(_:willConnectTo:options:)` reads `connectionOptions?.notificationResponse`; Reception payload with the default
+  action → `pendingTap = (key, conversationId)`; return `false` (never consume for others).
+- Legacy path: `application(_:didFinishLaunchingWithOptions:)` reads `launchOptions?[.remoteNotification]`; Reception
+  payload → `pendingTap` keyed by a one-launch alias `"launch"`; return `true` always.
+- Running/background taps arrive through the proxy's `didReceive` (key `identifier + date`).
+- `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` is **receipt only** (never a tap): Reception
+  payload → `handlePushNotification(openChat: false)` (routing state: receive), complete `.noData`, return `true`;
+  otherwise return `false`. Only used when `handlesNotifications` is on.
+- `pendingTap` holds the latest tap until `configure(handlesNotifications: true)` succeeds, which drains it once (opens
+  chat via routing). Opting out at first configure discards it. Keys consumed by a drain are recorded in routing so the
+  same response arriving later via the proxy is ignored.
+
+### Routing state (`NotificationRouting`)
+- Port of RN: per key `receive` / `receiveAndOpen` / `open` / `ignore`; foreground receipts feed the same machine so
+  receipt-then-tap yields `open`, not a second receive-and-open.
+- Deterministic bound: ordered dictionary of at most 64 keys, oldest evicted first. Pending tap storage is separate.
+
+### Opt-out (`handlesNotifications: false`)
+- Gates launch capture, scene capture, pending-tap draining, fetch handling and proxy installation.
+- If a proxy is already installed from an earlier configure and a later configure opts out: the proxy becomes
+  pass-through (forwards everything, handles nothing); if the plugin still owns `center.delegate`, restore `previous`.
+  Never overwrite a newer delegate.
+- Apps then call `Reception.handlePushNotification(payload, openChat:)` from their own bridge; `Reception.isChatOpen`
+  drives their presentation policy.
+
+### Compatibility statements for the docs
+- firebase_messaging ≥ 17.0.0 for apps that use Firebase (older versions complete unrelated notifications and
+  mis-implement the scene callback). Configure Reception after `Firebase.initializeApp()`.
+- flutter_local_notifications: keep its documented AppDelegate setup; Reception wraps whatever delegate exists at configure.
+- Flutter ≥ 3.38 (scene delegate API). Verified on current stable 3.47.
