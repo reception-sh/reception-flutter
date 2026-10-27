@@ -51,8 +51,10 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   notification handling. Only the current connection (`connected && current === self`) may change `onPaywall` and
   `paywallAvailability`. `deleteData` and `registerForPushIfAuthorized` are completion-based (`@asyncCallback`): they run on the
   main actor and complete once with `.success`.
-- `PaywallRequests.swift`: races `checkPaywallAvailability(id, generation)` against a 5 s timeout, SDK cancellation
-  and `cancelAll()` (reconnect, callback change); any failure is `false`.
+- `PaywallRequests.swift`: asks Dart with the completion-based `checkPaywallAvailability(id, generation)`; the reply
+  closure holds only the request id and a weak reference and hops to the main actor (Flutter's reply block is
+  imported as `@Sendable`). The SDK-facing request fails closed on a 5 s timeout, SDK cancellation and `cancelAll()`
+  (reconnect, callback change); a late or lost reply is ignored and keeps no task alive.
 - `ReceptionNotifications.swift`: token cache (data + environment) applied whenever configured; after configure,
   logout and successful `deleteData` it re-applies the token and calls `registerForPushIfAuthorized()`. Pending tap
   (latest wins) drained once by `configure(handlesNotifications: true)`, discarded by an opt-out configure.
@@ -86,7 +88,8 @@ Verification (Flutter 3.47.8, Xcode 26.5, 2026-10-27):
   which needs `--allow-warnings`; the script then prints the warnings and fails on any other.
 - `tool/test_native.sh` (needs a booted simulator, or pass a device): `swiftc -swift-version 5
   -strict-concurrency=complete -warnings-as-errors` builds `PushToken`, `NotificationRouting`, `OnceCompletion`,
-  `PaywallRequests` with `tool/native_tests/LogicTests.swift` (macOS, incl. the launch tap dedupe rule) and `ReceptionColor` with
+  `PaywallRequests` with `tool/native_tests/LogicTests.swift` (macOS, incl. the launch tap rule and late replies
+  after cancellation, reconnect and timeout) and `ReceptionColor` with
   `ReceptionColorTests.swift` (simulator); all pass.
 - The example's `lib/main.dart` is still the template (does not compile against the Dart API), so builds used a
   temporary minimal `main.dart`; it was restored. Runtime behaviour (push, cold start, platform view) is not yet
@@ -113,11 +116,12 @@ Deviations:
   the checkout directory name (`reception-flutter`), so SwiftPM resolution failed.
 
 Open questions:
-- `PaywallRequests` awaits the generated `async` `checkPaywallAvailability`; if Dart never replies (hot restart, dead
-  isolate) that inner task stays suspended with its captures, while the SDK-facing request still fails closed after
-  5 s. A completion-based call (capturing only a request id and `[weak self]`) needs `@asyncCallback` instead of
-  `@async` on `ReceptionFlutterApi.checkPaywallAvailability` in `pigeons/reception.dart` (contract change; Pigeon 29
-  generates no completion variant otherwise). Not done pending that decision.
+- Generated code warning (CocoaPods build, `pod lib lint`; SwiftPM shows none): `Messages.g.swift:1065:9: warning:
+  capture of 'completion' with non-Sendable type '(Result<Bool, ReceptionBridgeError>) -> Void' in a '@Sendable'
+  closure`. Pigeon 29's callback-style FlutterApi (`@asyncCallback` on `checkPaywallAvailability`) captures the
+  completion in Flutter's reply block, which Swift imports as `@Sendable`; the other FlutterApi methods capture a
+  Sendable continuation and do not warn. `tool/pod_lint.sh` fails on it by design. Options: accept and allow this one
+  warning, or go back to `@async` (a lost reply then keeps one suspended task per unanswered request).
 - Runtime behaviour (push receipt and taps, cold start, platform view) still needs simulator verification with the
   example app.
 
