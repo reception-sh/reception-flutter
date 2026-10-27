@@ -265,45 +265,69 @@ void main() {
     },
   );
 
+  /// Sends a host availability request for `plans`.
+  Future<void> request(String requestId, int generation) =>
+      host.send('requestPaywallAvailability', [requestId, 'plans', generation]);
+
+  /// The answer Dart resolved for [requestId], or null if still pending.
+  Future<Object?> resolution(String requestId) async {
+    await pumpEventQueue();
+    final answers = [
+      for (final args in host.callsTo('resolvePaywallAvailability'))
+        if (args[0] == requestId) args[1],
+    ];
+    expect(answers.length, lessThan(2));
+    return answers.firstOrNull;
+  }
+
+  Future<Object?> check(String requestId, int generation) async {
+    await request(requestId, generation);
+    return resolution(requestId);
+  }
+
   test(
     'paywall availability round trip, failure, replacement and stale generations fail closed',
     () async {
-      Future<Object?> check(int generation) =>
-          host.send('checkPaywallAvailability', ['plans', generation]);
       await Reception.openChat();
-      expect(await check(0), isFalse, reason: 'no callback');
+      expect(await check('none', 0), isFalse, reason: 'no callback');
       Reception.paywallAvailability = (id) async => id == 'plans';
-      expect(await check(1), isTrue);
+      expect(await check('a', 1), isTrue);
       Reception.paywallAvailability = (_) =>
           throw StateError('private details');
-      expect(await check(2), isFalse);
+      expect(await check('b', 2), isFalse);
       expect(logs, [
         '[Reception] Paywall availability callback failed; offer unavailable.',
       ]);
       final pending = Completer<bool>();
       Reception.paywallAvailability = (_) => pending.future;
-      final replaced = check(3);
-      await pumpEventQueue();
+      await request('c', 3);
+      expect(await resolution('c'), isNull);
       Reception.paywallAvailability = null;
       pending.complete(true);
-      expect(await replaced, isFalse);
+      expect(await resolution('c'), isFalse);
       final again = Completer<bool>();
       Future<bool> wait(String _) => again.future;
       // One tear-off, so the handler stays identical across both assignments.
       final same = wait;
       Reception.paywallAvailability = same;
-      final reassigned = check(5);
+      await request('d', 5);
       await pumpEventQueue();
       Reception.paywallAvailability = same;
       again.complete(true);
       expect(
-        await reassigned,
+        await resolution('d'),
         isFalse,
         reason: 'same callback, new generation',
       );
-      Reception.paywallAvailability = (_) => true;
-      expect(await check(1), isFalse, reason: 'stale generation');
-      expect(await check(7), isTrue);
+      final asked = <String>[];
+      Reception.paywallAvailability = (id) {
+        asked.add(id);
+        return true;
+      };
+      expect(await check('e', 1), isFalse, reason: 'stale generation');
+      expect(asked, isEmpty, reason: 'stale requests never reach the app');
+      expect(await check('f', 7), isTrue);
+      expect(asked, ['plans']);
       expect(host.callsTo('setPaywallAvailability'), [
         [true, 1],
         [true, 2],
@@ -313,6 +337,17 @@ void main() {
         [true, 6],
         [true, 7],
       ]);
+    },
+  );
+
+  test(
+    'availability is resolved even when the host rejects the answer',
+    () async {
+      Reception.paywallAvailability = (_) => true;
+      host.handlers['resolvePaywallAvailability'] = (_) =>
+          throw PlatformException(code: 'error');
+      expect(await check('a', 1), isTrue);
+      expect(logs, ['[Reception] Native bridge call failed.']);
     },
   );
 
@@ -394,10 +429,7 @@ void main() {
       Reception.paywallAvailability = (_) => true;
       await pumpEventQueue();
       resetReception();
-      expect(
-        await host.send('checkPaywallAvailability', ['plans', 1]),
-        isFalse,
-      );
+      expect(await check('old', 1), isFalse);
       await Reception.openChat();
       expect(host.callsTo('connect'), hasLength(2));
     },

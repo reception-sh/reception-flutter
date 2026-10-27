@@ -364,12 +364,22 @@ class _FlutterApi implements ReceptionFlutterApi {
   void onPaywall(String id) => Reception._onPaywall?.call(id);
 
   @override
-  Future<bool> checkPaywallAvailability(String id, int generation) async {
+  void requestPaywallAvailability(
+    String requestId,
+    String id,
+    int generation,
+  ) => unawaited(_resolveAvailability(requestId, id, generation));
+
+  /// Always resolves the request: native keeps it pending until Dart answers.
+  Future<void> _resolveAvailability(
+    String requestId,
+    String id,
+    int generation,
+  ) async {
     final handler = Reception._availability;
     var allowed = false;
     try {
       if (handler != null && generation == Reception._generation) {
-        // Always answer: native waits for this reply.
         allowed = await Future.value(
           handler(id),
         ).timeout(const Duration(seconds: 5), onTimeout: () => false);
@@ -379,8 +389,17 @@ class _FlutterApi implements ReceptionFlutterApi {
         '[Reception] Paywall availability callback failed; offer unavailable.',
       );
     }
-    return allowed &&
+    allowed =
+        allowed &&
         handler == Reception._availability &&
         generation == Reception._generation;
+    try {
+      await (await Reception._host()).resolvePaywallAvailability(
+        requestId,
+        allowed,
+      );
+    } catch (_) {
+      bridgeFailure();
+    }
   }
 }

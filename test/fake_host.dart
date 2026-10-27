@@ -32,6 +32,7 @@ const _methods = [
   'setPaywalls',
   'setPaywallHandler',
   'setPaywallAvailability',
+  'resolvePaywallAvailability',
   'refreshPaywalls',
 ];
 

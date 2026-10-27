@@ -8,21 +8,19 @@ import 'fake_host.dart';
 
 void main() {
   testWidgets(
-    'a paywall availability callback that never completes answers false after 5 s',
+    'a paywall availability callback that never completes resolves false after 5 s',
     (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       final host = FakeHost();
       Reception.paywallAvailability = (_) => Completer<bool>().future;
       await tester.pump();
-      var answered = false;
-      final reply = host
-          .send('checkPaywallAvailability', ['plans', 1])
-          .whenComplete(() => answered = true);
+      await host.send('requestPaywallAvailability', ['request', 'plans', 1]);
       await tester.pump(const Duration(seconds: 4));
-      expect(answered, isFalse);
+      expect(host.callsTo('resolvePaywallAvailability'), isEmpty);
       await tester.pump(const Duration(seconds: 1));
-      expect(answered, isTrue);
-      expect(await reply, isFalse);
+      expect(host.callsTo('resolvePaywallAvailability'), [
+        ['request', false],
+      ]);
       debugDefaultTargetPlatformOverride = null;
     },
   );
