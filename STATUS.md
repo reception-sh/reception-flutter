@@ -156,10 +156,17 @@ All sections passed:
 - g. language override, dark/light, embedded view, deleteData (`dataDeleted`, server data gone), logout (empty chat).
 - h. fresh `flutter create` app: SwiftPM and CocoaPods builds after raising the deployment target, no Podfile edits.
 
+Final re-check on main at 6a2a7b0 (after 12dbdc0 launch-tap suppression limited to one duplicate within 10 s, and
+a98bb28 per-connection call tracking), 2026-10-27 19:10–19:23 CET: analyze, 51 Dart tests, native tests (incl.
+launch-tap dedupe), clean SwiftPM build (0 warnings), integration test, setup check, background tap, cold-start tap,
+a second push for the same conversation tapped 31 s after the cold start (opens the chat again), and hot restart
+with the availability check all pass (`verification/commands.txt` "FINAL RE-CHECK", `verification/recheck-*.log`).
+
 Observed, not bugs: `setPushToken` called before configure is cached by the plugin and applied after configure (as
 PUSH-DESIGN specifies), so the example's "Calls before configure" registers its dummy `aabb` token until the real
-APNs token replaces it; `flutter test integration_test` uninstalls the app afterwards, so the next install is a new
-device with a new conversation.
+APNs token replaces it; `flutter test integration_test` uninstalls the app afterwards (the next install is a new
+device with a new conversation) and leaves its test-harness build in `example/build/ios/iphonesimulator/Runner.app`,
+which shows a white screen when launched standalone; rebuild the example before installing it.
 
 Not verified: real APNs delivery from the backend to a physical device (pushes were simulated with
 `xcrun simctl push`); the App Store review sheet itself (no App Store on the simulator); a server-side

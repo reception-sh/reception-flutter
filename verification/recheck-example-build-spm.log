@@ -1,0 +1,8 @@
+Building sh.reception.receptionFlutterExample for simulator (ios)...
+Adding Swift Package Manager integration...                        782ms
+Warning: Missing build name (CFBundleShortVersionString).
+Warning: Missing build number (CFBundleVersion).
+Action Required: You must set a build name and number in the pubspec.yaml file version field before submitting to the App Store.
+Running Xcode build...                                          
+Xcode build done.                                           18.2s
+✓ Built build/ios/iphonesimulator/Runner.app
