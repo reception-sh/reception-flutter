@@ -71,7 +71,9 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   answers are ignored. The channel holds no completion closures.
 - `ReceptionNotifications.swift`: token cache (data + environment) applied whenever configured; after configure,
   logout and successful `deleteData` it re-applies the token and calls `registerForPushIfAuthorized()`. Pending tap
-  (latest wins) drained once by `configure(handlesNotifications: true)`, discarded by an opt-out configure.
+  (latest wins) drained once, 500 ms after `configure(handlesNotifications: true)` so the appearance and language
+  settings Dart sends right after configure apply first (a later configure reschedules it), discarded by an opt-out
+  configure.
   `ReceptionNotificationCenter` proxy installed once at the first handling configure, wraps the previous delegate,
   handles Reception payloads (receipt → `[]` while chat open else `[.banner, .list, .sound]`; default-action tap →
   open; other actions only complete), forwards everything else through `OnceCompletion` (exactly once;
@@ -136,7 +138,24 @@ Known limitations:
   isolate that died at that instant stays suspended until process exit. Debug only (hot restart), bounded by the
   calls in flight at that moment.
 
+Other changes after review: `welcomeIconOffset` components outside -1000…1000 are ignored (the SDK's appearance
+report traps on huge values); calls to Dart queued for an earlier connection are skipped by a connection token;
+`example/ios/RunnerTests` imports the plugin module and tests `PushToken` and `NotificationRouting`
+(`build-for-testing` succeeds; it needs any Flutter build of the example first to generate the SwiftPM package).
+The connection-token check is one comparison inside `ReceptionHost`, which depends on Flutter and the SDK, so it has
+no native unit test.
+
 Open questions: none.
+
+## Upstream SDK follow-ups (reception-ios)
+
+To fix in the SDK and re-vendor with the next SDK release:
+- `DeviceStore.clear()` omits the persisted `subscriptionStates` key, so stale dictionaries stay in UserDefaults after
+  logout and deletion (`Vendor/Reception/Sources/Reception/Client/DeviceStore.swift:148`).
+- German string for a failed image download says "Erneut senden" instead of "Erneut versuchen"
+  (`Localizable.xcstrings` around line 7340, used by `RemoteAttachmentImage.swift:21`).
+- A changed `appearance.preferredColorScheme` is not applied to an already presented chat (accent color and language
+  do update), observed in the customer walkthrough.
 
 ## Verification
 
