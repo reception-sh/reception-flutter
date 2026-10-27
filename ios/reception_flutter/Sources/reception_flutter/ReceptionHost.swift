@@ -5,7 +5,7 @@ import Observation
 /// recently connected engine receives state, events and callbacks; `connect()` replaces any earlier connection,
 /// including the same engine's after a hot restart.
 @MainActor
-internal final class ReceptionHost: ReceptionHostApi {
+internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   private static weak var current: ReceptionHost?
   private static var revision: Int64 = 0
   /// The appearance JSON last accepted from Dart, returned in snapshots.
@@ -97,66 +97,58 @@ internal final class ReceptionHost: ReceptionHostApi {
 
   nonisolated func version() throws -> String { Reception.version }
 
-  nonisolated func connect() throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      Self.current?.invalidate()
-      Self.current = self
-      connected = true
-      // Dart counts setting revisions from zero again after a hot restart.
-      settingRevisions = [:]
-      Reception.shared.onEvent = { [weak self] event in self?.send(event) }
-      observe()
-      return snapshot()
-    }
+  func connect() throws -> SnapshotMessage {
+    Self.current?.invalidate()
+    Self.current = self
+    connected = true
+    // Dart counts setting revisions from zero again after a hot restart.
+    settingRevisions = [:]
+    Reception.shared.onEvent = { [weak self] event in self?.send(event) }
+    observe()
+    return snapshot()
   }
 
-  nonisolated func configure(appId: String, handlesNotifications: Bool) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      Reception.configure(appId: appId)
-      ReceptionNotifications.shared.configured(handlesNotifications: handlesNotifications)
-      return snapshot()
-    }
+  func configure(appId: String, handlesNotifications: Bool) throws -> SnapshotMessage {
+    Reception.configure(appId: appId)
+    ReceptionNotifications.shared.configured(handlesNotifications: handlesNotifications)
+    return snapshot()
   }
 
-  nonisolated func configureForTesting(appId: String, serviceUrl: String) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      #if DEBUG
-        if let url = URL(string: serviceUrl), let host = url.host, let scheme = url.scheme,
-          ["localhost", "127.0.0.1", "::1"].contains(host), ["http", "https"].contains(scheme)
-        {
-          Reception.configure(appId: appId, serviceURL: url)
-          ReceptionNotifications.shared.configured(handlesNotifications: true)
-        }
-      #endif
-      return snapshot()
-    }
+  func configureForTesting(appId: String, serviceUrl: String) throws -> SnapshotMessage {
+    #if DEBUG
+      if let url = URL(string: serviceUrl), let host = url.host, let scheme = url.scheme,
+        ["localhost", "127.0.0.1", "::1"].contains(host), ["http", "https"].contains(scheme)
+      {
+        Reception.configure(appId: appId, serviceURL: url)
+        ReceptionNotifications.shared.configured(handlesNotifications: true)
+      }
+    #endif
+    return snapshot()
   }
 
-  nonisolated func identify(userId: String?, name: String?, email: String?) throws {
-    MainActor.assumeIsolated { Reception.shared.identify(userId: userId, name: name, email: email) }
+  func identify(userId: String?, name: String?, email: String?) throws {
+    Reception.shared.identify(userId: userId, name: name, email: email)
   }
 
-  nonisolated func identifyToken(token: String) throws {
-    MainActor.assumeIsolated { Reception.shared.identify(token: token) }
+  func identifyToken(token: String) throws {
+    Reception.shared.identify(token: token)
   }
 
-  nonisolated func setMetadata(metadata: [String: String]) throws {
-    MainActor.assumeIsolated { Reception.shared.setMetadata(metadata) }
+  func setMetadata(metadata: [String: String]) throws {
+    Reception.shared.setMetadata(metadata)
   }
 
-  nonisolated func logout() throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      Reception.shared.logout()
-      ReceptionNotifications.shared.restorePush()
-      return snapshot()
-    }
+  func logout() throws -> SnapshotMessage {
+    Reception.shared.logout()
+    ReceptionNotifications.shared.restorePush()
+    return snapshot()
   }
 
-  nonisolated func deleteData() async throws -> DeleteResultMessage {
-    await deleteDataOnMain()
+  func deleteData(completion: @escaping (Result<DeleteResultMessage, Error>) -> Void) {
+    Task { completion(.success(await deleteDataResult())) }
   }
 
-  private func deleteDataOnMain() async -> DeleteResultMessage {
+  private func deleteDataResult() async -> DeleteResultMessage {
     do {
       try await Reception.shared.deleteData()
       ReceptionNotifications.shared.restorePush()
@@ -169,102 +161,85 @@ internal final class ReceptionHost: ReceptionHostApi {
     }
   }
 
-  nonisolated func openChat() throws {
-    MainActor.assumeIsolated { Reception.shared.openChat() }
+  func openChat() throws {
+    Reception.shared.openChat()
   }
 
-  nonisolated func closeChat() throws {
-    MainActor.assumeIsolated { Reception.shared.closeChat() }
+  func closeChat() throws {
+    Reception.shared.closeChat()
   }
 
-  nonisolated func track(event: String, opensChat: Bool) throws {
-    MainActor.assumeIsolated { Reception.shared.track(event, opensChat: opensChat) }
+  func track(event: String, opensChat: Bool) throws {
+    Reception.shared.track(event, opensChat: opensChat)
   }
 
-  nonisolated func setPushToken(hexToken: String, environment: String) throws {
-    MainActor.assumeIsolated {
-      let environments: [String: Reception.PushEnvironment] = [
-        "automatic": .automatic, "sandbox": .sandbox, "production": .production,
-      ]
-      guard let token = PushToken.decode(hexToken), let target = environments[environment] else { return }
-      ReceptionNotifications.shared.setToken(token, environment: target)
+  func setPushToken(hexToken: String, environment: String) throws {
+    let environments: [String: Reception.PushEnvironment] = [
+      "automatic": .automatic, "sandbox": .sandbox, "production": .production,
+    ]
+    guard let token = PushToken.decode(hexToken), let target = environments[environment] else { return }
+    ReceptionNotifications.shared.setToken(token, environment: target)
+  }
+
+  func registerForPushIfAuthorized(completion: @escaping (Result<Void, Error>) -> Void) {
+    Task {
+      await Reception.shared.registerForPushIfAuthorized()
+      completion(.success(()))
     }
   }
 
-  nonisolated func registerForPushIfAuthorized() async throws {
-    await Reception.shared.registerForPushIfAuthorized()
+  func handlePushNotification(conversationId: String, openChat: Bool) throws -> Bool {
+    Reception.shared.handlePushNotification(
+      userInfo: ["reception": ["conversationId": conversationId]], openChat: openChat)
   }
 
-  nonisolated func handlePushNotification(conversationId: String, openChat: Bool) throws -> Bool {
-    MainActor.assumeIsolated {
-      Reception.shared.handlePushNotification(
-        userInfo: ["reception": ["conversationId": conversationId]], openChat: openChat)
+  func setAppearance(json: String, revision: Int64) throws -> SnapshotMessage {
+    applySetting("appearance", revision: revision) { ReceptionAppearance.apply(json) }
+  }
+
+  func setUpdatesAppBadge(value: Bool, revision: Int64) throws -> SnapshotMessage {
+    applySetting("updatesAppBadge", revision: revision) { Reception.shared.updatesAppBadge = value }
+  }
+
+  func setUsesRemoteAppearance(value: Bool, revision: Int64) throws -> SnapshotMessage {
+    applySetting("usesRemoteAppearance", revision: revision) { Reception.shared.usesRemoteAppearance = value }
+  }
+
+  func setLanguageOverride(value: String?, revision: Int64) throws -> SnapshotMessage {
+    applySetting("languageOverride", revision: revision) { Reception.shared.languageOverride = value }
+  }
+
+  func setLogLevel(value: String, revision: Int64) throws -> SnapshotMessage {
+    applySetting("logLevel", revision: revision) {
+      let levels: [String: Reception.LogLevel] = ["off": .off, "error": .error, "info": .info, "debug": .debug]
+      if let level = levels[value] { Reception.logLevel = level }
     }
   }
 
-  nonisolated func setAppearance(json: String, revision: Int64) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      applySetting("appearance", revision: revision) { ReceptionAppearance.apply(json) }
-    }
+  func setPaywalls(value: [PaywallMessage], revision: Int64) throws -> SnapshotMessage {
+    applySetting("paywalls", revision: revision) { Reception.shared.paywalls = value.map(PaywallValues.paywall) }
   }
 
-  nonisolated func setUpdatesAppBadge(value: Bool, revision: Int64) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      applySetting("updatesAppBadge", revision: revision) { Reception.shared.updatesAppBadge = value }
-    }
+  func setPaywallHandler(enabled: Bool) throws {
+    Reception.shared.onPaywall = enabled ? { [weak self] id in self?.send { try await $0.onPaywall(id: id) } } : nil
   }
 
-  nonisolated func setUsesRemoteAppearance(value: Bool, revision: Int64) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      applySetting("usesRemoteAppearance", revision: revision) { Reception.shared.usesRemoteAppearance = value }
-    }
-  }
-
-  nonisolated func setLanguageOverride(value: String?, revision: Int64) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      applySetting("languageOverride", revision: revision) { Reception.shared.languageOverride = value }
-    }
-  }
-
-  nonisolated func setLogLevel(value: String, revision: Int64) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      applySetting("logLevel", revision: revision) {
-        let levels: [String: Reception.LogLevel] = ["off": .off, "error": .error, "info": .info, "debug": .debug]
-        if let level = levels[value] { Reception.logLevel = level }
-      }
-    }
-  }
-
-  nonisolated func setPaywalls(value: [PaywallMessage], revision: Int64) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      applySetting("paywalls", revision: revision) { Reception.shared.paywalls = value.map(PaywallValues.paywall) }
-    }
-  }
-
-  nonisolated func setPaywallHandler(enabled: Bool) throws {
-    MainActor.assumeIsolated {
-      Reception.shared.onPaywall = enabled ? { [weak self] id in self?.send { try await $0.onPaywall(id: id) } } : nil
-    }
-  }
-
-  nonisolated func setPaywallAvailability(enabled: Bool, generation: Int64) throws -> SnapshotMessage {
-    MainActor.assumeIsolated {
-      requests.cancelAll()
-      guard enabled else {
-        Reception.shared.paywallAvailability = nil
-        return snapshot()
-      }
-      let api = flutterApi
-      requests.ask = { id in (try? await api.checkPaywallAvailability(id: id, generation: generation)) ?? false }
-      Reception.shared.paywallAvailability = { [weak self] id in
-        guard let self, self.connected else { return false }
-        return await self.requests.check(id)
-      }
+  func setPaywallAvailability(enabled: Bool, generation: Int64) throws -> SnapshotMessage {
+    requests.cancelAll()
+    guard enabled else {
+      Reception.shared.paywallAvailability = nil
       return snapshot()
     }
+    let api = flutterApi
+    requests.ask = { id in (try? await api.checkPaywallAvailability(id: id, generation: generation)) ?? false }
+    Reception.shared.paywallAvailability = { [weak self] id in
+      guard let self, self.connected else { return false }
+      return await self.requests.check(id)
+    }
+    return snapshot()
   }
 
-  nonisolated func refreshPaywalls(invalidate: Bool) throws {
-    MainActor.assumeIsolated { Reception.shared.refreshPaywalls(invalidate: invalidate) }
+  func refreshPaywalls(invalidate: Bool) throws {
+    Reception.shared.refreshPaywalls(invalidate: invalidate)
   }
 }
