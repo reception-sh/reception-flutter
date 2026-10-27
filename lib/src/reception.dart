@@ -194,11 +194,11 @@ abstract final class Reception {
       value.toJson(),
       _state.setting<Appearance>('appearance').toJson(),
     );
+    final json = jsonEncode(valid);
     _state.assign(
       'appearance',
       appearanceFromJson(valid),
-      (revision) async =>
-          (await _host()).setAppearance(jsonEncode(valid), revision),
+      (revision) async => (await _host()).setAppearance(json, revision),
     );
   }
 
@@ -260,13 +260,19 @@ abstract final class Reception {
     return _state.setting('paywalls');
   }
 
-  static set paywalls(List<ReceptionPaywall> value) => _assign(
-    'paywalls',
-    List<ReceptionPaywall>.unmodifiable(value),
-    (host, revision) =>
-        host.setPaywalls(value.map(paywallMessage).toList(), revision),
-  );
+  static set paywalls(List<ReceptionPaywall> value) {
+    if (!checkSupported()) return;
+    final paywalls = List<ReceptionPaywall>.unmodifiable(value);
+    final messages = paywalls.map(paywallMessage).toList();
+    _assign(
+      'paywalls',
+      paywalls,
+      (host, revision) => host.setPaywalls(messages, revision),
+    );
+  }
 
+  /// Assigns setting [key]. [commit] runs after the connection resolves, so
+  /// it must only use payloads prepared before this call.
   static void _assign(
     String key,
     Object? value,

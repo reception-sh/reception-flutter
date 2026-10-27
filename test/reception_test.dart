@@ -450,4 +450,28 @@ void main() {
       ]);
     },
   );
+
+  test(
+    'setting payloads are captured at assignment, before the connection resolves',
+    () async {
+      final connected = Completer<SnapshotMessage>();
+      host.handlers['connect'] = (_) => connected.future;
+      final list = [const ReceptionPaywall(id: 'plans', title: 'Plans')];
+      Reception.paywalls = list;
+      list.clear();
+      connected.complete(snapshot());
+      await pumpEventQueue();
+      expect(host.callsTo('setPaywalls').single[0], [
+        PaywallMessage(
+          id: 'plans',
+          title: 'Plans',
+          products: [],
+          presentable: true,
+        ),
+      ]);
+      expect(Reception.paywalls, [
+        const ReceptionPaywall(id: 'plans', title: 'Plans'),
+      ]);
+    },
+  );
 }

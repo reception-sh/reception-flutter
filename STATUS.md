@@ -9,9 +9,10 @@ options and events (`src/types.dart`), `Appearance` with `copyWith`, native JSON
 The host is connected lazily on the first real call (`connect()` + `ReceptionFlutterApi.setUp`); all host calls,
 including fire-and-forget setters, await that one shared connection, and a failed connect is retried by the next
 call. Unsupported platforms never reach the host. Paywall availability callbacks are answered within 5 s (false on
-timeout) so native never waits indefinitely.
+timeout) so native never waits indefinitely. Setting payloads (paywall messages, appearance JSON) are built at
+assignment time, so mutating the caller's list before the connection resolves has no effect.
 
-Tests: 49 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout), ported from the RN suites. Host→Dart calls
+Tests: 50 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout), ported from the RN suites. Host→Dart calls
 go through the real binary messenger.
 
 Deviations and notes:
