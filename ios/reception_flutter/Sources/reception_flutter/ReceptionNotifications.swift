@@ -114,9 +114,10 @@ internal final class ReceptionNotifications {
 }
 
 /// The notification-center delegate installed at configure. Handles Reception notifications and forwards everything
-/// else to the delegate it replaced; every forwarded completion handler runs exactly once.
+/// else to the delegate it replaced; every forwarded completion handler runs exactly once. UIKit calls the
+/// completion-handler variants on the main thread.
 @MainActor
-internal final class ReceptionNotificationCenter: NSObject, UNUserNotificationCenterDelegate {
+internal final class ReceptionNotificationCenter: NSObject, @preconcurrency UNUserNotificationCenterDelegate {
   weak var previous: UNUserNotificationCenterDelegate?
   /// False after an opt-out configure: the proxy only forwards.
   var handles = true
@@ -125,54 +126,44 @@ internal final class ReceptionNotificationCenter: NSObject, UNUserNotificationCe
     self.previous = previous
   }
 
-  nonisolated func userNotificationCenter(
+  func userNotificationCenter(
     _ center: UNUserNotificationCenter, willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
-    MainActor.assumeIsolated {
-      let userInfo = notification.request.content.userInfo
-      if handles, let id = Reception.pushConversationId(userInfo) {
-        ReceptionNotifications.shared.route(
-          key: ReceptionNotifications.key(notification), conversationId: id, openChat: false)
-        completionHandler(Reception.shared.isChatOpen ? [] : [.banner, .list, .sound])
-        return
-      }
-      let complete = OnceCompletion(fallback: [], completionHandler)
-      let forwarded: Void? = previous?.userNotificationCenter?(center, willPresent: notification) { options in
-        Task { @MainActor in complete(options) }
-      }
-      // Without a delegate iOS shows nothing in the foreground.
-      if forwarded == nil { complete([]) }
+    if handles, let id = Reception.pushConversationId(notification.request.content.userInfo) {
+      ReceptionNotifications.shared.route(
+        key: ReceptionNotifications.key(notification), conversationId: id, openChat: false)
+      completionHandler(Reception.shared.isChatOpen ? [] : [.banner, .list, .sound])
+      return
     }
+    let complete = OnceCompletion(fallback: [], completionHandler)
+    let forwarded: Void? = previous?.userNotificationCenter?(center, willPresent: notification) { options in
+      Task { @MainActor in complete(options) }
+    }
+    // Without a delegate iOS shows nothing in the foreground.
+    if forwarded == nil { complete([]) }
   }
 
-  nonisolated func userNotificationCenter(
+  func userNotificationCenter(
     _ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
-    MainActor.assumeIsolated {
-      let userInfo = response.notification.request.content.userInfo
-      if handles, let id = Reception.pushConversationId(userInfo) {
-        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-          ReceptionNotifications.shared.route(
-            key: ReceptionNotifications.key(response.notification), conversationId: id, openChat: true)
-        }
-        completionHandler()
-        return
+    if handles, let id = Reception.pushConversationId(response.notification.request.content.userInfo) {
+      if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+        ReceptionNotifications.shared.route(
+          key: ReceptionNotifications.key(response.notification), conversationId: id, openChat: true)
       }
-      let complete = OnceCompletion(fallback: (), completionHandler)
-      let forwarded: Void? = previous?.userNotificationCenter?(center, didReceive: response) {
-        Task { @MainActor in complete(()) }
-      }
-      if forwarded == nil { complete(()) }
+      completionHandler()
+      return
     }
+    let complete = OnceCompletion(fallback: (), completionHandler)
+    let forwarded: Void? = previous?.userNotificationCenter?(center, didReceive: response) {
+      Task { @MainActor in complete(()) }
+    }
+    if forwarded == nil { complete(()) }
   }
 
-  nonisolated func userNotificationCenter(
-    _ center: UNUserNotificationCenter, openSettingsFor notification: UNNotification?
-  ) {
-    MainActor.assumeIsolated {
-      previous?.userNotificationCenter?(center, openSettingsFor: notification)
-    }
+  func userNotificationCenter(_ center: UNUserNotificationCenter, openSettingsFor notification: UNNotification?) {
+    previous?.userNotificationCenter?(center, openSettingsFor: notification)
   }
 }
