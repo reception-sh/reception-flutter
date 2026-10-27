@@ -598,6 +598,8 @@ protocol ReceptionHostApi {
   func setPaywalls(value: [PaywallMessage], revision: Int64) throws -> SnapshotMessage
   func setPaywallHandler(enabled: Bool) throws
   func setPaywallAvailability(enabled: Bool, generation: Int64) throws -> SnapshotMessage
+  /// Answers a [ReceptionFlutterApi.requestPaywallAvailability] request.
+  func resolvePaywallAvailability(requestId: String, allowed: Bool) throws
   func refreshPaywalls(invalidate: Bool) throws
 }
 
@@ -958,6 +960,23 @@ class ReceptionHostApiSetup {
     } else {
       setPaywallAvailabilityChannel.setMessageHandler(nil)
     }
+    /// Answers a [ReceptionFlutterApi.requestPaywallAvailability] request.
+    let resolvePaywallAvailabilityChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.reception_flutter.ReceptionHostApi.resolvePaywallAvailability\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      resolvePaywallAvailabilityChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let requestIdArg = args[0] as! String
+        let allowedArg = args[1] as! Bool
+        do {
+          try api.resolvePaywallAvailability(requestId: requestIdArg, allowed: allowedArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      resolvePaywallAvailabilityChannel.setMessageHandler(nil)
+    }
     let refreshPaywallsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.reception_flutter.ReceptionHostApi.refreshPaywalls\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       refreshPaywallsChannel.setMessageHandler { message, reply in
@@ -983,8 +1002,10 @@ protocol ReceptionFlutterApiProtocol {
   @MainActor func onState(state stateArg: SnapshotMessage) async throws
   @MainActor func onEvent(event eventArg: EventMessage) async throws
   @MainActor func onPaywall(id idArg: String) async throws
-  /// Asked for each registered paywall; the host fails closed after five seconds or on a stale generation.
-  func checkPaywallAvailability(id idArg: String, generation generationArg: Int64, completion: @escaping (Result<Bool, ReceptionBridgeError>) -> Void)
+  /// Asks whether paywall [id] can be offered. Dart answers with
+  /// [ReceptionHostApi.resolvePaywallAvailability]; the host fails closed after
+  /// five seconds, on a stale generation, or when the reply never arrives.
+  @MainActor func requestPaywallAvailability(requestId requestIdArg: String, id idArg: String, generation generationArg: Int64) async throws
 }
 class ReceptionFlutterApi: ReceptionFlutterApiProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
@@ -1056,25 +1077,26 @@ class ReceptionFlutterApi: ReceptionFlutterApiProtocol {
       }
     }
   }
-  /// Asked for each registered paywall; the host fails closed after five seconds or on a stale generation.
-  func checkPaywallAvailability(id idArg: String, generation generationArg: Int64, completion: @escaping (Result<Bool, ReceptionBridgeError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.checkPaywallAvailability\(messageChannelSuffix)"
-    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([idArg, generationArg] as [Any?]) { response in
-      guard let listResponse = response as? [Any?] else {
-        completion(.failure(createConnectionError(withChannelName: channelName)))
-        return
-      }
-      if listResponse.count > 1 {
-        let code: String = listResponse[0] as! String
-        let message: String? = nilOrValue(listResponse[1])
-        let details: String? = nilOrValue(listResponse[2])
-        completion(.failure(ReceptionBridgeError(code: code, message: message, details: details)))
-      } else if MessagesPigeonInternal.isNullish(listResponse[0]) {
-        completion(.failure(ReceptionBridgeError(code: "null-error", message: "Flutter api returned null value for non-null return value.", details: "")))
-      } else {
-        let result = listResponse[0] as! Bool
-        completion(.success(result))
+  /// Asks whether paywall [id] can be offered. Dart answers with
+  /// [ReceptionHostApi.resolvePaywallAvailability]; the host fails closed after
+  /// five seconds, on a stale generation, or when the reply never arrives.
+  @MainActor func requestPaywallAvailability(requestId requestIdArg: String, id idArg: String, generation generationArg: Int64) async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      let channelName: String = "dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.requestPaywallAvailability\(messageChannelSuffix)"
+      let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+      channel.sendMessage([requestIdArg, idArg, generationArg] as [Any?]) { response in
+        guard let listResponse = response as? [Any?] else {
+          continuation.resume(throwing: createConnectionError(withChannelName: channelName))
+          return
+        }
+        if listResponse.count > 1 {
+          let code: String = listResponse[0] as! String
+          let message: String? = nilOrValue(listResponse[1])
+          let details: String? = nilOrValue(listResponse[2])
+          continuation.resume(throwing: ReceptionBridgeError(code: code, message: message, details: details))
+        } else {
+          continuation.resume()
+        }
       }
     }
   }

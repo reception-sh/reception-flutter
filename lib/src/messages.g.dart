@@ -1033,6 +1033,30 @@ class ReceptionHostApi {
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
+  /// Answers a [ReceptionFlutterApi.requestPaywallAvailability] request.
+  Future<void> resolvePaywallAvailability(
+    String requestId,
+    bool allowed,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.resolvePaywallAvailability$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[requestId, allowed],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
   Future<void> refreshPaywalls(bool invalidate) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.refreshPaywalls$pigeonVar_messageChannelSuffix';
@@ -1064,8 +1088,10 @@ abstract class ReceptionFlutterApi {
 
   void onPaywall(String id);
 
-  /// Asked for each registered paywall; the host fails closed after five seconds or on a stale generation.
-  Future<bool> checkPaywallAvailability(String id, int generation);
+  /// Asks whether paywall [id] can be offered. Dart answers with
+  /// [ReceptionHostApi.resolvePaywallAvailability]; the host fails closed after
+  /// five seconds, on a stale generation, or when the reply never arrives.
+  void requestPaywallAvailability(String requestId, String id, int generation);
 
   static void setUp(
     ReceptionFlutterApi? api, {
@@ -1152,7 +1178,7 @@ abstract class ReceptionFlutterApi {
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.checkPaywallAvailability$messageChannelSuffix',
+        'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.requestPaywallAvailability$messageChannelSuffix',
         pigeonChannelCodec,
         binaryMessenger: binaryMessenger,
       );
@@ -1161,14 +1187,16 @@ abstract class ReceptionFlutterApi {
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           final List<Object?> args = message! as List<Object?>;
-          final String arg_id = args[0]! as String;
-          final int arg_generation = args[1]! as int;
+          final String arg_requestId = args[0]! as String;
+          final String arg_id = args[1]! as String;
+          final int arg_generation = args[2]! as int;
           try {
-            final bool output = await api.checkPaywallAvailability(
+            api.requestPaywallAvailability(
+              arg_requestId,
               arg_id,
               arg_generation,
             );
-            return wrapResponse(result: output);
+            return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {

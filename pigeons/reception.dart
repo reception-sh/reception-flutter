@@ -126,6 +126,9 @@ abstract class ReceptionHostApi {
 
   void setPaywallHandler(bool enabled);
   SnapshotMessage setPaywallAvailability(bool enabled, int generation);
+
+  /// Answers a [ReceptionFlutterApi.requestPaywallAvailability] request.
+  void resolvePaywallAvailability(String requestId, bool allowed);
   void refreshPaywalls(bool invalidate);
 }
 
@@ -136,7 +139,8 @@ abstract class ReceptionFlutterApi {
   void onEvent(EventMessage event);
   void onPaywall(String id);
 
-  /// Asked for each registered paywall; the host fails closed after five seconds or on a stale generation.
-  @asyncCallback
-  bool checkPaywallAvailability(String id, int generation);
+  /// Asks whether paywall [id] can be offered. Dart answers with
+  /// [ReceptionHostApi.resolvePaywallAvailability]; the host fails closed after
+  /// five seconds, on a stale generation, or when the reply never arrives.
+  void requestPaywallAvailability(String requestId, String id, int generation);
 }
