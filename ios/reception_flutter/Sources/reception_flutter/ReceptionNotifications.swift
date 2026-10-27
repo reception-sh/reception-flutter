@@ -14,6 +14,7 @@ internal final class ReceptionNotifications {
   /// Nil until the first successful configure decides whether the plugin handles notifications.
   private var handlesNotifications: Bool?
   private var pendingTap: (key: String, conversationId: String)?
+  /// Its launch date is when the process first uses push state, at the latest when a launch tap is captured.
   private let routing = NotificationRouting()
   private var proxy: ReceptionNotificationCenter?
   private var reportedReplacement = false
@@ -32,7 +33,7 @@ internal final class ReceptionNotifications {
       installProxy()
       if let tap = pendingTap {
         pendingTap = nil
-        if tap.key == Self.launchKey { routing.drainedLaunchTap(conversationId: tap.conversationId, at: Date()) }
+        if tap.key == Self.launchKey { routing.drainedLaunchTap(conversationId: tap.conversationId) }
         route(key: tap.key, conversationId: tap.conversationId, openChat: true)
       }
     } else {

@@ -31,26 +31,25 @@ struct LogicTests {
     precondition(bounded.action(for: "key0", openChat: true) == .receiveAndOpen, "Oldest key is evicted first")
     precondition(bounded.action(for: "key2", openChat: true) == .ignore, "Newer keys stay")
     precondition(bounded.action(for: "key1", openChat: true) == .receiveAndOpen, "Eviction follows insertion order")
-    let launch = NotificationRouting()
-    let drained = Date(timeIntervalSince1970: 1_000)
-    precondition(launch.tapAction(for: "early", conversationId: "c1", deliveredAt: drained) == .receiveAndOpen,
-      "Without a launch drain taps open")
-    precondition(launch.action(for: "launch", openChat: true) == .receiveAndOpen)
-    launch.drainedLaunchTap(conversationId: "c1", at: drained)
+    let launched = Date(timeIntervalSince1970: 1_000)
+    let launch = NotificationRouting(launchDate: launched)
     precondition(
-      launch.tapAction(for: "same", conversationId: "c1", deliveredAt: drained.addingTimeInterval(-5)) == .ignore,
+      launch.tapAction(for: "undrained", conversationId: "c1", deliveredAt: launched.addingTimeInterval(-5))
+        == .receiveAndOpen, "Without a drained launch tap taps open")
+    precondition(launch.action(for: "launch", openChat: true) == .receiveAndOpen)
+    launch.drainedLaunchTap(conversationId: "c1")
+    precondition(
+      launch.tapAction(for: "same", conversationId: "c1", deliveredAt: launched.addingTimeInterval(-5)) == .ignore,
       "The launch tap delivered again through the proxy is ignored")
     precondition(
-      launch.tapAction(for: "same", conversationId: "c1", deliveredAt: drained.addingTimeInterval(-5)) == .ignore,
+      launch.tapAction(for: "same", conversationId: "c1", deliveredAt: launched.addingTimeInterval(-5)) == .ignore,
       "and recorded as opened")
     precondition(
-      launch.tapAction(for: "soon", conversationId: "c1", deliveredAt: drained.addingTimeInterval(30)) == .ignore)
+      launch.tapAction(for: "new", conversationId: "c1", deliveredAt: launched.addingTimeInterval(1))
+        == .receiveAndOpen, "A notification delivered after launch opens")
     precondition(
-      launch.tapAction(for: "later", conversationId: "c1", deliveredAt: drained.addingTimeInterval(31))
-        == .receiveAndOpen, "A later notification of the same conversation opens")
-    precondition(
-      launch.tapAction(for: "other", conversationId: "c2", deliveredAt: drained) == .receiveAndOpen,
-      "Another conversation opens")
+      launch.tapAction(for: "other", conversationId: "c2", deliveredAt: launched.addingTimeInterval(-5))
+        == .receiveAndOpen, "Another conversation opens")
     print("NotificationRouting: receipts, taps, repeats, eviction at 64 keys and launch tap dedupe passed")
   }
 
