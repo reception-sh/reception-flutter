@@ -44,8 +44,11 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   replaces the previous connection (cancels pending availability checks, clears `onEvent`/`onPaywall`, keeps
   `paywallAvailability = { _ in false }` if one was set, new observation token), revisioned snapshots,
   `withObservationTracking` → `onState`, per-key setting revisions, events, `deleteData` typed errors
-  (`bridge_error`/0 otherwise), `configureForTesting` only under `#if DEBUG` and only for localhost/127.0.0.1/::1 over
-  http(s). `deleteData` and `registerForPushIfAuthorized` are completion-based (`@asyncCallback`): they run on the
+  (`bridge_error`/0 otherwise), `configureForTesting` only under `#if DEBUG && targetEnvironment(simulator)` and only
+  for localhost/127.0.0.1/::1 over http(s). `configure` with an App ID the SDK rejects (`ReceptionAPI.accepts`)
+  returns the snapshot and leaves configuration and push ownership unchanged; a repeated accepted App ID re-applies
+  notification handling. Only the current connection (`connected && current === self`) may change `onPaywall` and
+  `paywallAvailability`. `deleteData` and `registerForPushIfAuthorized` are completion-based (`@asyncCallback`): they run on the
   main actor and complete once with `.success`.
 - `PaywallRequests.swift`: races `checkPaywallAvailability(id, generation)` against a 5 s timeout, SDK cancellation
   and `cancelAll()` (reconnect, callback change); any failure is `false`.
@@ -57,7 +60,9 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   open; other actions only complete), forwards everything else through `OnceCompletion` (exactly once, 10 s
   fallback `[]`/`()`), forwards `openSettingsFor`. A later opt-out makes it pass-through and restores the previous
   delegate if it still owns the center; a replacement by someone else is logged once (info) and never re-wrapped.
-- `NotificationRouting.swift` (RN state machine, at most 64 keys, oldest evicted first), `OnceCompletion.swift`,
+- `NotificationRouting.swift` (RN state machine, at most 64 keys, oldest evicted first; a drained legacy launch tap
+  is remembered so a first proxy delivery for the same conversation dated up to 30 s after the drain is recorded as
+  opened instead of reopening the chat), `OnceCompletion.swift`,
   `PushToken.swift`, `ReceptionColor.swift`, `ReceptionAppearance.swift`, `PaywallValues.swift`,
   `ReceptionChatPlatformView.swift` (hosts `UIHostingController(rootView: ReceptionChatView())` as a child of the
   nearest view controller while in a window, removes it when leaving the window). Logger subsystem
@@ -80,7 +85,7 @@ Verification (Flutter 3.47.8, Xcode 26.5, 2026-10-27):
   which needs `--allow-warnings`; the script then prints the warnings and fails on any other.
 - `tool/test_native.sh` (needs a booted simulator, or pass a device): `swiftc -swift-version 5
   -strict-concurrency=complete -warnings-as-errors` builds `PushToken`, `NotificationRouting`, `OnceCompletion`,
-  `PaywallRequests` with `tool/native_tests/LogicTests.swift` (macOS) and `ReceptionColor` with
+  `PaywallRequests` with `tool/native_tests/LogicTests.swift` (macOS, incl. the launch tap dedupe rule) and `ReceptionColor` with
   `ReceptionColorTests.swift` (simulator); all pass.
 - The example's `lib/main.dart` is still the template (does not compile against the Dart API), so builds used a
   temporary minimal `main.dart`; it was restored. Runtime behaviour (push, cold start, platform view) is not yet
