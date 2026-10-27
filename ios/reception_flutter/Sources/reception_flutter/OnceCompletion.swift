@@ -1,15 +1,21 @@
 /// Calls a notification-center completion handler exactly once: the first call wins, and `fallback` is delivered
-/// after `timeout` if nobody completed, so a delegate we forward to cannot leave iOS waiting.
+/// after `timeout` if nobody completed, so a delegate we forward to cannot leave iOS waiting. `onFallback` runs
+/// just before a fallback completion.
 @MainActor
 internal final class OnceCompletion<Value: Sendable> {
   private var completion: ((Value) -> Void)?
   private var timer: Task<Void, Never>?
 
-  init(fallback: Value, after timeout: Duration = .seconds(10), _ completion: @escaping (Value) -> Void) {
+  init(
+    fallback: Value, after timeout: Duration, onFallback: @escaping () -> Void = {},
+    _ completion: @escaping (Value) -> Void
+  ) {
     self.completion = completion
     // Holds the gate until it completes, even if the delegate we forwarded to dropped its handler.
     timer = Task {
       do { try await Task.sleep(for: timeout) } catch { return }
+      guard self.completion != nil else { return }
+      onFallback()
       self.callAsFunction(fallback)
     }
   }

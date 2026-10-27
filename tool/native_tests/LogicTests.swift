@@ -75,26 +75,45 @@ struct LogicTests {
   @MainActor
   static func onceCompletion() async {
     var values: [Int] = []
-    let gate = OnceCompletion(fallback: 0, after: .milliseconds(50)) { values.append($0) }
+    var fallbacks = 0
+    let gate = OnceCompletion(fallback: 0, after: .milliseconds(50), onFallback: { fallbacks += 1 }) {
+      values.append($0)
+    }
     gate(1)
     gate(2)
     try? await Task.sleep(for: .milliseconds(150))
-    precondition(values == [1], "First completion wins and cancels the fallback")
+    precondition(values == [1] && fallbacks == 0, "First completion wins and cancels the fallback")
 
     values = []
     do {
       // Nobody keeps the gate; the fallback must still complete.
-      _ = OnceCompletion(fallback: 7, after: .milliseconds(50)) { values.append($0) }
+      _ = OnceCompletion(fallback: 7, after: .milliseconds(50), onFallback: { fallbacks += 1 }) { values.append($0) }
     }
     try? await Task.sleep(for: .milliseconds(150))
-    precondition(values == [7], "Fallback completes an abandoned handler")
+    precondition(values == [7] && fallbacks == 1, "Fallback completes an abandoned handler and reports it")
 
     values = []
     let late = OnceCompletion(fallback: 0, after: .milliseconds(50)) { values.append($0) }
     try? await Task.sleep(for: .milliseconds(150))
     late(3)
     precondition(values == [0], "A completion after the fallback is ignored")
-    print("OnceCompletion: exactly once, fallback and late completion passed")
+
+    values = []
+    let started = ContinuousClock.now
+    var elapsed = Duration.zero
+    let custom = OnceCompletion(fallback: 9, after: .milliseconds(300)) {
+      values.append($0)
+      elapsed = started.duration(to: .now)
+    }
+    try? await Task.sleep(for: .milliseconds(150))
+    precondition(values.isEmpty, "No fallback before the custom timeout")
+    try? await Task.sleep(for: .milliseconds(400))
+    precondition(
+      values == [9] && elapsed >= .milliseconds(300) && elapsed < .milliseconds(700),
+      "Fallback follows the custom timeout")
+    custom(4)
+    precondition(values == [9])
+    print("OnceCompletion: exactly once, fallback with report, custom timeout and late completion passed")
   }
 
   @MainActor

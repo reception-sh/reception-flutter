@@ -136,6 +136,7 @@ internal final class ReceptionNotificationCenter: NSObject, @preconcurrency UNUs
   weak var previous: UNUserNotificationCenterDelegate?
   /// False after an opt-out configure: the proxy only forwards.
   var handles = true
+  private var reportedSlowPresentation = false
 
   init(previous: UNUserNotificationCenterDelegate?) {
     self.previous = previous
@@ -151,7 +152,16 @@ internal final class ReceptionNotificationCenter: NSObject, @preconcurrency UNUs
       completionHandler(Reception.shared.isChatOpen ? [] : [.banner, .list, .sound])
       return
     }
-    let complete = OnceCompletion(fallback: [], completionHandler)
+    // Presentation is decided at once in practice; a wrapped delegate that never answers (firebase_messaging
+    // ignores calls once it no longer owns the center) must not delay the banner decision for long.
+    let complete = OnceCompletion(
+      fallback: [], after: .seconds(2),
+      onFallback: { [weak self] in
+        guard let self, !self.reportedSlowPresentation else { return }
+        self.reportedSlowPresentation = true
+        ReceptionNotifications.logger.info(
+          "Wrapped notification delegate did not complete willPresent within 2 s; showing nothing")
+      }, completionHandler)
     let forwarded: Void? = previous?.userNotificationCenter?(center, willPresent: notification) { options in
       Task { @MainActor in complete(options) }
     }
@@ -170,7 +180,7 @@ internal final class ReceptionNotificationCenter: NSObject, @preconcurrency UNUs
       completionHandler()
       return
     }
-    let complete = OnceCompletion(fallback: (), completionHandler)
+    let complete = OnceCompletion(fallback: (), after: .seconds(10), completionHandler)
     let forwarded: Void? = previous?.userNotificationCenter?(center, didReceive: response) {
       Task { @MainActor in complete(()) }
     }
