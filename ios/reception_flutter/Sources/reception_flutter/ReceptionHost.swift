@@ -34,6 +34,9 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     Self.current = nil
   }
 
+  /// Only the current connection may change SDK callbacks; a replaced engine or connection must not.
+  private var isCurrent: Bool { connected && Self.current === self }
+
   private func snapshot() -> SnapshotMessage {
     Self.revision += 1
     let sdk = Reception.shared
@@ -109,13 +112,15 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   }
 
   func configure(appId: String, handlesNotifications: Bool) throws -> SnapshotMessage {
+    // A rejected App ID leaves any earlier configuration, and its push ownership, unchanged.
+    guard ReceptionAPI.accepts(appId: appId) else { return snapshot() }
     Reception.configure(appId: appId)
     ReceptionNotifications.shared.configured(handlesNotifications: handlesNotifications)
     return snapshot()
   }
 
   func configureForTesting(appId: String, serviceUrl: String) throws -> SnapshotMessage {
-    #if DEBUG
+    #if DEBUG && targetEnvironment(simulator)
       if let url = URL(string: serviceUrl), let host = url.host, let scheme = url.scheme,
         ["localhost", "127.0.0.1", "::1"].contains(host), ["http", "https"].contains(scheme)
       {
@@ -221,10 +226,12 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   }
 
   func setPaywallHandler(enabled: Bool) throws {
+    guard isCurrent else { return }
     Reception.shared.onPaywall = enabled ? { [weak self] id in self?.send { try await $0.onPaywall(id: id) } } : nil
   }
 
   func setPaywallAvailability(enabled: Bool, generation: Int64) throws -> SnapshotMessage {
+    guard isCurrent else { return snapshot() }
     requests.cancelAll()
     guard enabled else {
       Reception.shared.paywallAvailability = nil
