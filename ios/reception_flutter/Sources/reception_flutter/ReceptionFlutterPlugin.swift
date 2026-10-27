@@ -33,7 +33,7 @@ public final class ReceptionFlutterPlugin: NSObject, @preconcurrency FlutterPlug
     _ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable: Any]
   ) -> Bool {
     if let userInfo = launchOptions[UIApplication.LaunchOptionsKey.remoteNotification] as? [AnyHashable: Any] {
-      ReceptionNotifications.shared.tap(userInfo: userInfo, key: "launch")
+      ReceptionNotifications.shared.tap(userInfo: userInfo, key: ReceptionNotifications.launchKey)
     }
     return true
   }

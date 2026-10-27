@@ -8,6 +8,8 @@ import os
 internal final class ReceptionNotifications {
   static let shared = ReceptionNotifications()
   static let logger = Logger(subsystem: "com.reception.flutter", category: "Notifications")
+  /// Routing key of a tap read from legacy launch options, which carry no notification identifier.
+  static let launchKey = "launch"
   private var token: (data: Data, environment: Reception.PushEnvironment)?
   /// Nil until the first successful configure decides whether the plugin handles notifications.
   private var handlesNotifications: Bool?
@@ -30,6 +32,7 @@ internal final class ReceptionNotifications {
       installProxy()
       if let tap = pendingTap {
         pendingTap = nil
+        if tap.key == Self.launchKey { routing.drainedLaunchTap(conversationId: tap.conversationId, at: Date()) }
         route(key: tap.key, conversationId: tap.conversationId, openChat: true)
       }
     } else {
@@ -68,7 +71,18 @@ internal final class ReceptionNotifications {
   }
 
   func route(key: String, conversationId: String, openChat: Bool) {
-    switch routing.action(for: key, openChat: openChat) {
+    perform(routing.action(for: key, openChat: openChat), conversationId: conversationId, openChat: openChat)
+  }
+
+  /// A default-action tap delivered by the notification center.
+  func routeTap(_ notification: UNNotification, conversationId: String) {
+    let action = routing.tapAction(
+      for: Self.key(notification), conversationId: conversationId, deliveredAt: notification.date)
+    perform(action, conversationId: conversationId, openChat: true)
+  }
+
+  private func perform(_ action: NotificationRouting.Action, conversationId: String, openChat: Bool) {
+    switch action {
     case .receive, .receiveAndOpen:
       Reception.shared.handlePushNotification(
         userInfo: ["reception": ["conversationId": conversationId]], openChat: openChat)
@@ -150,8 +164,7 @@ internal final class ReceptionNotificationCenter: NSObject, @preconcurrency UNUs
   ) {
     if handles, let id = Reception.pushConversationId(response.notification.request.content.userInfo) {
       if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-        ReceptionNotifications.shared.route(
-          key: ReceptionNotifications.key(response.notification), conversationId: id, openChat: true)
+        ReceptionNotifications.shared.routeTap(response.notification, conversationId: id)
       }
       completionHandler()
       return
