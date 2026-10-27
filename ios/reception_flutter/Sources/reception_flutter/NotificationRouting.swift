@@ -9,23 +9,30 @@ internal final class NotificationRouting {
   private var opened: [String: Bool] = [:]
   private var order: [String] = []
   private let launchDate: Date
-  private var launchTapConversation: String?
+  private var launchTap: (conversationId: String, drainedAt: Date)?
 
   init(launchDate: Date = Date()) {
     self.launchDate = launchDate
   }
 
-  /// The legacy cold-start tap is routed under a launch alias; remember its conversation so the same response
-  /// arriving later through the notification-center proxy under its own key does not open the chat again.
-  func drainedLaunchTap(conversationId: String) {
-    launchTapConversation = conversationId
+  /// The legacy cold-start tap is routed under a launch alias. iOS may deliver the same response moments later
+  /// through the notification-center proxy under its own key; remember the tap so that delivery is ignored.
+  func drainedLaunchTap(conversationId: String, at date: Date = Date()) {
+    launchTap = (conversationId, date)
   }
 
-  /// A tap from the notification center. A first delivery for the launch tap's conversation of a notification
-  /// delivered before this launch is that tap (or an older one): recorded as opened and ignored.
-  func tapAction(for key: String, conversationId: String, deliveredAt date: Date) -> Action {
+  /// A tap from the notification center. Within 10 s of the launch drain, the first tap for the launch tap's
+  /// conversation whose notification was delivered before this launch is that duplicate: recorded as opened and
+  /// ignored, once. Afterwards every tap routes.
+  func tapAction(for key: String, conversationId: String, deliveredAt date: Date, at now: Date = Date()) -> Action {
     let action = action(for: key, openChat: true)
-    if action == .receiveAndOpen, launchTapConversation == conversationId, date < launchDate { return .ignore }
+    guard let launchTap else { return action }
+    if now.timeIntervalSince(launchTap.drainedAt) > 10 {
+      self.launchTap = nil
+    } else if action == .receiveAndOpen, launchTap.conversationId == conversationId, date < launchDate {
+      self.launchTap = nil
+      return .ignore
+    }
     return action
   }
 
