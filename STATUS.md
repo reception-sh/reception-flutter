@@ -50,12 +50,13 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   for localhost/127.0.0.1/::1 over http(s). `configure` with an App ID the SDK rejects (`ReceptionAPI.accepts`)
   returns the snapshot and leaves configuration and push ownership unchanged; a repeated accepted App ID re-applies
   notification handling. Only the current connection (`connected && current === self`) may change `onPaywall` and
-  `paywallAvailability`. `deleteData` and `registerForPushIfAuthorized` are completion-based (`@asyncCallback`): they run on the
-  main actor and complete once with `.success`.
-- `PaywallRequests.swift`: asks Dart with the completion-based `checkPaywallAvailability(id, generation)`; the reply
-  closure holds only the request id and a weak reference and hops to the main actor (Flutter's reply block is
-  imported as `@Sendable`). The SDK-facing request fails closed on a 5 s timeout, SDK cancellation and `cancelAll()`
-  (reconnect, callback change); a late or lost reply is ignored and keeps no task alive.
+  `paywallAvailability`. `deleteData` and `registerForPushIfAuthorized` are completion-based (`@asyncCallback`): they
+  run on the main actor and complete once with `.success`. `resolvePaywallAvailability` answers a pending
+  availability request by id.
+- `PaywallRequests.swift` (port of RN): `requestPaywallAvailability(requestId, id, generation)` is sent like
+  `onState`, and Dart answers with `resolvePaywallAvailability(requestId, allowed)`. Pending requests fail closed on
+  a 5 s timeout, SDK cancellation and `cancelAll()` (reconnect, callback change); late, duplicate and unknown
+  answers are ignored. The channel holds no completion closures.
 - `ReceptionNotifications.swift`: token cache (data + environment) applied whenever configured; after configure,
   logout and successful `deleteData` it re-applies the token and calls `registerForPushIfAuthorized()`. Pending tap
   (latest wins) drained once by `configure(handlesNotifications: true)`, discarded by an opt-out configure.
@@ -78,24 +79,21 @@ Verification (Flutter 3.47.8, Xcode 26.5, 2026-10-27):
   Xcode's `appintentsmetadataprocessor`: "Metadata extraction skipped. No AppIntents.framework dependency found."
   `Runner.app/reception_flutter_reception_flutter.bundle` contains `PrivacyInfo.xcprivacy` and 48 `*.lproj/Localizable.strings` compiled from `Localizable.xcstrings`.
 - CocoaPods: `flutter config --no-enable-swift-package-manager && cd example && flutter build ios --simulator --debug`
-  → built (SwiftPM re-enabled afterwards). Clean `xcodebuild`: 0 warnings in plugin sources; since the FlutterApi
-  availability call became `@asyncCallback`, one generated warning at `Messages.g.swift:1065` (see open questions). `Runner.app/Frameworks/reception_flutter.framework/Reception.bundle`
+  → built (SwiftPM re-enabled afterwards). Clean `xcodebuild`: 0 compiler warnings, generated code included (same
+  AppIntents note only). `Runner.app/Frameworks/reception_flutter.framework/Reception.bundle`
   contains `PrivacyInfo.xcprivacy` and the 48 string tables; with `use_frameworks! :linkage => :static` the bundle
   is at `Runner.app/Reception.bundle`, where the SDK's `Bundle(for:)` lookup (main bundle) finds it.
 - `tool/pod_lint.sh`: Trunk's `Flutter` pod (last real release 2020) lacks `FlutterSceneLifeCycleDelegate` /
   `addSceneDelegate`, so the script lints against a temporary lint-only `Flutter` podspec vendoring the installed
-  engine's `Flutter.xcframework`, with `--use-modular-headers` and `--use-libraries`. Passed before the
-  `@asyncCallback` FlutterApi change, whose generated warning now fails it (see open questions); otherwise the only
-  warning is the plugin podspec's `:path` source ("Missing primary key for `source` attribute"), standard for Flutter plugins,
+  engine's `Flutter.xcframework`, with `--use-modular-headers` and `--use-libraries`. Both pass; the only warning is
+  the plugin podspec's `:path` source ("Missing primary key for `source` attribute"), standard for Flutter plugins,
   which needs `--allow-warnings`; the script then prints the warnings and fails on any other.
 - `tool/test_native.sh` (needs a booted simulator, or pass a device): `swiftc -swift-version 5
   -strict-concurrency=complete -warnings-as-errors` builds `PushToken`, `NotificationRouting`, `OnceCompletion`,
   `PaywallRequests` with `tool/native_tests/LogicTests.swift` (macOS, incl. the launch tap rule and late replies
-  after cancellation, reconnect and timeout) and `ReceptionColor` with
+  after cancellation, reconnect and timeout, duplicate and unknown answers) and `ReceptionColor` with
   `ReceptionColorTests.swift` (simulator); all pass.
-- The example's `lib/main.dart` is still the template (does not compile against the Dart API), so builds used a
-  temporary minimal `main.dart`; it was restored. Runtime behaviour (push, cold start, platform view) is not yet
-  verified on a simulator.
+- Builds use the example app as committed; runtime behaviour is covered under "Verification" below.
 
 Deviations:
 - One `ReceptionHost` per engine instead of a literal `ReceptionHost.shared`: Pigeon's `connect()` carries no engine
@@ -117,15 +115,7 @@ Deviations:
   treated it as a local package override with identity `reception_flutter`, while Flutter symlinks the plugin under
   the checkout directory name (`reception-flutter`), so SwiftPM resolution failed.
 
-Open questions:
-- Generated code warning (CocoaPods build, `pod lib lint`; SwiftPM shows none): `Messages.g.swift:1065:9: warning:
-  capture of 'completion' with non-Sendable type '(Result<Bool, ReceptionBridgeError>) -> Void' in a '@Sendable'
-  closure`. Pigeon 29's callback-style FlutterApi (`@asyncCallback` on `checkPaywallAvailability`) captures the
-  completion in Flutter's reply block, which Swift imports as `@Sendable`; the other FlutterApi methods capture a
-  Sendable continuation and do not warn. `tool/pod_lint.sh` fails on it by design. Options: accept and allow this one
-  warning, or go back to `@async` (a lost reply then keeps one suspended task per unanswered request).
-- Runtime behaviour (push receipt and taps, cold start, platform view) still needs simulator verification with the
-  example app.
+Open questions: none.
 
 ## Verification
 
@@ -154,6 +144,10 @@ Not verified: the review card (`reviewOpened`) — the dashboard disables it unt
 and none was invented; real APNs delivery from the backend (pushes were simulated with `xcrun simctl push`); a
 server-side `IdentityRejectedEvent` (a malformed token is ignored locally by the SDK with "Identity token ignored,
 its user_id could not be read"); automations; photos; release builds.
+
+After the availability contract became the request/resolve pair (a221133, 5e9dacc), the iOS checks were re-run:
+both example builds with 0 compiler warnings (generated code included), `tool/test_native.sh` and `tool/pod_lint.sh`
+(only the `:path` source warning) pass. The simulator round above predates that change.
 
 ### Bugs found during verification
 
