@@ -13,8 +13,11 @@ flutter pub add reception_flutter
 ```
 
 Swift Package Manager and CocoaPods both work without Podfile edits. Set the iOS
-deployment target to 17.0 or higher (Runner target → General → Minimum
-Deployments). If `ios/Podfile` exists, set `platform :ios, '17.0'` there too.
+deployment target to 17.0 or higher at the project level (Xcode: Runner project →
+Info → iOS Deployment Target, or the three `IPHONEOS_DEPLOYMENT_TARGET` entries in
+`ios/Runner.xcodeproj/project.pbxproj`). If `ios/Podfile` exists and pins an older
+platform, set `platform :ios, '17.0'` there too. Reception follows the languages
+declared under `CFBundleLocalizations` in `ios/Runner/Info.plist`.
 
 ## 2. Configure
 
