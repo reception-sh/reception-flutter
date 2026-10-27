@@ -63,7 +63,7 @@ internal enum ReceptionAppearance {
       style.welcomeIconCornerRadius = value
     }
     if let value = values["welcomeIconOffset"] as? [String: Double], let x = value["x"],
-      let y = value["y"], x.isFinite, y.isFinite
+      let y = value["y"], (-1000...1000).contains(x), (-1000...1000).contains(y)
     {
       style.welcomeIconOffset = CGSize(width: x, height: y)
     }
