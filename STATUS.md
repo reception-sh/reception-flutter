@@ -65,8 +65,9 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   (latest wins) drained once by `configure(handlesNotifications: true)`, discarded by an opt-out configure.
   `ReceptionNotificationCenter` proxy installed once at the first handling configure, wraps the previous delegate,
   handles Reception payloads (receipt → `[]` while chat open else `[.banner, .list, .sound]`; default-action tap →
-  open; other actions only complete), forwards everything else through `OnceCompletion` (exactly once, 10 s
-  fallback `[]`/`()`), forwards `openSettingsFor`. A later opt-out makes it pass-through and restores the previous
+  open; other actions only complete), forwards everything else through `OnceCompletion` (exactly once;
+  fallback `[]` after 2 s for `willPresent`, logged once at info level because a wrapped firebase_messaging never
+  answers notifications it no longer owns; `()` after 10 s for `didReceive`), forwards `openSettingsFor`. A later opt-out makes it pass-through and restores the previous
   delegate if it still owns the center; a replacement by someone else is logged once (info) and never re-wrapped.
 - `NotificationRouting.swift` (RN state machine, at most 64 keys, oldest evicted first; after the legacy launch tap is
   drained, only the first proxy tap for its conversation that was delivered before this launch and arrives within
