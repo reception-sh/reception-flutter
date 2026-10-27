@@ -74,8 +74,8 @@ notifications (equivalent to completing with `[]`).
 - The `FlutterPlugin` class implements **no** `userNotificationCenter…` selectors; only the proxy does, so Flutter's
   forwarding to all plugins can never double-complete a Reception notification.
 - Every forwarded completion handler is wrapped in an exactly-once gate (`OnceCompletion`): the first call wins, later
-  calls are ignored; a 10 s fallback timer completes with `[]` (willPresent) or `()` (didReceive) if nobody did. The
-  gate runs on the main actor.
+  calls are ignored; a fallback timer completes with `[]` after 2 s (willPresent) or `()` after 10 s (didReceive) if
+  nobody did, logging once at info level. The gate runs on the main actor.
 - `willPresent`: Reception payload → `handlePushNotification(userInfo, openChat: false)` routed through
   `NotificationRouting` (receipt), complete `[]` while `isChatOpen`, else `[.banner, .list, .sound]`; never forwarded.
   Otherwise forward to `previous` if it implements the selector; if no previous delegate, complete `[]` (preserves the
