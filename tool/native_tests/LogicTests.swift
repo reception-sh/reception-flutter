@@ -55,6 +55,14 @@ struct LogicTests {
       launch.tapAction(for: "second", conversationId: "c1", deliveredAt: before, at: drained.addingTimeInterval(3))
         == .receiveAndOpen, "A second pre-launch tap opens once the marker was consumed")
 
+    let deferred = NotificationRouting(launchDate: launched)
+    deferred.drainedLaunchTap(conversationId: "c1", at: drained)
+    precondition(
+      deferred.tapAction(for: "dup", conversationId: "c1", deliveredAt: before, at: drained.addingTimeInterval(0.2))
+        == .ignore, "A proxy duplicate before the deferred drain is ignored")
+    precondition(
+      deferred.action(for: "launch", openChat: true) == .receiveAndOpen, "The deferred drain still opens once")
+
     let late = NotificationRouting(launchDate: launched)
     late.drainedLaunchTap(conversationId: "c1", at: drained)
     precondition(

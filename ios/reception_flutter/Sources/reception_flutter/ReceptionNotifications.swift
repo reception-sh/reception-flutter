@@ -14,6 +14,7 @@ internal final class ReceptionNotifications {
   /// Nil until the first successful configure decides whether the plugin handles notifications.
   private var handlesNotifications: Bool?
   private var pendingTap: (key: String, conversationId: String)?
+  private var drain: Task<Void, Never>?
   /// Its launch date is when the process first uses push state, at the latest when a launch tap is captured.
   private let routing = NotificationRouting()
   private var proxy: ReceptionNotificationCenter?
@@ -31,14 +32,26 @@ internal final class ReceptionNotifications {
     restorePush()
     if handles {
       installProxy()
-      if let tap = pendingTap {
-        pendingTap = nil
-        if tap.key == Self.launchKey { routing.drainedLaunchTap(conversationId: tap.conversationId) }
-        route(key: tap.key, conversationId: tap.conversationId, openChat: true)
-      }
+      scheduleDrain()
     } else {
+      drain?.cancel()
       pendingTap = nil
       removeProxy()
+    }
+  }
+
+  /// Opens the chat for the pending tap shortly after configure, so the settings Dart applies right after
+  /// `configure` returns (appearance, language) are in place first. A later configure reschedules it.
+  private func scheduleDrain() {
+    drain?.cancel()
+    guard let tap = pendingTap else { return }
+    // Marked now: the proxy may deliver the same launch response before the drain runs.
+    if tap.key == Self.launchKey { routing.drainedLaunchTap(conversationId: tap.conversationId) }
+    drain = Task { [weak self] in
+      do { try await Task.sleep(for: .milliseconds(500)) } catch { return }
+      guard let self, self.handlesNotifications == true, let tap = self.pendingTap else { return }
+      self.pendingTap = nil
+      self.route(key: tap.key, conversationId: tap.conversationId, openChat: true)
     }
   }
 
