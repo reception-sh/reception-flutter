@@ -77,14 +77,15 @@ Verification (Flutter 3.47.8, Xcode 26.5, 2026-10-27):
   Xcode's `appintentsmetadataprocessor`: "Metadata extraction skipped. No AppIntents.framework dependency found."
   `Runner.app/reception_flutter_reception_flutter.bundle` contains `PrivacyInfo.xcprivacy` and 48 `*.lproj/Localizable.strings` compiled from `Localizable.xcstrings`.
 - CocoaPods: `flutter config --no-enable-swift-package-manager && cd example && flutter build ios --simulator --debug`
-  → built (SwiftPM re-enabled afterwards). Clean `xcodebuild`: 0 compiler warnings, generated code included (same
-  AppIntents note only). `Runner.app/Frameworks/reception_flutter.framework/Reception.bundle`
+  → built (SwiftPM re-enabled afterwards). Clean `xcodebuild`: 0 warnings in plugin sources; since the FlutterApi
+  availability call became `@asyncCallback`, one generated warning at `Messages.g.swift:1065` (see open questions). `Runner.app/Frameworks/reception_flutter.framework/Reception.bundle`
   contains `PrivacyInfo.xcprivacy` and the 48 string tables; with `use_frameworks! :linkage => :static` the bundle
   is at `Runner.app/Reception.bundle`, where the SDK's `Bundle(for:)` lookup (main bundle) finds it.
 - `tool/pod_lint.sh`: Trunk's `Flutter` pod (last real release 2020) lacks `FlutterSceneLifeCycleDelegate` /
   `addSceneDelegate`, so the script lints against a temporary lint-only `Flutter` podspec vendoring the installed
-  engine's `Flutter.xcframework`, with `--use-modular-headers` and `--use-libraries`. Both pass; the only warning is
-  the plugin podspec's `:path` source ("Missing primary key for `source` attribute"), standard for Flutter plugins,
+  engine's `Flutter.xcframework`, with `--use-modular-headers` and `--use-libraries`. Passed before the
+  `@asyncCallback` FlutterApi change, whose generated warning now fails it (see open questions); otherwise the only
+  warning is the plugin podspec's `:path` source ("Missing primary key for `source` attribute"), standard for Flutter plugins,
   which needs `--allow-warnings`; the script then prints the warnings and fails on any other.
 - `tool/test_native.sh` (needs a booted simulator, or pass a device): `swiftc -swift-version 5
   -strict-concurrency=complete -warnings-as-errors` builds `PushToken`, `NotificationRouting`, `OnceCompletion`,
