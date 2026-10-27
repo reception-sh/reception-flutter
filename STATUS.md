@@ -66,8 +66,9 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   fallback `[]`/`()`), forwards `openSettingsFor`. A later opt-out makes it pass-through and restores the previous
   delegate if it still owns the center; a replacement by someone else is logged once (info) and never re-wrapped.
 - `NotificationRouting.swift` (RN state machine, at most 64 keys, oldest evicted first; after the legacy launch tap is
-  drained, a first proxy tap for its conversation whose notification was delivered before this launch is recorded as
-  opened instead of reopening the chat; anything delivered after launch routes), `OnceCompletion.swift`,
+  drained, only the first proxy tap for its conversation that was delivered before this launch and arrives within
+  10 s of the drain is recorded as opened instead of reopening the chat; then the marker clears and every tap
+  routes), `OnceCompletion.swift`,
   `PushToken.swift`, `ReceptionColor.swift`, `ReceptionAppearance.swift`, `PaywallValues.swift`,
   `ReceptionChatPlatformView.swift` (hosts `UIHostingController(rootView: ReceptionChatView())` as a child of the
   nearest view controller while in a window, removes it when leaving the window). Logger subsystem
@@ -114,6 +115,12 @@ Deviations:
 - `example/ios/Runner.xcodeproj`: removed the template's folder reference to `../../ios/reception_flutter`. Xcode
   treated it as a local package override with identity `reception_flutter`, while Flutter symlinks the plugin under
   the checkout directory name (`reception-flutter`), so SwiftPM resolution failed.
+
+Known limitations:
+- Fire-and-forget calls to Dart (`onState`, `onEvent`, `onPaywall`, `requestPaywallAvailability`) await Pigeon's
+  acknowledgement in a per-connection task that `invalidate()` cancels; a missing handler replies nil, which ends the
+  call with a connection error. Only a message dispatched to an isolate that dies at that instant (hot restart, debug
+  only) leaves its task suspended, bounded by the calls in flight at that moment.
 
 Open questions: none.
 
