@@ -53,16 +53,29 @@ index f7cf943..809a9e1 100644
  				PRODUCT_BUNDLE_IDENTIFIER = sh.reception.walkthrough;
  				PRODUCT_NAME = "$(TARGET_NAME)";
  				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+diff --git a/ios/Runner/AppDelegate.swift b/ios/Runner/AppDelegate.swift
+index c30b367..b345392 100644
+--- a/ios/Runner/AppDelegate.swift
++++ b/ios/Runner/AppDelegate.swift
+@@ -7,6 +7,7 @@ import UIKit
+     _ application: UIApplication,
+     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+   ) -> Bool {
++    UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+   }
+ 
 diff --git a/lib/main.dart b/lib/main.dart
-index 2be6964..0087e6e 100644
+index 2be6964..463fbda 100644
 --- a/lib/main.dart
 +++ b/lib/main.dart
-@@ -1,16 +1,39 @@
+@@ -1,16 +1,44 @@
  import 'package:flutter/material.dart';
  import 'package:flutter_localizations/flutter_localizations.dart';
 +import 'package:reception_flutter/testing.dart';
  
  import 'app_state.dart';
++import 'notifications.dart';
 +import 'reception_store_paywall.dart';
 +import 'reception_support.dart';
  import 'screens/home_screen.dart';
@@ -78,6 +91,7 @@ index 2be6964..0087e6e 100644
  Future<void> main() async {
    WidgetsFlutterBinding.ensureInitialized();
    final state = await AppState.load();
++  await initNotifications();
 +  // Reception support chat. Docs for changes: http://localhost:3123/llms.txt
 +  // Walkthrough deviation: the local service instead of
 +  // Reception.configure(appId: ...), which talks to the hosted service.
@@ -93,50 +107,65 @@ index 2be6964..0087e6e 100644
 +        builder: (_) => const PaywallScreen(),
 +      ),
 +    ),
++    // No store library yet: every product stays available, and the plan goes
++    // out with the app's own user details.
++    ownedProductIds: () async => <String>{},
 +  );
    runApp(WalkthroughApp(state: state));
  }
  
 diff --git a/lib/screens/home_screen.dart b/lib/screens/home_screen.dart
-index 54abfb3..1a9f2af 100644
+index 54abfb3..5afacec 100644
 --- a/lib/screens/home_screen.dart
 +++ b/lib/screens/home_screen.dart
-@@ -1,7 +1,9 @@
+@@ -1,7 +1,11 @@
++import 'package:flutter/cupertino.dart';
  import 'package:flutter/material.dart';
 +import 'package:reception_flutter/reception_flutter.dart';
  
  import '../app_state.dart';
++import '../notifications.dart';
  import '../strings.dart';
 +import '../widgets/support_badge.dart';
  import 'paywall_screen.dart';
  import 'settings_screen.dart';
  
-@@ -18,6 +20,25 @@ class HomeScreen extends StatelessWidget {
+@@ -18,6 +22,23 @@ class HomeScreen extends StatelessWidget {
        appBar: AppBar(
          title: Text(s.get('appTitle')),
          actions: [
 +          if (supportsReception)
-+            UnreadCountBuilder(
-+              builder: (context, unread) => IconButton(
++            ValueListenableBuilder<int>(
++              valueListenable: Reception.unreadCount,
++              builder: (context, unread, _) => IconButton(
 +                tooltip: s.get('support'),
-+                icon: Stack(
-+                  clipBehavior: Clip.none,
-+                  children: [
-+                    const Icon(Icons.support_agent_outlined),
-+                    if (unread > 0)
-+                      Positioned(
-+                        top: -8,
-+                        right: -10,
-+                        child: UnreadCapsule(count: unread),
-+                      ),
-+                  ],
-+                ),
 +                onPressed: Reception.openChat,
++                icon: Badge(
++                  isLabelVisible: unread > 0,
++                  backgroundColor: CupertinoColors.systemRed.resolveFrom(
++                    context,
++                  ),
++                  textColor: Colors.white,
++                  label: Text('$unread'),
++                  child: const Icon(Icons.support_agent_outlined),
++                ),
 +              ),
 +            ),
            IconButton(
              tooltip: s.get('upgrade'),
              icon: const Icon(Icons.workspace_premium_outlined),
+@@ -52,7 +73,10 @@ class HomeScreen extends StatelessWidget {
+                 SwitchListTile(
+                   title: Text(s.get('dailyReminder')),
+                   value: state.dailyReminder,
+-                  onChanged: (value) => state.dailyReminder = value,
++                  onChanged: (value) {
++                    state.dailyReminder = value;
++                    if (value) requestNotificationPermission();
++                  },
+                 ),
+                 ListTile(
+                   title: Text(s.get('focus')),
 diff --git a/lib/screens/settings_screen.dart b/lib/screens/settings_screen.dart
 index ef20f6e..10f0a48 100644
 --- a/lib/screens/settings_screen.dart
@@ -194,15 +223,16 @@ index 942171c..3ef8e7f 100644
        'account': 'Konto',
        'signIn': 'Anmelden',
 diff --git a/pubspec.yaml b/pubspec.yaml
-index 95c8cea..eaf1a0e 100644
+index 95c8cea..8d9d614 100644
 --- a/pubspec.yaml
 +++ b/pubspec.yaml
-@@ -37,6 +37,8 @@ dependencies:
+@@ -37,6 +37,9 @@ dependencies:
    shared_preferences: ^2.5.6
    flutter_localizations:
      sdk: flutter
 +  reception_flutter:
 +    path: /Users/andi/Code/support/reception-flutter
++  flutter_local_notifications: ^22.3.3
  
  dev_dependencies:
    flutter_test:
@@ -227,12 +257,45 @@ index 0000000..a63f00d
 +  <string>development</string>
 +</dict>
 +</plist>
+diff --git a/lib/notifications.dart b/lib/notifications.dart
+new file mode 100644
+index 0000000..95475db
+--- /dev/null
++++ b/lib/notifications.dart
+@@ -0,0 +1,27 @@
++import 'package:flutter_local_notifications/flutter_local_notifications.dart';
++import 'package:reception_flutter/reception_flutter.dart';
++
++final _notifications = FlutterLocalNotificationsPlugin();
++
++/// Sets up local notifications without asking for permission yet.
++Future<void> initNotifications() => _notifications.initialize(
++  settings: const InitializationSettings(
++    iOS: DarwinInitializationSettings(
++      requestAlertPermission: false,
++      requestBadgePermission: false,
++      requestSoundPermission: false,
++    ),
++  ),
++);
++
++/// Asks for notification permission when the user turns on the daily
++/// reminder.
++Future<void> requestNotificationPermission() async {
++  await _notifications
++      .resolvePlatformSpecificImplementation<
++        IOSFlutterLocalNotificationsPlugin
++      >()
++      ?.requestPermissions(alert: true, badge: true, sound: true);
++  // Then, whatever the answer:
++  await Reception.registerForPushIfAuthorized();
++}
 diff --git a/lib/reception_store_paywall.dart b/lib/reception_store_paywall.dart
 new file mode 100644
-index 0000000..31c72b9
+index 0000000..f867b81
 --- /dev/null
 +++ b/lib/reception_store_paywall.dart
-@@ -0,0 +1,143 @@
+@@ -0,0 +1,164 @@
 +import 'dart:async';
 +
 +import 'package:flutter/foundation.dart';
@@ -240,18 +303,27 @@ index 0000000..31c72b9
 +import 'package:reception_flutter/reception_flutter.dart';
 +
 +/// Offers a paywall screen built in your Flutter code as a Reception paywall
-+/// card.
++/// card. It works with any store library: you supply the owned product IDs.
 +///
-+/// Start once in `main()` after `Reception.configure`, passing your function that shows the screen and
-+/// completes when it closes, and keep the returned helper:
++/// Start once in `main()` after `Reception.configure` and your store
++/// library's setup, passing your function that shows the screen and completes
++/// when it closes, and keep the returned helper:
 +///
-+///     var paywall = ReceptionStorePaywall.start(presentYourPaywall);
++///     var paywall = ReceptionStorePaywall.start(
++///       presentYourPaywall,
++///       ownedProductIds: yourOwnedProductIds,
++///     );
 +///
 +/// The card stays available until the customer owns every product in
 +/// `_products`. Call [stop] before changing accounts, then start again for the
 +/// new account.
 +final class ReceptionStorePaywall {
-+  ReceptionStorePaywall._(this._present, this._closesChat);
++  ReceptionStorePaywall._(
++    this._present,
++    this._ownedProductIds,
++    this._subscriptionMetadata,
++    this._closesChat,
++  );
 +
 +  // Replace with the products sold by your existing screen. Consumables never
 +  // count as owned.
@@ -261,19 +333,36 @@ index 0000000..31c72b9
 +  ];
 +
 +  final Future<void> Function() _present;
++  final Future<Set<String>> Function() _ownedProductIds;
++  final FutureOr<Map<String, String>> Function()? _subscriptionMetadata;
 +  final bool _closesChat;
++  StreamSubscription<void>? _purchases;
 +  AppLifecycleListener? _lifecycle;
 +  var _active = false;
 +  var _revision = 0;
 +
 +  /// Starts on iOS; on Android and web Reception shows no cards, so this does
-+  /// nothing there. Pass `closesChatSheet: false` when the chat is a
-+  /// `ReceptionChatView` inside your own route.
++  /// nothing there.
++  ///
++  /// [ownedProductIds] returns the product IDs the customer currently owns.
++  /// [purchasesChanged] emits after purchases, restores and expiries.
++  /// [subscriptionMetadata] returns the plan fields for the support dashboard;
++  /// leave it out when your app sends its own metadata. Pass
++  /// `closesChatSheet: false` when the chat is a `ReceptionChatView` inside
++  /// your own route.
 +  static ReceptionStorePaywall start(
 +    Future<void> Function() present, {
++    required Future<Set<String>> Function() ownedProductIds,
++    Stream<void>? purchasesChanged,
++    FutureOr<Map<String, String>> Function()? subscriptionMetadata,
 +    bool closesChatSheet = true,
 +  }) {
-+    final helper = ReceptionStorePaywall._(present, closesChatSheet);
++    final helper = ReceptionStorePaywall._(
++      present,
++      ownedProductIds,
++      subscriptionMetadata,
++      closesChatSheet,
++    );
 +    if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) return helper;
 +    helper._active = true;
 +    Reception.paywallAvailability = helper._isAvailable;
@@ -289,8 +378,9 @@ index 0000000..31c72b9
 +        ],
 +      ),
 +    ];
-+    helper._lifecycle = AppLifecycleListener(onResume: helper._refresh);
-+    helper._refresh();
++    helper._purchases = purchasesChanged?.listen((_) => helper._changed());
++    helper._lifecycle = AppLifecycleListener(onResume: helper._changed);
++    helper._changed();
 +    return helper;
 +  }
 +
@@ -298,6 +388,7 @@ index 0000000..31c72b9
 +  void stop() {
 +    if (!_active) return;
 +    _active = false;
++    unawaited(_purchases?.cancel());
 +    _lifecycle?.dispose();
 +    if (Reception.paywallAvailability == _isAvailable) {
 +      Reception.paywallAvailability = null;
@@ -308,24 +399,18 @@ index 0000000..31c72b9
 +    }
 +  }
 +
-+  // The app has no store library yet, so it owns nothing and sends no
-+  // subscription details; the app's own plan goes out with its user details.
-+  // When purchases ship, read the store's entitlements here and in
-+  // _isAvailable, and call _update from its purchase-change listener.
-+  static Future<Set<String>> _ownedProductIds() async => const {};
-+
-+  void _update() {
++  void _changed() {
 +    if (!_active) return;
-+    _revision += 1;
 +    unawaited(Reception.refreshPaywalls(invalidate: true).catchError(_failed));
++    unawaited(_syncMetadata().catchError(_failed));
 +  }
 +
-+  void _refresh() => unawaited(_reload().catchError(_failed));
-+
-+  Future<void> _reload() async {
++  Future<void> _syncMetadata() async {
++    final metadata = _subscriptionMetadata;
++    if (metadata == null) return;
 +    final request = ++_revision;
-+    await _ownedProductIds();
-+    if (_active && request == _revision) _update();
++    final fields = await metadata();
++    if (_active && request == _revision) await Reception.setMetadata(fields);
 +  }
 +
 +  Future<bool> _isAvailable(String id) async {
@@ -354,8 +439,7 @@ index 0000000..31c72b9
 +    await _present();
 +    if (!_active) return;
 +    if (reopen) await Reception.openChat();
-+    if (!_active) return;
-+    await _reload();
++    _changed();
 +  }
 +
 +  /// Completes once the chat has closed, or after two seconds if it stays open.

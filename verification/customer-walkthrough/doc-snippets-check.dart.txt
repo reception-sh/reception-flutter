@@ -1,0 +1,63 @@
+// Scratch check: the flutter.md snippets verbatim (deleted after analysis).
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:reception_flutter/reception_flutter.dart';
+
+void appearanceSnippet(
+  ThemeData lightTheme,
+  ThemeData darkTheme,
+  ThemeMode themeMode,
+  Locale? selectedLocale,
+) {
+// lightTheme, darkTheme and themeMode are your app's existing values; use only what they provide.
+Reception.appearance = ReceptionAppearance(
+  accentColor: ReceptionColor.adaptiveOf(
+    light: lightTheme.colorScheme.primary,
+    dark: darkTheme.colorScheme.primary,
+  ),
+  onAccentColor: ReceptionColor.adaptiveOf(
+    light: lightTheme.colorScheme.onPrimary,
+    dark: darkTheme.colorScheme.onPrimary,
+  ),
+  chatBackground: ReceptionColor.adaptiveOf(
+    light: lightTheme.colorScheme.surface,
+    dark: darkTheme.colorScheme.surface,
+  ),
+  incomingBackground: ReceptionColor.adaptiveOf(
+    light: lightTheme.colorScheme.surfaceContainerHighest,
+    dark: darkTheme.colorScheme.surfaceContainerHighest,
+  ),
+  incomingForeground: ReceptionColor.adaptiveOf(
+    light: lightTheme.colorScheme.onSurface,
+    dark: darkTheme.colorScheme.onSurface,
+  ),
+  // Only if the app has its own light/dark setting:
+  preferredColorScheme: switch (themeMode) {
+    ThemeMode.light => ReceptionColorScheme.light,
+    ThemeMode.dark => ReceptionColorScheme.dark,
+    ThemeMode.system => null,
+  },
+);
+// Only if your app has its own language picker: a language tag such as 'de'
+// or 'pt-BR', or null to follow the app's iOS localization.
+Reception.languageOverride = selectedLocale?.toLanguageTag();
+}
+
+Widget badgeSnippet(BuildContext context) {
+  return
+ValueListenableBuilder<int>(
+  valueListenable: Reception.unreadCount,
+  builder: (context, unread, _) => IconButton(
+    tooltip: 'Support',
+    onPressed: Reception.openChat,
+    icon: Badge(
+      isLabelVisible: unread > 0,
+      backgroundColor: CupertinoColors.systemRed.resolveFrom(context),
+      textColor: Colors.white,
+      label: Text('$unread'),
+      child: const Icon(Icons.support_agent_outlined),
+    ),
+  ),
+)
+;
+}

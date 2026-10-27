@@ -221,7 +221,7 @@ Against `reception/content/docs/flutter.md` (served at /docs/flutter):
 ## Customer walkthrough
 
 2026-10-27, 20:20–21:00 CET, evidence in `verification/customer-walkthrough/` (`commands.txt`, `GAPS.md`,
-`integration.diff`, screenshots 01–17). An agent followed the dashboard setup prompt literally on a fresh
+`integration.diff`, screenshots 01–24). An agent followed the dashboard setup prompt literally on a fresh
 `flutter create` app (Home, Settings, light/dark setting, in-app English/German, name-only sign-in, fake paywall
 without a store library), with a path dependency and `configureReceptionForTesting` against the local service as the
 only deviations. Docs, prompt and plugin changed mid-run (Reception-prefixed types, entitlements file, iOS-only
@@ -233,76 +233,19 @@ metadata plan and sign-up date, logout on sign-out (new empty chat), entitlement
 commands, setup check (passed on the first launch, twice), welcome and conversation previews, dashboard reply as the
 badge and in the chat, own-screen paywall card (sheet closes, Flutter paywall opens, chat reopens).
 
-NOT VERIFIED: push banner and tap. The app has no permission flow and the docs give no Flutter way to request one,
-so none was added; `xcrun simctl push` is delivered but iOS shows no banner without authorization.
+Round 1–2 could not show a push banner: the app had no permission flow and the docs gave no Flutter way to add one.
 
-Gaps (details and fix text in `GAPS.md`): G1 test push needs a permission request the docs don't cover (high);
-G2 own-screen paywall file assumes a store library (medium); G3 no Material ColorScheme mapping for chatBackground
-and incoming colors (medium); G4 languageOverride type missing in the Flutter guide; G5 name-only sign-in: logout or
-not; G6 badge "on the way" vs. a toolbar button on the same screen; G7 no Flutter snippet for the iOS badge look;
-G8 paywall helper account switch without vendor accounts; G9 English example messages in previews of a German app.
+Round 3 (21:00–21:10), after the docs and prompt were updated from `GAPS.md`: the app asks for notification
+permission with flutter_local_notifications when the user turns on its daily reminder, exactly as `flutter.md#push`
+shows, then calls `registerForPushIfAuthorized()`. PASS: permission granted, sandbox token registered, foreground
+banner, background tap opens chat, cold-start tap opens chat; the store-agnostic own-screen paywall file (copied
+unchanged, `ownedProductIds: () async => <String>{}`) opens the paywall from an offer card and reopens chat; the
+appearance and Badge snippets compile verbatim.
 
-## Minimum version and pub score
-
-Checked 2026-10-27 20:29–21:10 CET on main 13ca309 (package files identical at 4f18624), Xcode 26.5. SDKs: Flutter
-3.38.0 (Dart 3.10.0-290.4.beta), 3.38.1 (Dart 3.10.0), 3.44.0 (Dart 3.12.0), stable 3.47.8 (Dart 3.13.7). Old SDKs
-ran in throwaway clones with their own `XDG_CONFIG_HOME`, so the SwiftPM toggle never touched the stable config.
-Builds are simulator builds only; nothing was installed or launched. Commands, logs and diffs are in
-`verification/min-version/` (`commands.txt`, `sdk-versions.txt`).
-
-Result: the declared minimum (`flutter: ">=3.38.0"`, `sdk: ^3.10.0`) does not hold. The real floor is Flutter
-3.44.0 for SwiftPM apps, which is the default, and for plugin development. CocoaPods apps work from 3.38.1.
-
-| Step | 3.38.0 | 3.38.1 | 3.44.0 |
-|---|---|---|---|
-| `pub get` plugin | fail (SDK) | fail (pigeon) | pass |
-| `pub get` example | fail (SDK) | pass | pass |
-| analyze plugin / example | – (pub get fails) | fail (pigeon) / pass | pass / pass |
-| `flutter test` | – (pub get fails) | fail (pigeon) | pass (53) |
-| analyze + test without pigeon (probe) | – | pass / pass (53) | – |
-| example build, SwiftPM | – | **fail** | pass |
-| example build, CocoaPods | – | pass (`Reception.bundle` with privacy manifest and 48 tables) | pass |
-| fresh `flutter create` app (target 17.0), SwiftPM | fail (SDK) | **fail** | pass |
-| `pub publish --dry-run` | fail (SDK) | fail (pigeon); 0 warnings without pigeon | pass, 0 warnings |
-
-Incompatibilities:
-1. `pubspec.yaml:16-17`: Flutter 3.38.0 ships Dart `3.10.0-290.4.beta`, a prerelease, so `^3.10.0` rejects it.
-   Pub fails for the plugin and for any app that depends on it ("reception_flutter from path which requires SDK
-   version ^3.10.0", `3380-fresh-pub-get.log`). 3.38.1 is the first release with Dart 3.10.0.
-2. `pubspec.yaml:29` `pigeon: ^29.0.11` needs Dart `^3.11.0` (Flutter 3.41.0+). Pigeon 27.3.1 is the first release
-   that needs 3.11, and 27.3.0 is the last that supports 3.10. On 3.38.x, `pub get`, `analyze`, `test` and
-   `publish --dry-run` fail in the plugin root (`3381-pub-get-plugin.log`). This is a dev dependency, so apps that
-   depend on the plugin are not affected (the example resolves).
-3. `ios/reception_flutter/Package.swift:11,15` depend on the `FlutterFramework` package at `../FlutterFramework`.
-   Flutter creates `.packages/FlutterFramework` only from 3.44.0 (it is in the plugin template from 3.44.0 on, not in
-   3.41.0). On 3.38.1, with SwiftPM on, every app fails in xcodebuild: "Could not resolve package dependencies: the
-   package at '…/ephemeral/Packages/.packages/FlutterFramework' cannot be accessed" (`3381-build-ios-spm.log`,
-   `3381-fresh-build-ios-spm.log`). Removing both lines (probe only) makes the example and a fresh app build on 3.38.1.
-   On stable, the example build then warns "Plugin reception_flutter has a Package.swift for ios but is missing a
-   dependency on FlutterFramework"
-   (`stable-probe-no-flutterframework-example-build-ios-spm.log`).
-4. No others. With pigeon removed, the plugin analyzes clean on Dart 3.10.0 and all 53 tests pass, so the code uses
-   no language feature newer than 3.10. The Pigeon 29 output (`lib/src/messages.g.dart`, `Messages.g.swift`) compiles
-   on 3.38.1. `FlutterSceneLifeCycleDelegate` and `addSceneDelegate` exist in the 3.38.1 engine headers, and the
-   plugin-facing declarations match 3.47.8. `UiKitView(viewType:)` (`lib/src/chat_view.dart:13`) compiles. The
-   strict-concurrency CocoaPods build passes. `meta: ^1.16.0` resolves to Flutter's pinned 1.17.0.
-
-Recommendation (not applied): raise the minimum to what is verified. In `pubspec.yaml:16-17` use
-`sdk: ^3.12.0` and `flutter: ">=3.44.0"`, use the same `sdk` in `example/pubspec.yaml:6`, and change `README.md:6`
-to "Requires Flutter 3.44+ … Dart 3.12+". This matches PLAN.md ("Requirements: Flutter 3.44+") and the Flutter
-template for SwiftPM plugins. Run analyze again after the bump, because it raises the language version from 3.10.
-The alternative keeps CocoaPods and SwiftPM support from 3.38.1. It needs `flutter: ">=3.38.1"`, removing
-`Package.swift:11,15` (stable then warns in the example build, and Flutter's plugin guide asks for the
-dependency), and either pigeon `^27.3.0` (regenerate and re-verify) or a note that maintainers need Flutter 3.41+.
-
-pub.dev score (pana 0.23.19, stable 3.47.8, `pana.log`): **160/160**, no points lost. Conventions 30/30,
-documentation 20/20 (125/125 API elements documented, example present), platforms 20/20 (iOS, "Swift PM-ready"),
-analysis 50/50, dependencies 40/40 (latest SDKs and `pub downgrade` lower bounds pass). The pubspec check is marked
-`[~]` because pana could not reach three URLs. All three answer 404 today: `repository` and `issue_tracker`
-(github.com/reception-sh/reception-flutter, `pubspec.yaml:5-6`) and `documentation` (reception.sh/docs/flutter,
-`pubspec.yaml:7`). This costs no points now, but the repository and docs page must be public before publishing,
-because pub.dev links to them and validates the repository.
-
-API docs (`dart doc`, stable, `dart-doc.log`): 2 libraries (`reception_flutter.dart`, `testing.dart`), 0 warnings,
-0 errors, no unresolved references or missing docs. `testing.dart` is a public library under `lib/`, so its API page
-is published too. That is intended, because it is importable.
+Closed: G1 push permission, G2 paywall without a store library, G3 Material theme mapping, G4 languageOverride type,
+G5 name-only sign-in, G7 badge snippet. Open: G6 badge "on the way" vs. a toolbar button on the same screen; G8
+paywall helper account switch without vendor accounts; G9 English example messages in previews of a German app;
+G10 flutter_local_notifications must be initialized without its launch prompt (docs); F1 (plugin): a cold-start
+notification tap opens the chat inside `configure`, before Dart assigns the appearance, so a dark app's chat opens
+light (`ReceptionNotifications.configured` routes the launch tap; a later `preferredColorScheme` does not reach the
+open sheet). Details and fix text in `GAPS.md`.

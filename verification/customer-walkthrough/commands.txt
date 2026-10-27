@@ -96,3 +96,28 @@ dashboard reply "Thanks for writing in, Maria! How can we help?" -> Home badge 1
 -ReceptionPreview welcome (15) / conversation (16): dark, German UI; the example messages stay English. PASS
 test push again (Settings in front, xcrun simctl push): no banner within 5 s (XCUITest testTapBanner "Your reply" ->
   "no banner") (17). Same result as before: no authorization, no banner.
+
+## Round 3 (21:00-21:10): docs and prompt updated from GAPS.md (reception 9c6f987f, ad1f2dad, 5543a87c)
+curl http://localhost:3123/docs/{flutter,paywalls,push-notifications}.md; prompt re-rendered (setup-prompt-current.txt)
+(1) Push permission, as the developer: the app wants push for its "Daily reminder" switch.
+flutter pub add flutter_local_notifications   -> ^22.3.3 (chosen over permission_handler: no Podfile/preprocessor
+  setup in a SwiftPM project; its README "General setup" line added to AppDelegate.swift:
+  UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate)
+lib/notifications.dart: initialize with DarwinInitializationSettings(request*Permission: false) in main() before
+  Reception's configure (flutter.md: configure after other notification plugins); on switching the reminder on:
+  requestPermissions(alert, badge, sound) exactly as flutter.md#push shows, then Reception.registerForPushIfAuthorized()
+(2) lib/reception_store_paywall.dart replaced by the file from paywalls.md#flutter-custom, only _products changed
+  (walkthrough_pro_monthly, walkthrough_pro_yearly); main(): ownedProductIds: () async => <String>{}
+(3) Home Support button replaced by the flutter.md#unread Badge snippet (tooltip localized); the appearance and Badge
+  snippets copied verbatim into a scratch file (doc-snippets-check.dart.txt) -> flutter analyze: No issues found
+dart format lib; flutter analyze -> No issues found; flutter test -> 1 passed
+flutter build ios --simulator --debug -> "✓ Built", 0 warning lines; xcrun simctl install
+drive testTap "Tägliche Erinnerung" -> system alert "“Walkthrough” Would Like to Send You Notifications" (18)
+drive testAllowAlert -> allowed; DB: device pushToken set (80e0…), pushEnvironment SANDBOX
+Foreground, chat closed: xcrun simctl push D sh.reception.walkthrough reception-push.apns -> banner (19). PASS
+Background (Settings in front), driver testTapBanner "Your reply" waiting, then push -> tap opens the chat (20). PASS
+Cold start: xcrun simctl terminate D sh.reception.walkthrough; Settings in front; push -> banner (21); tap -> app
+  launches and opens the chat (22). PASS, but the chat is LIGHT although the app's theme setting is Dark (see GAPS.md F1);
+  after the paywall round trip below the reopened chat is dark (24).
+Dashboard Send offer (Plans) -> card "Angebot ansehen"; tap -> sheet closes, the app's paywall opens (23);
+  "Schließen" -> chat reopens (24). PASS with the store-agnostic helper.

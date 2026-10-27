@@ -14,6 +14,24 @@ reception-flutter f07e7d3 at 20:43 and a6dfe89 at 20:52). The app was first inte
 then updated to the current one and checked again. Gaps that the 20:43–20:45 commits already fixed are listed
 under "Fixed during the run". All other gaps below still apply to the current text.
 
+## Status after round 3 (21:00–21:10)
+
+The docs and prompt were updated from this list (reception 9c6f987f, ad1f2dad, 5543a87c) and the affected parts were
+redone in the app (`commands.txt`, "Round 3"; screenshots 18–24):
+
+| Gap | Status | Verified by |
+|---|---|---|
+| G1 push permission / test push | Closed: `flutter.md#push` now shows the request with firebase_messaging, flutter_local_notifications or permission_handler, then `registerForPushIfAuthorized()`; the prompt says Flutter has no built-in API and the simulator shows no banner without permission | Daily-reminder switch asks via flutter_local_notifications, Allow (18); foreground banner (19); background tap opens chat (20); cold-start banner (21) and tap opens chat (22) |
+| G2 own-screen paywall without a store library | Closed: store-agnostic `reception_store_paywall.dart` with `ownedProductIds`, `purchasesChanged`, `subscriptionMetadata`; `() async => <String>{}` without a store | File copied unchanged apart from `_products`; offer card opens the paywall (23), Close reopens chat (24) |
+| G3 Material theme mapping | Closed: snippet and sentence in `flutter.md#appearance`, prompt step 3 | Snippet verbatim in a scratch file: `flutter analyze` clean (`doc-snippets-check.dart.txt`); matches what the app already used |
+| G4 languageOverride type | Closed: "a language tag string such as 'de' or 'pt-BR', or null" | Same scratch file (`selectedLocale?.toLanguageTag()`) |
+| G5 name-only sign-in | Closed: prompt step 5 now says it counts as a name without sign-in, no logout | Not redone: the app still calls `logout` on sign-out from the earlier decision |
+| G6, G8, G9 | Open | — |
+| G7 iOS badge look | Closed: Material `Badge` snippet in `flutter.md#unread` | Snippet used as written on the Home icon button (18, red count badge) and analyzed verbatim |
+
+New in round 3: F1 (cold-start tap opens a light chat in a dark app) and G10 (flutter_local_notifications
+initialization), below.
+
 ## Worked without guessing
 
 Platform detection; `flutter pub add`; raising the three project-level `IPHONEOS_DEPLOYMENT_TARGET` entries (no
@@ -25,9 +43,9 @@ setup check (passed on the first launch both times); both previews; the dashboar
 mode and the German language override in the chat; the own-screen paywall card (sheet closes, the Flutter paywall
 opens, chat reopens after Close).
 
-## Open gaps
+## Gaps from rounds 1–2, with status
 
-### G1 (high): "test push" cannot work in an app without a permission flow, and nothing says so up front
+### G1 (high, CLOSED in round 3): "test push" cannot work in an app without a permission flow, and nothing says so up front
 
 Text today:
 - Prompt step 9: "Once push is set up, they can say "test push": then make sure the app has notification permission
@@ -65,7 +83,7 @@ nonprompting refresh …" add:
 Optional plugin feature instead: a Debug-simulator-only launch argument (like `-ReceptionSetupCheck`), for example
 `-ReceptionRequestPushPermission`, that asks once so the test push works without app code.
 
-### G2 (medium): the own-screen Flutter paywall file assumes a store library; an app without one has to rewrite it
+### G2 (medium, CLOSED in round 3): the own-screen Flutter paywall file assumes a store library; an app without one has to rewrite it
 
 Text today:
 - Prompt step 5: "The app's own paywall screen, with RevenueCat or StoreKit: ReceptionStorePaywall (… 
@@ -92,7 +110,7 @@ Better: add a store-agnostic variant to `paywalls.md#flutter-custom` with one ma
 (`Future<Set<String>> ownedProductIds()` and an optional `Map<String, String> subscriptionMetadata()`), and keep the
 RevenueCat version as the example that fills it.
 
-### G3 (medium): no mapping from a Material theme to chatBackground, incomingBackground and incomingForeground
+### G3 (medium, CLOSED in round 3): no mapping from a Material theme to chatBackground, incomingBackground and incomingForeground
 
 Text today, prompt step 3: "Set the selected SDK's appearance accentColor, onAccentColor, chatBackground,
 incomingBackground and incomingForeground from the app's own colors … Never hardcode or invent colors."
@@ -111,7 +129,7 @@ Fix, `reception/content/docs/flutter.md#appearance`, after the code block add:
 > `ReceptionColorScheme.dark` and `ThemeMode.system` to `null`, and assign a new `ReceptionAppearance` when it
 > changes.
 
-### G4 (low): the Flutter guide does not say what languageOverride takes
+### G4 (low, CLOSED in round 3): the Flutter guide does not say what languageOverride takes
 
 Text today, `flutter.md#appearance`: "`Reception.languageOverride = selectedLanguage;`". The type (a BCP 47
 `String?`) is only in the Swift page `language.md` and the Dart source.
@@ -122,7 +140,7 @@ Fix, `reception/content/docs/flutter.md#appearance`, replace the comment line wi
 > // (Locale.toLanguageTag()), or null to follow the app's iOS localization.
 > Reception.languageOverride = selectedLocale?.toLanguageTag();
 
-### G5 (low): a local sign-in that stores only a name falls between "Name without sign-in" and "Accounts"
+### G5 (low, CLOSED in round 3): a local sign-in that stores only a name falls between "Name without sign-in" and "Accounts"
 
 Text today, prompt step 5: "Name without sign-in: … call identify with no user ID and that name …" and "Accounts,
 only if users sign in to the app, with or without a server … Wherever the app ends a signed-in session
@@ -138,7 +156,7 @@ Fix, `reception/src/lib/setup-prompt.ts`, step 5, after the "Accounts" line add:
 
 (Or the opposite rule, if Reception prefers keeping the chat; either way it should be stated.)
 
-### G6 (low): "every menu row on the way" is unclear for a toolbar button on the same screen as the entry
+### G6 (low, OPEN): "every menu row on the way" is unclear for a toolbar button on the same screen as the entry
 
 Text today, prompt step 4: "Show the live unread count on each entry and on every menu row on the way".
 
@@ -149,7 +167,7 @@ Fix, `reception/src/lib/setup-prompt.ts`, step 4, after that sentence add:
 
 > Skip the way to a second entry when the screen already shows the first entry's badge.
 
-### G7 (low): no Flutter snippet for the iOS badge look on an icon button
+### G7 (low, CLOSED in round 3): no Flutter snippet for the iOS badge look on an icon button
 
 Text today: prompt step 4 asks for "a system red capsule with the white count centered … at the top right of round
 icon buttons"; `flutter.md#unread` shows a settings row and suggests Material's `Badge` for tabs, whose default
@@ -164,7 +182,7 @@ Fix, `reception/content/docs/flutter.md#unread`, after the SupportRow example ad
 > `Badge(isLabelVisible: unread > 0, backgroundColor: CupertinoColors.systemRed.resolveFrom(context),
 > textColor: Colors.white, label: Text('$unread'), child: const Icon(Icons.support_agent_outlined))`.
 
-### G8 (low): paywall helper account-switch rule for apps without vendor accounts
+### G8 (low, OPEN): paywall helper account-switch rule for apps without vendor accounts
 
 Text today, `paywalls.md#flutter`: "Before changing accounts, call `stop()`, await Reception's logout …, then the
 vendor's login/logout, then start the helper again for that account."
@@ -172,12 +190,40 @@ vendor's login/logout, then start the helper again for that account."
 What happened: with no vendor account the helper holds no account state; I did not stop and restart it around
 `logout`. Fix, same paragraph, append: "Without a vendor account (no store library), keep the helper running."
 
-### G9 (cosmetic): previews show English example messages in a German app
+### G9 (cosmetic, OPEN): previews show English example messages in a German app
 
 With `languageOverride = 'de'` the conversation preview shows German UI ("Gesendet", "Nachricht", "Di.") but
 English example messages (screenshot 16). A German developer sees a mixed screenshot in the design round. Fix:
 localize the preview's example messages, or say in prompt step 7c: "The example messages are English in every
 language."
+
+### F1 (medium, plugin/SDK): a cold-start notification tap opens the chat before Dart applies the appearance
+
+App theme setting Dark, device in light mode. Terminating the app, pushing and tapping the banner launches the app
+and opens the chat, but the chat is light (22). The accent and language from Dart did apply, only
+`preferredColorScheme: ReceptionColorScheme.dark` did not reach the open sheet. After the paywall round trip the
+reopened chat is dark (24), and opening the chat from the app (20, 08) is dark too. Cause, from the plugin source:
+`ReceptionNotifications.configured(handlesNotifications:)` routes the pending launch tap inside `configure`, before
+`main()` continues to `Reception.appearance = …` (the setup prompt and `flutter.md` put appearance right after
+configure), and a later `preferredColorScheme` change is not applied to an already presented sheet.
+Possible fixes (plugin, not docs): route the launch tap after the Dart startup has run (for example on the next main
+run-loop turn after `configure` returns, or when Dart first assigns appearance), or have the SDK apply
+`preferredColorScheme` changes to a presented sheet (`overrideUserInterfaceStyle`). Docs-only workaround: assign
+`Reception.appearance` and `languageOverride` before `await Reception.configure(...)` if the plugin keeps them
+until configure (not verified).
+
+### G10 (low): flutter_local_notifications needs initialization without the launch prompt
+
+`flutter.md#push` shows `FlutterLocalNotificationsPlugin().resolvePlatformSpecificImplementation<…>()?.requestPermissions(…)`
+but not that the plugin's usual `initialize` asks for permission at launch by default
+(`DarwinInitializationSettings` request* parameters default to true), which the prompt forbids. I initialized with
+all three set to false (its README, "Requesting notification permissions") and added the README's AppDelegate line;
+Reception's forwarding delegate kept working (19–22). Fix, `reception/content/docs/flutter.md#push`, after the
+snippet add:
+
+> With flutter_local_notifications, initialize it with
+> `DarwinInitializationSettings(requestAlertPermission: false, requestBadgePermission: false, requestSoundPermission: false)`
+> so it does not ask at launch, keep its README's AppDelegate line, and configure Reception after its `initialize`.
 
 ## Fixed during the run (current text, verified in the second build)
 
