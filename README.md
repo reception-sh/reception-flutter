@@ -15,13 +15,16 @@ flutter pub add reception_flutter
 Swift Package Manager and CocoaPods both work without Podfile edits. Set the iOS
 deployment target to 17.0 or higher at the project level (Xcode: Runner project →
 Info → iOS Deployment Target, or the three `IPHONEOS_DEPLOYMENT_TARGET` entries in
-`ios/Runner.xcodeproj/project.pbxproj`). If `ios/Podfile` exists and pins an older
-platform, set `platform :ios, '17.0'` there too. Reception follows the languages
+`ios/Runner.xcodeproj/project.pbxproj`), and raise any Runner target-level entries
+below 17.0. If `ios/Podfile` exists and pins an older platform, set
+`platform :ios, '17.0'` there too; a `post_install` hook that forces an older
+target on all pods must use 17.0 or skip `reception_flutter`. Reception follows the languages
 declared under `CFBundleLocalizations` in `ios/Runner/Info.plist`.
 
 ## 2. Configure
 
-Configure once in `main()`, before showing Support:
+Configure once in `main()`, before showing Support, and after
+`Firebase.initializeApp()` and any other notification plugin's setup:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -36,7 +39,9 @@ Future<void> main() async {
 
 ## 3. Open chat
 
-Call this from your app's Support button:
+Call this from your app's Support button, shown only on iOS
+(`!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS`); keep your existing
+contact path on other platforms:
 
 ```dart
 await Reception.openChat();
