@@ -3,7 +3,7 @@
 ## Dart layer
 
 Implemented in `lib/` per SPEC.md "Dart public API": the static `Reception` facade (`src/reception.dart`), typed
-options and events (`src/types.dart`), `Appearance` with `copyWith`, native JSON shape and validation
+options and events (`src/types.dart`), `ReceptionAppearance` with `copyWith`, native JSON shape and validation
 (`src/appearance.dart`), snapshot mirror with per-key revisioned settings (`src/state.dart`), `ReceptionChatView`
 (`src/chat_view.dart`), iOS guard and log helpers (`src/platform.dart`) and `ReceptionError` (`src/errors.dart`).
 The host is connected lazily on the first real call (`connect()` + `ReceptionFlutterApi.setUp`); all host calls,
@@ -13,7 +13,7 @@ call. Unsupported platforms never reach the host. Paywall availability follows t
 missing, failing or replaced callback, or after 5 s), sent through the shared connection; host errors only log. Setting payloads (paywall messages, appearance JSON) are built at
 assignment time, so mutating the caller's list before the connection resolves has no effect.
 
-Tests: 51 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout), ported from the RN suites. Host→Dart calls
+Tests: 53 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout, exports), ported from the RN suites. Host→Dart calls
 go through the real binary messenger.
 
 Deviations and notes:
@@ -22,14 +22,17 @@ Deviations and notes:
 - Validation the Dart type system already guarantees (appId, identity, metadata, event and paywall shapes) is not
   repeated at runtime. Remaining runtime checks: APNs token, push payload envelope, and appearance colors
   (hex or light/dark pair), `welcomeIconSize` 16–160, `welcomeIconCornerRadius` 0–80, and a finite `welcomeIconOffset`.
-- `FontDesign.standard` maps to `"default"` (`default` is a reserved word in Dart). `welcomeIconOffset` is an `Offset`.
+- `ReceptionFontDesign.standard` maps to `"default"` (`default` is a reserved word in Dart). `welcomeIconOffset` is an `Offset`.
 - Every `PlatformException` becomes `ReceptionError('bridge_error', 0)`: generic Swift errors carry private
-  diagnostics in their Pigeon code. Typed SDK errors arrive only through `deleteData` and `IdentityRejectedEvent`, as in RN.
-- Events are a sealed `ReceptionEvent` with one final subclass per case (`ChatOpenedEvent`, …, `IdentityRejectedEvent`).
-- `AppearanceColor.of`/`adaptiveOf` convert Flutter `Color`s to sRGB, clamp components to 0–1 and emit `#RRGGBB`
+  diagnostics in their Pigeon code. Typed SDK errors arrive only through `deleteData` and `ReceptionIdentityRejected`, as in RN.
+- Events are a sealed `ReceptionEvent` with one final subclass per case (`ReceptionChatOpened`, …, `ReceptionIdentityRejected`).
+- `ReceptionColor.of`/`adaptiveOf` convert Flutter `Color`s to sRGB, clamp components to 0–1 and emit `#RRGGBB`
   (opaque) or `#RRGGBBAA`.
 - `package:reception_flutter/testing.dart` (not exported) offers `configureReceptionForTesting` for Debug simulator
   builds against a localhost service; native enforces the guard.
+- Every exported type is `Reception`-prefixed (`ReceptionLogLevel`, `ReceptionAppearance`, `ReceptionColor`, …;
+  events `ReceptionChatOpened` … `ReceptionIdentityRejected`) to avoid `ambiguous_import` next to RevenueCat or
+  Superwall. `test/exports_test.dart` fails to compile if an intended export is missing.
 - `resetReception()` (`@visibleForTesting`, not exported) simulates a hot restart in tests.
 
 ## iOS host
@@ -170,7 +173,7 @@ which shows a white screen when launched standalone; rebuild the example before 
 
 Not verified: real APNs delivery from the backend to a physical device (pushes were simulated with
 `xcrun simctl push`); the App Store review sheet itself (no App Store on the simulator); a server-side
-`IdentityRejectedEvent` (a malformed token is ignored locally by the SDK with "Identity token ignored, its user_id
+`ReceptionIdentityRejected` (a malformed token is ignored locally by the SDK with "Identity token ignored, its user_id
 could not be read"); automations reacting to `track`; photo sending; release builds; Android/web at runtime (unit
 tests only).
 

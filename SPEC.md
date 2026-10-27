@@ -24,21 +24,21 @@ class Reception {   // static-only facade, like RN's `Reception` object
   static ValueListenable<bool> get isChatOpen;
   static ValueListenable<List<ReceptionPaywall>> get availablePaywalls;
   static Future<void> openChat();  static Future<void> closeChat();
-  static Future<void> identify(Identity identity);     // Identity.user(userId:, name:, email:) | Identity.token(token)
+  static Future<void> identify(ReceptionIdentity identity);     // ReceptionIdentity.user(userId:, name:, email:) | ReceptionIdentity.token(token)
   static Future<void> setMetadata(Map<String, String> metadata);
   static Future<void> logout();
   static Future<void> deleteData();   // throws ReceptionError
   static Future<void> track(String event, {bool opensChat = false});
-  static Future<void> setPushToken(String hexToken, {PushEnvironment environment = PushEnvironment.automatic});
+  static Future<void> setPushToken(String hexToken, {ReceptionPushEnvironment environment = ReceptionPushEnvironment.automatic});
   static Future<void> registerForPushIfAuthorized();
   static Future<bool> handlePushNotification(Map<String, Object?> payload, {bool openChat = true});
   static Future<void> refreshPaywalls({bool invalidate = false});
   // settings (immediately visible, reconciled by native revision like RN state.ts)
-  static Appearance get appearance; static set appearance(Appearance value);
+  static ReceptionAppearance get appearance; static set appearance(ReceptionAppearance value);
   static bool get updatesAppBadge; static set updatesAppBadge(bool value);
   static bool get usesRemoteAppearance; static set usesRemoteAppearance(bool value);
   static String? get languageOverride; static set languageOverride(String? value);
-  static LogLevel get logLevel; static set logLevel(LogLevel value);
+  static ReceptionLogLevel get logLevel; static set logLevel(ReceptionLogLevel value);
   static List<ReceptionPaywall> get paywalls; static set paywalls(List<ReceptionPaywall> value);
   // callbacks
   static void Function(ReceptionEvent event)? onEvent;        // setter/getter pair
@@ -47,13 +47,14 @@ class Reception {   // static-only facade, like RN's `Reception` object
 }
 class ReceptionChatView extends StatelessWidget {}  // UiKitView(viewType: 'reception_flutter/chat'); SizedBox.shrink() elsewhere
 ```
-Types: `Appearance` (immutable, all fields nullable, `copyWith`, `toJson` producing the RN JSON shape; fields and
+Every exported type carries the `Reception` prefix (generic names such as `LogLevel` clash with other plugins,
+for example `purchases_flutter`). Types: `ReceptionAppearance` (immutable, all fields nullable, `copyWith`, `toJson` producing the RN JSON shape; fields and
 validation ranges exactly as RN `types.ts`/`validation.ts`; invalid fields keep their previous value and warn),
-`AppearanceColor` (`AppearanceColor.hex('#RRGGBB'|'#RRGGBBAA')` or `AppearanceColor.adaptive(light:, dark:)`, validated
-hex), `WelcomeIcon` (symbol | image | hidden), `CloseIcon`, `FontDesign`, `PreferredColorScheme`, `ReceptionPaywall`,
+`ReceptionColor` (`ReceptionColor.hex('#RRGGBB'|'#RRGGBBAA')` or `ReceptionColor.adaptive(light:, dark:)`, validated
+hex), `ReceptionWelcomeIcon` (symbol | image | hidden), `ReceptionCloseIcon`, `ReceptionFontDesign`, `ReceptionColorScheme`, `ReceptionPaywall`,
 `ReceptionPaywallProduct`, `ReceptionEvent` (sealed: chatOpened, messageSent, imageSent, reviewOpened, paywallOpened,
 dataDeleted, identityRejected(error)), `ReceptionError(code, status)` (implements Exception; `bridge_error`/0 for
-unknown), `PushEnvironment`, `LogLevel`, `Identity`. Keep the number of files small: `reception.dart`, `types.dart`,
+unknown), `ReceptionPushEnvironment`, `ReceptionLogLevel`, `ReceptionIdentity`. Keep the number of files small: `reception.dart`, `types.dart`,
 `appearance.dart`, `state.dart`, `chat_view.dart`, `platform.dart` (support guard), `errors.dart`.
 
 Behaviour (port of RN `methods.ts`, `Reception.ts`, `state.ts`, `callbacks.ts`):
