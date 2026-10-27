@@ -93,70 +93,59 @@ struct LogicTests {
     let missing = await requests.check("missing")
     precondition(!missing, "No Dart callback must fail closed")
 
-    requests.ask = { _, reply in reply(true) }
+    requests.emit = { requestId, _ in requests.resolve(requestId, allowed: true) }
     let accepted = await requests.check("accepted")
-    precondition(accepted, "Dart answer must resume the request")
+    precondition(accepted, "Dart answer must resume the matching request")
 
-    requests.ask = { _, reply in
-      reply(false)
-      reply(true)
+    requests.emit = { requestId, _ in
+      requests.resolve(requestId, allowed: false)
+      requests.resolve(requestId, allowed: true)
     }
     let duplicate = await requests.check("duplicate")
-    precondition(!duplicate, "A duplicate reply must not resume twice")
+    precondition(!duplicate, "A duplicate answer must not resume twice")
 
-    var asked: [String] = []
-    var replies: [String: @Sendable (Bool) -> Void] = [:]
-    requests.ask = { id, reply in
-      asked.append(id)
-      replies[id] = reply
-    }
+    var asked: [String: String] = [:]
+    requests.emit = { requestId, paywall in asked[paywall] = requestId }
     let first = Task { await requests.check("first") }
     let second = Task { await requests.check("second") }
-    while replies.count < 2 { await Task.yield() }
-    replies["second"]?(true)
-    replies["first"]?(false)
+    while asked.count < 2 { await Task.yield() }
+    precondition(asked["first"] != asked["second"], "Requests must have independent IDs")
+    requests.resolve("unknown", allowed: true)
+    requests.resolve(asked["second"]!, allowed: true)
+    requests.resolve(asked["first"]!, allowed: false)
     let concurrent = await (first.value, second.value)
     precondition(!concurrent.0 && concurrent.1, "Concurrent answers must stay independent")
 
-    replies = [:]
+    asked = [:]
     let cancelled = Task { await requests.check("cancelled") }
-    while replies.isEmpty { await Task.yield() }
+    while asked.isEmpty { await Task.yield() }
     cancelled.cancel()
     let cancellation = await cancelled.value
     precondition(!cancellation, "SDK cancellation must release its continuation")
-    replies["cancelled"]?(true)
-    await settle()
+    requests.resolve(asked["cancelled"]!, allowed: true)
 
-    replies = [:]
+    asked = [:]
     let reconnect = Task { await requests.check("reconnect") }
-    while replies.isEmpty { await Task.yield() }
+    while asked.isEmpty { await Task.yield() }
     requests.cancelAll()
     let reconnected = await reconnect.value
-    precondition(!reconnected && requests.ask == nil, "Reconnect must drain pending requests")
-    replies["reconnect"]?(true)
-    await settle()
+    precondition(!reconnected && requests.emit == nil, "Reconnect must drain pending requests")
+    requests.resolve(asked["reconnect"]!, allowed: true)
 
-    var late: (@Sendable (Bool) -> Void)?
-    requests.ask = { _, reply in late = reply }
+    asked = [:]
+    requests.emit = { requestId, paywall in asked[paywall] = requestId }
     let started = ContinuousClock.now
     let timedOut = await requests.check("never-answers")
     let elapsed = started.duration(to: .now)
     precondition(
       !timedOut && elapsed >= .seconds(5) && elapsed < .seconds(8),
       "An unresponsive callback must time out safely")
-    late?(true)
-    await settle()
+    requests.resolve(asked["never-answers"]!, allowed: true)
 
-    // Late replies above resolved nothing: the next request still gets its own answer.
-    requests.ask = { _, reply in DispatchQueue.global().async { reply(true) } }
-    let offMain = await requests.check("off-main")
-    precondition(offMain, "A reply from another thread resolves on the main actor")
-    precondition(asked == ["first", "second", "cancelled", "reconnect"])
-    print("PaywallRequests: answer, duplicate, concurrency, cancellation, reconnect, timeout and late reply checks passed")
-  }
-
-  @MainActor
-  static func settle() async {
-    for _ in 0..<10 { await Task.yield() }
+    // The late answers above resolved nothing: the next request still gets its own answer.
+    requests.emit = { requestId, _ in requests.resolve(requestId, allowed: true) }
+    let next = await requests.check("next")
+    precondition(next, "Late answers must not affect later requests")
+    print("PaywallRequests: answer, duplicate, unknown, concurrency, cancellation, reconnect, timeout and late answer checks passed")
   }
 }
