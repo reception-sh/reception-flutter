@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reception_flutter/reception_flutter.dart';
@@ -13,13 +12,10 @@ const appId = String.fromEnvironment(
   defaultValue: 'app_YOUR_APP_ID',
 );
 
-/// Local backend used by Debug builds.
-final serviceUrl = Uri.parse(
-  const String.fromEnvironment(
-    'RECEPTION_SERVICE_URL',
-    defaultValue: 'http://localhost:3123',
-  ),
-);
+/// Optional local backend, for example
+/// `--dart-define=RECEPTION_SERVICE_URL=http://localhost:3123`. Without it the
+/// app uses the production service through `Reception.configure`.
+const serviceUrl = String.fromEnvironment('RECEPTION_SERVICE_URL');
 
 /// Configure in `main()` when a real App ID is set, so launch arguments such
 /// as `-ReceptionSetupCheck` and push cold starts work without tapping.
@@ -67,7 +63,7 @@ Future<void> main() async {
       '${Reception.availablePaywalls.value.map((paywall) => paywall.id)}',
     ),
   );
-  if (autostart) await run(configure, 'Configured at startup');
+  if (autostart) await run(configure, null);
   debugPrint(
     '[example] started: configured ${Reception.isConfigured}, '
     'unread ${Reception.unreadCount.value}',
@@ -81,13 +77,19 @@ Future<bool> plansOnly(String id) async {
   return id == 'plans';
 }
 
+/// Configures Reception and reports the native result in the status line.
 Future<void> configure() async {
-  if (kDebugMode) {
-    await configureReceptionForTesting(appId: appId, serviceUrl: serviceUrl);
-  } else {
+  if (serviceUrl.isEmpty) {
     await Reception.configure(appId: appId);
+  } else {
+    // Debug simulator builds with a localhost URL only; a no-op otherwise.
+    await configureReceptionForTesting(
+      appId: appId,
+      serviceUrl: Uri.parse(serviceUrl),
+    );
   }
   configured.value = Reception.isConfigured;
+  status.value = Reception.isConfigured ? 'Configured' : 'Configured: false';
   Reception.logLevel = ReceptionLogLevel.debug;
   Reception.appearance = const ReceptionAppearance(
     accentColor: ReceptionColor.adaptive(light: '#8A2BE2', dark: '#C89FFF'),
@@ -186,7 +188,7 @@ class HomePage extends StatelessWidget {
               await Reception.deleteData();
             }, 'Preconfigure calls completed');
           }),
-          button('Configure', () => run(configure, 'Configured')),
+          button('Configure', () => run(configure, null)),
           ValueListenableBuilder(
             valueListenable: Reception.unreadCount,
             builder: (context, unread, _) => FilledButton.icon(
@@ -230,7 +232,7 @@ class HomePage extends StatelessWidget {
                 'plan': 'Pro',
                 'source': 'Flutter example',
               });
-            }, 'ReceptionIdentity and metadata staged');
+            }, 'Identity and metadata staged');
           }),
           button('Identify with invalid token', () {
             run(

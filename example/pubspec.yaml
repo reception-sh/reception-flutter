@@ -1,6 +1,7 @@
 name: reception_flutter_example
 description: Verification app for the reception_flutter plugin.
 publish_to: 'none'
+version: 1.0.0+1
 
 environment:
   sdk: ^3.12.0

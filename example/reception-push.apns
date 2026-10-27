@@ -1,0 +1,10 @@
+{
+  "Simulator Target Bundle": "sh.reception.receptionFlutterExample",
+  "aps": {
+    "alert": { "title": "Reception", "body": "Tap to open your support conversation" },
+    "badge": 1,
+    "thread-id": "YOUR_CONVERSATION_ID",
+    "sound": "default"
+  },
+  "reception": { "conversationId": "YOUR_CONVERSATION_ID" }
+}
