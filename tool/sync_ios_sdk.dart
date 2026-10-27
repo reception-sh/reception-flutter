@@ -6,7 +6,8 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 
-const vendorDir = 'ios/reception_flutter/Sources/reception_flutter/Vendor/Reception';
+const vendorDir =
+    'ios/reception_flutter/Sources/reception_flutter/Vendor/Reception';
 const manifestPath = 'vendor/ios-sdk.json';
 const sdkRepository = '../reception-ios';
 const sdkPaths = ['Sources/Reception', 'LICENSE'];
@@ -28,17 +29,23 @@ Future<Map<String, String>> hashes(String directory) async {
       result[relative] = sha256.convert(await entity.readAsBytes()).toString();
     }
   }
-  return Map.fromEntries(result.entries.toList()..sort((a, b) => a.key.compareTo(b.key)));
+  return Map.fromEntries(
+    result.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
+  );
 }
 
 Future<bool> check(String root) async {
   final manifestFile = File('$root/$manifestPath');
   if (!manifestFile.existsSync()) {
-    stderr.writeln('Missing $manifestPath; run dart run tool/sync_ios_sdk.dart first.');
+    stderr.writeln(
+      'Missing $manifestPath; run dart run tool/sync_ios_sdk.dart first.',
+    );
     return false;
   }
-  final manifest = jsonDecode(await manifestFile.readAsString()) as Map<String, dynamic>;
-  final expected = (manifest['files'] as Map<String, dynamic>).cast<String, String>();
+  final manifest =
+      jsonDecode(await manifestFile.readAsString()) as Map<String, dynamic>;
+  final expected = (manifest['files'] as Map<String, dynamic>)
+      .cast<String, String>();
   final actual = await hashes('$root/$vendorDir');
   final problems = <String>[
     for (final entry in expected.entries)
@@ -46,45 +53,65 @@ Future<bool> check(String root) async {
     for (final key in actual.keys)
       if (!expected.containsKey(key)) 'unexpected: $key',
   ];
-  final version = await sdkVersion('$root/$vendorDir/Sources/Reception/Version.swift');
-  if (version != manifest['sdkVersion']) problems.add('version mismatch: $version vs ${manifest['sdkVersion']}');
-  final dartVersion = await File('$root/lib/src/sdk_version.dart').readAsString();
-  if (!dartVersion.contains("'$version'")) problems.add('lib/src/sdk_version.dart does not match $version');
+  final version = await sdkVersion(
+    '$root/$vendorDir/Sources/Reception/Version.swift',
+  );
+  if (version != manifest['sdkVersion'])
+    problems.add('version mismatch: $version vs ${manifest['sdkVersion']}');
+  final dartVersion = await File(
+    '$root/lib/src/sdk_version.dart',
+  ).readAsString();
+  if (!dartVersion.contains("'$version'"))
+    problems.add('lib/src/sdk_version.dart does not match $version');
   for (final problem in problems) {
     stderr.writeln(problem);
   }
-  if (problems.isEmpty) stdout.writeln('${expected.length} pinned SDK files match (SDK $version).');
+  if (problems.isEmpty)
+    stdout.writeln('${expected.length} pinned SDK files match (SDK $version).');
   return problems.isEmpty;
 }
 
 Future<String> sdkVersion(String versionFile) async {
-  final match = RegExp(r'static let current = "([^"]+)"').firstMatch(await File(versionFile).readAsString());
+  final match = RegExp(
+    r'static let current = "([^"]+)"',
+  ).firstMatch(await File(versionFile).readAsString());
   if (match == null) throw StateError('SDK version missing in $versionFile');
   return match.group(1)!;
 }
 
 Future<String> git(List<String> arguments) async {
   final result = await Process.run('git', ['-C', sdkRepository, ...arguments]);
-  if (result.exitCode != 0) throw StateError('git ${arguments.join(' ')}: ${result.stderr}');
+  if (result.exitCode != 0)
+    throw StateError('git ${arguments.join(' ')}: ${result.stderr}');
   return (result.stdout as String).trim();
 }
 
 Future<void> sync(String root, String revision) async {
-  if (revision == 'HEAD' && (await git(['status', '--porcelain', '--', ...sdkPaths])).isNotEmpty) {
+  if (revision == 'HEAD' &&
+      (await git(['status', '--porcelain', '--', ...sdkPaths])).isNotEmpty) {
     throw StateError('Commit SDK changes before syncing.');
   }
   final commit = await git(['rev-parse', '--verify', '$revision^{commit}']);
   final scratch = await Directory.systemTemp.createTemp('reception-sdk-');
   try {
-    final archive = await Process.start('git', ['-C', sdkRepository, 'archive', commit, ...sdkPaths]);
+    final archive = await Process.start('git', [
+      '-C',
+      sdkRepository,
+      'archive',
+      commit,
+      ...sdkPaths,
+    ]);
     final tar = await Process.start('tar', ['-x', '-C', scratch.path]);
     await archive.stdout.pipe(tar.stdin);
-    if (await tar.exitCode != 0 || await archive.exitCode != 0) throw StateError('git archive failed');
+    if (await tar.exitCode != 0 || await archive.exitCode != 0)
+      throw StateError('git archive failed');
     final destination = Directory('$root/$vendorDir');
     if (destination.existsSync()) await destination.delete(recursive: true);
     await destination.create(recursive: true);
     await copyTree(scratch, destination);
-    final version = await sdkVersion('${destination.path}/Sources/Reception/Version.swift');
+    final version = await sdkVersion(
+      '${destination.path}/Sources/Reception/Version.swift',
+    );
     final basedOnTag = await git(['describe', '--tags', '--abbrev=0', commit]);
     final tags = (await git(['tag', '--points-at', commit])).split('\n');
     final manifest = {
@@ -94,11 +121,15 @@ Future<void> sync(String root, String revision) async {
       'commit': commit,
       'files': await hashes(destination.path),
     };
-    await File('$root/$manifestPath').writeAsString('${const JsonEncoder.withIndent('  ').convert(manifest)}\n');
+    await File('$root/$manifestPath').writeAsString(
+      '${const JsonEncoder.withIndent('  ').convert(manifest)}\n',
+    );
     await File('$root/lib/src/sdk_version.dart').writeAsString(
       "// Generated by tool/sync_ios_sdk.dart. Do not edit.\n\n/// Version of the bundled Reception iOS SDK.\nconst String sdkVersion = '$version';\n",
     );
-    stdout.writeln('Vendored Reception iOS SDK $version (${commit.substring(0, 7)}).');
+    stdout.writeln(
+      'Vendored Reception iOS SDK $version (${commit.substring(0, 7)}).',
+    );
   } finally {
     await scratch.delete(recursive: true);
   }

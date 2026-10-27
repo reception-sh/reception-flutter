@@ -5,8 +5,8 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(
   PigeonOptions(
     dartOut: 'lib/src/messages.g.dart',
-    dartTestOut: 'test/messages_test.g.dart',
-    swiftOut: 'ios/reception_flutter/Sources/reception_flutter/Messages.g.swift',
+    swiftOut:
+        'ios/reception_flutter/Sources/reception_flutter/Messages.g.swift',
     swiftOptions: SwiftOptions(errorClassName: 'ReceptionBridgeError'),
     dartPackageName: 'reception_flutter',
   ),
@@ -28,7 +28,12 @@ class PaywallMessage {
 }
 
 class PaywallProductMessage {
-  PaywallProductMessage({required this.id, this.price, this.period, this.trial});
+  PaywallProductMessage({
+    required this.id,
+    this.price,
+    this.period,
+    this.trial,
+  });
   String id;
   String? price;
   String? period;

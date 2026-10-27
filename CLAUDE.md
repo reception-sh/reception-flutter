@@ -8,7 +8,7 @@ no-ops. Customers read https://reception.sh/docs/flutter; this file is for maint
 - `lib/` – Dart API (`Reception` static facade, typed options, `ReceptionChatView`). `lib/src/messages.g.dart` and
   `lib/src/sdk_version.dart` are generated.
 - `pigeons/reception.dart` – the Dart↔Swift contract. Regenerate after changes:
-  `dart run pigeon --input pigeons/reception.dart` (also regenerates `test/messages_test.g.dart`).
+  `dart run pigeon --input pigeons/reception.dart && dart format lib/src/messages.g.dart`.
 - `ios/reception_flutter/Sources/reception_flutter/` – Swift host (Pigeon implementation, push proxy, platform view).
   `Vendor/Reception/` holds the pinned iOS SDK sources, compiled into this module; never edit them.
 - `ios/reception_flutter/Package.swift` + `ios/reception_flutter.podspec` describe the same sources for SwiftPM and

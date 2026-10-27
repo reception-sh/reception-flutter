@@ -10,9 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
 Object? _extractReplyValueOrThrow(
-    List<Object?>? replyList,
-    String channelName, {
-    required bool isNullValid,
+  List<Object?>? replyList,
+  String channelName, {
+  required bool isNullValid,
 }) {
   if (replyList == null) {
     throw PlatformException(
@@ -34,8 +34,11 @@ Object? _extractReplyValueOrThrow(
   return replyList.firstOrNull;
 }
 
-
-List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
+List<Object?> wrapResponse({
+  Object? result,
+  PlatformException? error,
+  bool empty = false,
+}) {
   if (empty) {
     return <Object?>[];
   }
@@ -44,6 +47,7 @@ List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty
   }
   return <Object?>[error.code, error.message, error.details];
 }
+
 bool _deepEquals(Object? a, Object? b) {
   if (identical(a, b)) {
     return true;
@@ -56,8 +60,9 @@ bool _deepEquals(Object? a, Object? b) {
   }
   if (a is List && b is List) {
     return a.length == b.length &&
-        a.indexed
-            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+        a.indexed.every(
+          ((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]),
+        );
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -106,7 +111,6 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
-
 /// A product a paywall sells. Mirrors the public Dart type one to one.
 class PaywallMessage {
   PaywallMessage({
@@ -128,17 +132,12 @@ class PaywallMessage {
   bool presentable;
 
   List<Object?> _toList() {
-    return <Object?>[
-      id,
-      title,
-      source,
-      products,
-      presentable,
-    ];
+    return <Object?>[id, title, source, products, presentable];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static PaywallMessage decode(Object result) {
     result as List<Object?>;
@@ -160,7 +159,11 @@ class PaywallMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(id, other.id) && _deepEquals(title, other.title) && _deepEquals(source, other.source) && _deepEquals(products, other.products) && _deepEquals(presentable, other.presentable);
+    return _deepEquals(id, other.id) &&
+        _deepEquals(title, other.title) &&
+        _deepEquals(source, other.source) &&
+        _deepEquals(products, other.products) &&
+        _deepEquals(presentable, other.presentable);
   }
 
   @override
@@ -190,16 +193,12 @@ class PaywallProductMessage {
   String? trial;
 
   List<Object?> _toList() {
-    return <Object?>[
-      id,
-      price,
-      period,
-      trial,
-    ];
+    return <Object?>[id, price, period, trial];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static PaywallProductMessage decode(Object result) {
     result as List<Object?>;
@@ -220,7 +219,10 @@ class PaywallProductMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(id, other.id) && _deepEquals(price, other.price) && _deepEquals(period, other.period) && _deepEquals(trial, other.trial);
+    return _deepEquals(id, other.id) &&
+        _deepEquals(price, other.price) &&
+        _deepEquals(period, other.period) &&
+        _deepEquals(trial, other.trial);
   }
 
   @override
@@ -292,13 +294,15 @@ class SnapshotMessage {
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static SnapshotMessage decode(Object result) {
     result as List<Object?>;
     return SnapshotMessage(
       revision: result[0]! as int,
-      settingRevisions: (result[1]! as Map<Object?, Object?>).cast<String, int>(),
+      settingRevisions: (result[1]! as Map<Object?, Object?>)
+          .cast<String, int>(),
       isConfigured: result[2]! as bool,
       unreadCount: result[3]! as int,
       isChatOpen: result[4]! as bool,
@@ -321,7 +325,18 @@ class SnapshotMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(revision, other.revision) && _deepEquals(settingRevisions, other.settingRevisions) && _deepEquals(isConfigured, other.isConfigured) && _deepEquals(unreadCount, other.unreadCount) && _deepEquals(isChatOpen, other.isChatOpen) && _deepEquals(availablePaywalls, other.availablePaywalls) && _deepEquals(paywalls, other.paywalls) && _deepEquals(appearanceJson, other.appearanceJson) && _deepEquals(updatesAppBadge, other.updatesAppBadge) && _deepEquals(usesRemoteAppearance, other.usesRemoteAppearance) && _deepEquals(languageOverride, other.languageOverride) && _deepEquals(logLevel, other.logLevel);
+    return _deepEquals(revision, other.revision) &&
+        _deepEquals(settingRevisions, other.settingRevisions) &&
+        _deepEquals(isConfigured, other.isConfigured) &&
+        _deepEquals(unreadCount, other.unreadCount) &&
+        _deepEquals(isChatOpen, other.isChatOpen) &&
+        _deepEquals(availablePaywalls, other.availablePaywalls) &&
+        _deepEquals(paywalls, other.paywalls) &&
+        _deepEquals(appearanceJson, other.appearanceJson) &&
+        _deepEquals(updatesAppBadge, other.updatesAppBadge) &&
+        _deepEquals(usesRemoteAppearance, other.usesRemoteAppearance) &&
+        _deepEquals(languageOverride, other.languageOverride) &&
+        _deepEquals(logLevel, other.logLevel);
   }
 
   @override
@@ -335,31 +350,23 @@ class SnapshotMessage {
 }
 
 class ErrorMessage {
-  ErrorMessage({
-    required this.code,
-    required this.status,
-  });
+  ErrorMessage({required this.code, required this.status});
 
   String code;
 
   int status;
 
   List<Object?> _toList() {
-    return <Object?>[
-      code,
-      status,
-    ];
+    return <Object?>[code, status];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ErrorMessage decode(Object result) {
     result as List<Object?>;
-    return ErrorMessage(
-      code: result[0]! as String,
-      status: result[1]! as int,
-    );
+    return ErrorMessage(code: result[0]! as String, status: result[1]! as int);
   }
 
   @override
@@ -385,24 +392,19 @@ class ErrorMessage {
 }
 
 class DeleteResultMessage {
-  DeleteResultMessage({
-    required this.state,
-    this.error,
-  });
+  DeleteResultMessage({required this.state, this.error});
 
   SnapshotMessage state;
 
   ErrorMessage? error;
 
   List<Object?> _toList() {
-    return <Object?>[
-      state,
-      error,
-    ];
+    return <Object?>[state, error];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static DeleteResultMessage decode(Object result) {
     result as List<Object?>;
@@ -435,24 +437,19 @@ class DeleteResultMessage {
 }
 
 class EventMessage {
-  EventMessage({
-    required this.type,
-    this.error,
-  });
+  EventMessage({required this.type, this.error});
 
   String type;
 
   ErrorMessage? error;
 
   List<Object?> _toList() {
-    return <Object?>[
-      type,
-      error,
-    ];
+    return <Object?>[type, error];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static EventMessage decode(Object result) {
     result as List<Object?>;
@@ -484,7 +481,6 @@ class EventMessage {
   }
 }
 
-
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -492,22 +488,22 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is PaywallMessage) {
+    } else if (value is PaywallMessage) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    }    else if (value is PaywallProductMessage) {
+    } else if (value is PaywallProductMessage) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    }    else if (value is SnapshotMessage) {
+    } else if (value is SnapshotMessage) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    }    else if (value is ErrorMessage) {
+    } else if (value is ErrorMessage) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    }    else if (value is DeleteResultMessage) {
+    } else if (value is DeleteResultMessage) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    }    else if (value is EventMessage) {
+    } else if (value is EventMessage) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
     } else {
@@ -542,20 +538,21 @@ class ReceptionHostApi {
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
   ReceptionHostApi({
-      BinaryMessenger? binaryMessenger, 
-      String messageChannelSuffix = '', 
-      })
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+    BinaryMessenger? binaryMessenger,
+    String messageChannelSuffix = '',
+  }) : pigeonVar_binaryMessenger = binaryMessenger,
+       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
+           ? '.$messageChannelSuffix'
+           : '';
 
   final BinaryMessenger? pigeonVar_binaryMessenger;
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
   final String pigeonVar_messageChannelSuffix;
 
-
   Future<String> version() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.version$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.version$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -565,17 +562,17 @@ class ReceptionHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as String;
   }
 
   /// Replaces any previous Dart connection (hot restart) and returns the current state.
   Future<SnapshotMessage> connect() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.connect$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.connect$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -585,109 +582,125 @@ class ReceptionHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
-  Future<SnapshotMessage> configure(String appId, bool handlesNotifications) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.configure$pigeonVar_messageChannelSuffix';
+  Future<SnapshotMessage> configure(
+    String appId,
+    bool handlesNotifications,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.configure$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[appId, handlesNotifications]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[appId, handlesNotifications],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
   /// Debug simulator builds only: configure against a localhost service. No-op in release builds.
-  Future<SnapshotMessage> configureForTesting(String appId, String serviceUrl) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.configureForTesting$pigeonVar_messageChannelSuffix';
+  Future<SnapshotMessage> configureForTesting(
+    String appId,
+    String serviceUrl,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.configureForTesting$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[appId, serviceUrl]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[appId, serviceUrl],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
   Future<void> identify(String? userId, String? name, String? email) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.identify$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.identify$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[userId, name, email]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[userId, name, email],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   Future<void> identifyToken(String token) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.identifyToken$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.identifyToken$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[token]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[token],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   Future<void> setMetadata(Map<String, String> metadata) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setMetadata$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setMetadata$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[metadata]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[metadata],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   Future<SnapshotMessage> logout() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.logout$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.logout$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -697,16 +710,16 @@ class ReceptionHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
   Future<DeleteResultMessage> deleteData() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.deleteData$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.deleteData$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -716,16 +729,16 @@ class ReceptionHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as DeleteResultMessage;
   }
 
   Future<void> openChat() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.openChat$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.openChat$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -735,15 +748,15 @@ class ReceptionHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   Future<void> closeChat() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.closeChat$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.closeChat$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -753,51 +766,55 @@ class ReceptionHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   Future<void> track(String event, bool opensChat) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.track$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.track$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[event, opensChat]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[event, opensChat],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   Future<void> setPushToken(String hexToken, String environment) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setPushToken$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setPushToken$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[hexToken, environment]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[hexToken, environment],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   Future<void> registerForPushIfAuthorized() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.registerForPushIfAuthorized$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.registerForPushIfAuthorized$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -807,199 +824,233 @@ class ReceptionHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
-  Future<bool> handlePushNotification(String conversationId, bool openChat) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.handlePushNotification$pigeonVar_messageChannelSuffix';
+  Future<bool> handlePushNotification(
+    String conversationId,
+    bool openChat,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.handlePushNotification$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[conversationId, openChat]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[conversationId, openChat],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as bool;
   }
 
   Future<SnapshotMessage> setAppearance(String json, int revision) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setAppearance$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setAppearance$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[json, revision]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[json, revision],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
   Future<SnapshotMessage> setUpdatesAppBadge(bool value, int revision) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setUpdatesAppBadge$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setUpdatesAppBadge$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[value, revision]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[value, revision],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
-  Future<SnapshotMessage> setUsesRemoteAppearance(bool value, int revision) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setUsesRemoteAppearance$pigeonVar_messageChannelSuffix';
+  Future<SnapshotMessage> setUsesRemoteAppearance(
+    bool value,
+    int revision,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setUsesRemoteAppearance$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[value, revision]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[value, revision],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
-  Future<SnapshotMessage> setLanguageOverride(String? value, int revision) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setLanguageOverride$pigeonVar_messageChannelSuffix';
+  Future<SnapshotMessage> setLanguageOverride(
+    String? value,
+    int revision,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setLanguageOverride$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[value, revision]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[value, revision],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
   Future<SnapshotMessage> setLogLevel(String value, int revision) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setLogLevel$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setLogLevel$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[value, revision]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[value, revision],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
-  Future<SnapshotMessage> setPaywalls(List<PaywallMessage> value, int revision) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setPaywalls$pigeonVar_messageChannelSuffix';
+  Future<SnapshotMessage> setPaywalls(
+    List<PaywallMessage> value,
+    int revision,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setPaywalls$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[value, revision]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[value, revision],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
   Future<void> setPaywallHandler(bool enabled) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setPaywallHandler$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setPaywallHandler$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[enabled]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[enabled],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
-  Future<SnapshotMessage> setPaywallAvailability(bool enabled, int generation) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setPaywallAvailability$pigeonVar_messageChannelSuffix';
+  Future<SnapshotMessage> setPaywallAvailability(
+    bool enabled,
+    int generation,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.setPaywallAvailability$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[enabled, generation]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[enabled, generation],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
   Future<void> refreshPaywalls(bool invalidate) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.refreshPaywalls$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.refreshPaywalls$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[invalidate]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[invalidate],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 }
 
@@ -1016,16 +1067,20 @@ abstract class ReceptionFlutterApi {
   /// Asked for each registered paywall; the host fails closed after five seconds or on a stale generation.
   Future<bool> checkPaywallAvailability(String id, int generation);
 
-  static void setUp(ReceptionFlutterApi? api, {
-    BinaryMessenger? binaryMessenger, 
+  static void setUp(
+    ReceptionFlutterApi? api, {
+    BinaryMessenger? binaryMessenger,
     String messageChannelSuffix = '',
-  }) 
-{
-    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  }) {
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty
+        ? '.$messageChannelSuffix'
+        : '';
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.onState$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.onState$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1037,16 +1092,20 @@ abstract class ReceptionFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.onEvent$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.onEvent$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1058,16 +1117,20 @@ abstract class ReceptionFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.onPaywall$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.onPaywall$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1079,16 +1142,20 @@ abstract class ReceptionFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.checkPaywallAvailability$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reception_flutter.ReceptionFlutterApi.checkPaywallAvailability$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1097,12 +1164,17 @@ abstract class ReceptionFlutterApi {
           final String arg_id = args[0]! as String;
           final int arg_generation = args[1]! as int;
           try {
-            final bool output = await api.checkPaywallAvailability(arg_id, arg_generation);
+            final bool output = await api.checkPaywallAvailability(
+              arg_id,
+              arg_generation,
+            );
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
