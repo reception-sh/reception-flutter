@@ -211,7 +211,7 @@ void main() {
     ]);
     expect(updates, [
       [
-        const ReceptionPaywall(
+        ReceptionPaywall(
           id: 'plans',
           title: 'Plans',
           products: [ReceptionPaywallProduct(id: 'pro', price: r'$5')],
@@ -358,9 +358,7 @@ void main() {
     () async {
       final opened = <String>[];
       Reception.onPaywall = opened.add;
-      Reception.paywalls = [
-        const ReceptionPaywall(id: 'plans', title: 'Plans'),
-      ];
+      Reception.paywalls = [ReceptionPaywall(id: 'plans', title: 'Plans')];
       await host.send('onPaywall', ['plans']);
       expect(opened, ['plans']);
       Reception.onPaywall = null;
@@ -381,7 +379,7 @@ void main() {
   );
 
   test('paywall details pass through to the host', () async {
-    const detailed = [
+    final detailed = [
       ReceptionPaywall(
         id: 'plans',
         title: 'Plans',
@@ -490,7 +488,7 @@ void main() {
     () async {
       final connected = Completer<SnapshotMessage>();
       host.handlers['connect'] = (_) => connected.future;
-      final list = [const ReceptionPaywall(id: 'plans', title: 'Plans')];
+      final list = [ReceptionPaywall(id: 'plans', title: 'Plans')];
       Reception.paywalls = list;
       list.clear();
       connected.complete(snapshot());
@@ -504,7 +502,7 @@ void main() {
         ),
       ]);
       expect(Reception.paywalls, [
-        const ReceptionPaywall(id: 'plans', title: 'Plans'),
+        ReceptionPaywall(id: 'plans', title: 'Plans'),
       ]);
     },
   );
@@ -564,5 +562,25 @@ void main() {
       {'plan': 'Pro'},
     ]);
     expect(host.callsTo('handlePushNotification').single, ['thread', true]);
+  });
+
+  test('a paywall keeps its products when the passed list changes later', () {
+    final products = [const ReceptionPaywallProduct(id: 'pro')];
+    final paywall = ReceptionPaywall(
+      id: 'plans',
+      title: 'Plans',
+      products: products,
+    );
+    final same = ReceptionPaywall(
+      id: 'plans',
+      title: 'Plans',
+      products: const [ReceptionPaywallProduct(id: 'pro')],
+    );
+    final hash = paywall.hashCode;
+    products.add(const ReceptionPaywallProduct(id: 'later'));
+    expect(paywall.products, [const ReceptionPaywallProduct(id: 'pro')]);
+    expect(paywall, same);
+    expect(paywall.hashCode, hash);
+    expect(() => paywall.products.add(products.last), throwsUnsupportedError);
   });
 }

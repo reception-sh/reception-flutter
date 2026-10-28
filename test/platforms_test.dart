@@ -42,9 +42,7 @@ void main() {
         Reception.usesRemoteAppearance = false;
         Reception.languageOverride = 'de';
         Reception.logLevel = ReceptionLogLevel.off;
-        Reception.paywalls = [
-          const ReceptionPaywall(id: 'plans', title: 'Plans'),
-        ];
+        Reception.paywalls = [ReceptionPaywall(id: 'plans', title: 'Plans')];
         Reception.onEvent = (_) {};
         Reception.onPaywall = (_) {};
         Reception.paywallAvailability = (_) => true;

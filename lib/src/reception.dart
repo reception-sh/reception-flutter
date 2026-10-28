@@ -267,9 +267,7 @@ abstract final class Reception {
 
   static set paywalls(List<ReceptionPaywall> value) {
     if (!checkSupported()) return;
-    final paywalls = List<ReceptionPaywall>.unmodifiable(
-      value.map(frozenPaywall),
-    );
+    final paywalls = List<ReceptionPaywall>.unmodifiable(value);
     final messages = paywalls.map(paywallMessage).toList();
     _assign(
       'paywalls',

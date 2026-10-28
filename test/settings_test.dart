@@ -44,15 +44,13 @@ void main() {
     Reception.languageOverride = 'de';
     Reception.updatesAppBadge = false;
     Reception.logLevel = ReceptionLogLevel.debug;
-    Reception.paywalls = [const ReceptionPaywall(id: 'plans', title: 'Plans')];
+    Reception.paywalls = [ReceptionPaywall(id: 'plans', title: 'Plans')];
     Reception.usesRemoteAppearance = false;
     expect(Reception.appearance.toJson(), {'accentColor': '#112233'});
     expect(Reception.languageOverride, 'de');
     expect(Reception.updatesAppBadge, isFalse);
     expect(Reception.logLevel, ReceptionLogLevel.debug);
-    expect(Reception.paywalls, [
-      const ReceptionPaywall(id: 'plans', title: 'Plans'),
-    ]);
+    expect(Reception.paywalls, [ReceptionPaywall(id: 'plans', title: 'Plans')]);
     expect(Reception.usesRemoteAppearance, isFalse);
   });
 

@@ -41,14 +41,15 @@ class ReceptionPaywallProduct {
 /// A purchase screen your app owns, registered so support replies can offer it.
 @immutable
 class ReceptionPaywall {
-  /// Creates a paywall entry.
-  const ReceptionPaywall({
+  /// Creates a paywall entry; [products] is copied, so later changes to the
+  /// passed list do not affect it.
+  ReceptionPaywall({
     required this.id,
     required this.title,
     this.source,
-    this.products = const [],
+    List<ReceptionPaywallProduct> products = const [],
     this.presentable = true,
-  });
+  }) : products = List.unmodifiable(products);
 
   /// Stable identifier passed to `Reception.onPaywall`.
   final String id;
@@ -60,7 +61,7 @@ class ReceptionPaywall {
   /// or another lowercase vendor name.
   final String? source;
 
-  /// Products the paywall sells.
+  /// Products the paywall sells (unmodifiable).
   final List<ReceptionPaywallProduct> products;
 
   /// False lists an offering without a paywall for your team; a card never
@@ -80,15 +81,6 @@ class ReceptionPaywall {
   int get hashCode =>
       Object.hash(id, title, source, Object.hashAll(products), presentable);
 }
-
-/// A copy of [paywall] whose products cannot change after assignment.
-ReceptionPaywall frozenPaywall(ReceptionPaywall paywall) => ReceptionPaywall(
-  id: paywall.id,
-  title: paywall.title,
-  source: paywall.source,
-  products: List.unmodifiable(paywall.products),
-  presentable: paywall.presentable,
-);
 
 /// Converts [paywall] to its bridge message.
 PaywallMessage paywallMessage(ReceptionPaywall paywall) => PaywallMessage(
@@ -112,7 +104,7 @@ ReceptionPaywall paywallFromMessage(PaywallMessage message) => ReceptionPaywall(
   id: message.id,
   title: message.title,
   source: message.source,
-  products: List.unmodifiable([
+  products: [
     for (final product in message.products)
       ReceptionPaywallProduct(
         id: product.id,
@@ -120,7 +112,7 @@ ReceptionPaywall paywallFromMessage(PaywallMessage message) => ReceptionPaywall(
         period: product.period,
         trial: product.trial,
       ),
-  ]),
+  ],
   presentable: message.presentable,
 );
 

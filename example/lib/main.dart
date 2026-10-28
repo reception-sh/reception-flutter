@@ -106,7 +106,7 @@ Future<void> configure() async {
     showsCloseButton: true,
   );
   Reception.usesRemoteAppearance = false;
-  Reception.paywalls = const [
+  Reception.paywalls = [
     ReceptionPaywall(id: 'plans', title: 'Plans'),
     ReceptionPaywall(id: 'hidden', title: 'Unavailable plan'),
   ];
