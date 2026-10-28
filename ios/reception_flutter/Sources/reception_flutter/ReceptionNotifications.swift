@@ -43,7 +43,10 @@ internal final class ReceptionNotifications {
     guard routing.hasPendingTap else { return }
     drain = Task { [weak self] in
       do { try await Task.sleep(for: .milliseconds(500)) } catch { return }
-      guard let self, self.handlesNotifications == true, let id = self.routing.drainPendingTap() else { return }
+      // A reconfigure may have cancelled this task while the sleep was already over.
+      guard !Task.isCancelled, let self, self.handlesNotifications == true,
+        let id = self.routing.drainPendingTap()
+      else { return }
       self.perform(.receiveAndOpen, conversationId: id, openChat: true)
     }
   }
