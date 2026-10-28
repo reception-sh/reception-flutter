@@ -34,40 +34,52 @@ struct LogicTests {
     let launched = Date(timeIntervalSince1970: 1_000)
     let before = launched.addingTimeInterval(-60)
     let drained = launched.addingTimeInterval(2)
-    let launch = NotificationRouting(launchDate: launched)
-    precondition(
-      launch.tapAction(for: "undrained", conversationId: "c1", deliveredAt: before, at: drained) == .receiveAndOpen,
-      "Without a drained launch tap taps open")
-    launch.drainedLaunchTap(conversationId: "c1", at: drained)
-    precondition(
-      launch.tapAction(for: "other", conversationId: "c2", deliveredAt: before, at: drained) == .receiveAndOpen,
-      "Another conversation opens")
-    precondition(
-      launch.tapAction(for: "new", conversationId: "c1", deliveredAt: launched.addingTimeInterval(1), at: drained)
-        == .receiveAndOpen, "A notification delivered after launch opens")
-    precondition(
-      launch.tapAction(for: "dup", conversationId: "c1", deliveredAt: before, at: drained.addingTimeInterval(1))
-        == .ignore, "The launch response delivered again within 10 s is ignored")
-    precondition(
-      launch.tapAction(for: "dup", conversationId: "c1", deliveredAt: before, at: drained.addingTimeInterval(2))
-        == .ignore, "and recorded as opened")
-    precondition(
-      launch.tapAction(for: "second", conversationId: "c1", deliveredAt: before, at: drained.addingTimeInterval(3))
-        == .receiveAndOpen, "A second pre-launch tap opens once the marker was consumed")
+    let opens = { (routing: NotificationRouting, key: String, id: String, date: Date, now: Date) in
+      routing.tapAction(for: key, conversationId: id, deliveredAt: date, at: now) == .receiveAndOpen
+    }
 
-    let deferred = NotificationRouting(launchDate: launched)
-    deferred.drainedLaunchTap(conversationId: "c1", at: drained)
-    precondition(
-      deferred.tapAction(for: "dup", conversationId: "c1", deliveredAt: before, at: drained.addingTimeInterval(0.2))
-        == .ignore, "A proxy duplicate before the deferred drain is ignored")
-    precondition(
-      deferred.action(for: "launch", openChat: true) == .receiveAndOpen, "The deferred drain still opens once")
+    // Legacy duplicate after the drain within 10 s is ignored once; other taps open.
+    let legacy = NotificationRouting(launchDate: launched)
+    precondition(legacy.drainPendingTap() == nil && !legacy.hasPendingTap)
+    legacy.queueTap(key: NotificationRouting.launchKey, conversationId: "c1")
+    precondition(legacy.drainPendingTap(at: drained) == "c1", "The drain opens the launch tap")
+    precondition(opens(legacy, "other", "c2", before, drained), "Another conversation opens")
+    precondition(opens(legacy, "new", "c1", launched.addingTimeInterval(1), drained), "Post-launch delivery opens")
+    precondition(!opens(legacy, "dup", "c1", before, drained.addingTimeInterval(1)), "Legacy duplicate is ignored")
+    precondition(!opens(legacy, "dup", "c1", before, drained.addingTimeInterval(2)), "and recorded as opened")
+    precondition(opens(legacy, "second", "c1", before, drained.addingTimeInterval(3)), "Marker is used once")
 
     let late = NotificationRouting(launchDate: launched)
-    late.drainedLaunchTap(conversationId: "c1", at: drained)
-    precondition(
-      late.tapAction(for: "late", conversationId: "c1", deliveredAt: before, at: drained.addingTimeInterval(11))
-        == .receiveAndOpen, "A pre-launch tap 11 s after the drain opens")
+    late.queueTap(key: NotificationRouting.launchKey, conversationId: "c1")
+    _ = late.drainPendingTap(at: drained)
+    precondition(opens(late, "late", "c1", before, drained.addingTimeInterval(11)), "Marker expires after 10 s")
+
+    // Opt-out clears the marker.
+    let optOut = NotificationRouting(launchDate: launched)
+    optOut.queueTap(key: NotificationRouting.launchKey, conversationId: "c1")
+    _ = optOut.drainPendingTap(at: drained)
+    optOut.discardPendingTap()
+    precondition(opens(optOut, "tap", "c1", before, drained.addingTimeInterval(1)), "Opt-out clears the marker")
+    optOut.queueTap(key: NotificationRouting.launchKey, conversationId: "c1")
+    optOut.discardPendingTap()
+    precondition(optOut.drainPendingTap() == nil, "Opt-out discards the pending tap")
+
+    // Duplicate before the drain, a second configure (reschedule, no routing change), then a distinct pre-launch
+    // tap for the same conversation: two opens in total.
+    let rescheduled = NotificationRouting(launchDate: launched)
+    rescheduled.queueTap(key: NotificationRouting.launchKey, conversationId: "c1")
+    precondition(!opens(rescheduled, "dup", "c1", before, launched), "Duplicate before the drain is not routed")
+    precondition(rescheduled.drainPendingTap(at: drained) == "c1", "Open 1: the drain")
+    precondition(opens(rescheduled, "distinct", "c1", before, drained.addingTimeInterval(1)), "Open 2: distinct tap")
+    precondition(!opens(rescheduled, "dup", "c1", before, drained.addingTimeInterval(2)), "Duplicate stays opened")
+
+    // Scene duplicate during the window: exactly one open, at the drain.
+    let scene = NotificationRouting(launchDate: launched)
+    scene.queueTap(key: "s|1", conversationId: "c1")
+    precondition(!opens(scene, "s|1", "c1", before, launched), "Scene duplicate waits for the drain")
+    precondition(scene.drainPendingTap(at: drained) == "c1", "The drain opens once")
+    precondition(scene.tapAction(for: "s|1", conversationId: "c1", deliveredAt: before, at: drained) == .ignore)
+    precondition(opens(scene, "s|2", "c1", before, drained), "No marker for scene taps")
     print("NotificationRouting: receipts, taps, repeats, eviction at 64 keys and launch tap dedupe passed")
   }
 

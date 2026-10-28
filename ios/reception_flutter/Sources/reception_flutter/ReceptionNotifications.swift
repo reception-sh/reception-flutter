@@ -8,12 +8,9 @@ import os
 internal final class ReceptionNotifications {
   static let shared = ReceptionNotifications()
   static let logger = Logger(subsystem: "com.reception.flutter", category: "Notifications")
-  /// Routing key of a tap read from legacy launch options, which carry no notification identifier.
-  static let launchKey = "launch"
   private var token: (data: Data, environment: Reception.PushEnvironment)?
   /// Nil until the first successful configure decides whether the plugin handles notifications.
   private var handlesNotifications: Bool?
-  private var pendingTap: (key: String, conversationId: String)?
   private var drain: Task<Void, Never>?
   /// Its launch date is when the process first uses push state, at the latest when a launch tap is captured.
   private let routing = NotificationRouting()
@@ -35,7 +32,7 @@ internal final class ReceptionNotifications {
       scheduleDrain()
     } else {
       drain?.cancel()
-      pendingTap = nil
+      routing.discardPendingTap()
       removeProxy()
     }
   }
@@ -44,14 +41,11 @@ internal final class ReceptionNotifications {
   /// `configure` returns (appearance, language) are in place first. A later configure reschedules it.
   private func scheduleDrain() {
     drain?.cancel()
-    guard let tap = pendingTap else { return }
-    // Marked now: the proxy may deliver the same launch response before the drain runs.
-    if tap.key == Self.launchKey { routing.drainedLaunchTap(conversationId: tap.conversationId) }
+    guard routing.hasPendingTap else { return }
     drain = Task { [weak self] in
       do { try await Task.sleep(for: .milliseconds(500)) } catch { return }
-      guard let self, self.handlesNotifications == true, let tap = self.pendingTap else { return }
-      self.pendingTap = nil
-      self.route(key: tap.key, conversationId: tap.conversationId, openChat: true)
+      guard let self, self.handlesNotifications == true, let id = self.routing.drainPendingTap() else { return }
+      self.perform(.receiveAndOpen, conversationId: id, openChat: true)
     }
   }
 
@@ -73,7 +67,7 @@ internal final class ReceptionNotifications {
     if handlesNotifications == true {
       route(key: key, conversationId: id, openChat: true)
     } else {
-      pendingTap = (key, id)
+      routing.queueTap(key: key, conversationId: id)
     }
   }
 
