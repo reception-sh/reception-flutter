@@ -143,3 +143,29 @@ tooling and rules as above; screenshots unchanged (nothing differed). Logs: rech
   Hot restart under flutter run $DEFINES: inbox reply → "unread 1"; R → "Restarted application in 285ms", "unread 1",
     "started: configured true, unread 1", "available (plans)"; hanging availability + Refresh → "available ()";
     restore + Refresh → "available (plans)"; Open chat → "event chatOpened". PASS (recheck-flutter-run.log)
+
+================================================================================
+PHYSICAL DEVICE ROUND, 2026-10-28 17:00–18:10 CET (main at HEAD after 193b2db)
+================================================================================
+Device: iPhone 16 Pro "ALO", iOS 27.2, paired via USB then CoreDevice tunnel; Xcode 26.5 on macOS 27.2
+(Xcode downloaded the iOS 27 device support on first connection; no Xcode 27 needed).
+Backend: the hosted Reception service (reception.sh) with a live app "Flutter Test", bundle id
+sh.reception.receptionFlutterExample, APNs key configured in the live dashboard. App ID passed with
+--dart-define=RECEPTION_APP_ID=<live app id>; no service URL override (Reception.configure, production path).
+
+  flutter build ios --release --no-codesign --dart-define=RECEPTION_APP_ID=<live app id>
+  xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -destination 'generic/platform=iOS' \
+    -allowProvisioningUpdates -allowProvisioningDeviceRegistration DEVELOPMENT_TEAM=<team> CODE_SIGN_STYLE=Automatic build
+    PASS; signed "Apple Development", entitlements aps-environment=development.
+  xcrun devicectl device install app --device ALO <Release-iphoneos/Runner.app>; xcrun devicectl device process launch ...
+    PASS. (A Debug build installed the same way shows Flutter's "debug mode apps can only be launched from Flutter
+    tooling" screen when started from the home screen; Release builds start normally.)
+  Push token: registered with the live backend as sandbox (first dashboard test push was rejected with
+    InvalidProviderToken until a fresh APNs key was uploaded; afterwards "Test push" delivered).
+  Observed by the developer on the device, replies sent from the live dashboard:
+    1. App open, chat closed → banner shown.                                   PASS
+    2. Chat open → no banner, reply appears in the chat.                        PASS
+    3. App in background → banner tapped → chat opens.                          PASS
+    4. App terminated → banner tapped → app launches, chat opens (purple theme). PASS
+  Not captured: device screenshots (devicectl has no screenshot command; USB syslog was unavailable over the
+  wireless tunnel), so this round is recorded from the developer's observations plus the build/install logs.
