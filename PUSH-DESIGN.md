@@ -98,15 +98,18 @@ notifications (equivalent to completing with `[]`).
   `identifier|date`; returns `false` (never consumes for others).
 - Legacy path: `application(_:didFinishLaunchingWithOptions:)` reads `launchOptions[.remoteNotification]`; Reception
   payload → tap keyed by the alias `"launch"`; returns `true` always.
-- Before the first configure such a tap is kept as `pendingTap` (latest wins); once configured with
-  `handlesNotifications: true` taps route immediately. That configure drains `pendingTap` once (opens chat via
-  routing); opting out discards it. A scene-path key consumed by the drain is in routing, so the same response
-  arriving later via the proxy is ignored.
-- Launch-tap marker: a drained `"launch"` tap has no notification identifier, so iOS's later proxy delivery of the
-  same response cannot match by key. Routing therefore ignores exactly one proxy tap that is for the same
-  conversation, whose notification was delivered before this launch (the routing's launch date, at the latest the
-  launch-tap capture), arrives within 10 s of the drain, and would otherwise receive-and-open. Afterwards every tap
-  routes.
+- Before the first configure such a tap is kept as the pending tap in `NotificationRouting` (latest wins); once
+  configured with `handlesNotifications: true` taps route immediately. That configure schedules the drain on the main
+  actor 500 ms later, so the appearance and language settings Dart sends right after `configure` returns apply
+  first; a later configure reschedules it. The drain opens the chat once and records the tap's key; opting out
+  cancels it and discards the pending tap.
+- While the pending tap waits, a proxy tap for the same conversation is its duplicate (scene path: same key; legacy:
+  no identifier to match): recorded as opened, not routed. The drain still opens the chat once.
+- Launch-tap marker: when the drain routes a `"launch"` tap whose duplicate has not arrived yet, routing arms a
+  marker, because iOS's later proxy delivery of the same response cannot match by key. Within 10 s of the drain,
+  the first proxy tap for that conversation whose notification was delivered before this launch (the routing's
+  launch date, at the latest the launch-tap capture) and that would otherwise receive-and-open is ignored, and the
+  marker clears; it also clears after 10 s or on opt-out. Afterwards every tap routes.
 - Running/background taps arrive through the proxy's `didReceive`.
 - `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` is **receipt only** (never a tap) and only
   after a configure with `handlesNotifications: true`: Reception payload → direct
@@ -116,11 +119,13 @@ notifications (equivalent to completing with `[]`).
 ### Routing state (`NotificationRouting`)
 - Port of RN: per key `receive` / `receiveAndOpen` / `open` / `ignore`; proxy receipts and taps share the machine so
   receipt-then-tap yields `open`, not a second receive-and-open.
-- Deterministic bound: at most 64 keys, oldest evicted first. Pending tap storage is separate. Lives in
-  `ReceptionNotifications.shared`, so it survives hot restarts; nothing is replayed to Dart.
+- Deterministic bound: at most 64 keys, oldest evicted first. The pending tap and the launch marker are part of the
+  same pure state machine (native tests in `tool/native_tests`). Lives in `ReceptionNotifications.shared`, so it
+  survives hot restarts; nothing is replayed to Dart.
 
 ### Opt-out (`handlesNotifications: false`)
-- Gates launch and scene capture, pending-tap draining, fetch handling and proxy installation.
+- Gates launch and scene capture, pending-tap draining, fetch handling and proxy installation. An opt-out configure
+  discards the pending tap and clears the launch-tap marker.
 - If a proxy is already installed from an earlier configure and a later configure opts out: the proxy becomes
   pass-through (forwards everything, handles nothing); if it still owns `center.delegate`, `previous` is restored.
   A later opt-in reinstalls it only if `previous` is still the delegate. Never overwrite a newer delegate.
