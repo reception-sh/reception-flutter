@@ -74,18 +74,17 @@ Implemented in `ios/reception_flutter/Sources/reception_flutter/` per SPEC.md "i
   logout and successful `deleteData` it re-applies the token and calls `registerForPushIfAuthorized()`. Pending tap
   (latest wins) drained once, 500 ms after `configure(handlesNotifications: true)` so the appearance and language
   settings Dart sends right after configure apply first (a later configure reschedules it), discarded by an opt-out
-  configure. While it waits, a proxy tap for the same conversation is recorded as opened and not routed, so the chat
-  opens once, at the drain.
+  configure. While it waits, every tap (any key, any conversation) is recorded as opened and not routed, so the
+  chat opens once, at the drain; receipts still route.
   `ReceptionNotificationCenter` proxy installed once at the first handling configure, wraps the previous delegate,
   handles Reception payloads (receipt → `[]` while chat open else `[.banner, .list, .sound]`; default-action tap →
   open; other actions only complete), forwards everything else through `OnceCompletion` (exactly once;
   fallback `[]` after 2 s for `willPresent`, logged once at info level because a wrapped firebase_messaging never
   answers notifications it no longer owns; `()` after 10 s for `didReceive`), forwards `openSettingsFor`. A later opt-out makes it pass-through and restores the previous
   delegate if it still owns the center; a replacement by someone else is logged once (info) and never re-wrapped.
-- `NotificationRouting.swift` (RN state machine, at most 64 keys, oldest evicted first, plus the pending tap and the
-  launch marker as one pure state machine: a drained legacy launch tap whose duplicate has not arrived yet arms the
-  marker; within 10 s the first proxy tap for its conversation delivered before this launch is recorded as opened
-  instead of reopening the chat; the marker clears after that, after 10 s, or on opt-out), `OnceCompletion.swift`,
+- `NotificationRouting.swift` (RN state machine with exact-key dedupe, at most 64 keys, oldest evicted first, plus
+  at most one pending tap; one chat per device, so every tap means "open the chat" and opening it while presented
+  is a no-op), `OnceCompletion.swift`,
   `PushToken.swift`, `ReceptionColor.swift`, `ReceptionAppearance.swift`, `PaywallValues.swift`,
   `ReceptionChatPlatformView.swift` (hosts `UIHostingController(rootView: ReceptionChatView())` as a child of the
   nearest view controller while in a window, removes it when leaving the window). Logger subsystem
@@ -108,8 +107,8 @@ Verification (Flutter 3.47.8, Xcode 26.5, 2026-10-27):
   which needs `--allow-warnings`; the script then prints the warnings and fails on any other.
 - `tool/test_native.sh` (needs a booted simulator, or pass a device): `swiftc -swift-version 5
   -strict-concurrency=complete -warnings-as-errors` builds `PushToken`, `NotificationRouting`, `OnceCompletion`,
-  `PaywallRequests` with `tool/native_tests/LogicTests.swift` (macOS, incl. the pending-tap and launch-marker
-  scenarios and late replies
+  `PaywallRequests` with `tool/native_tests/LogicTests.swift` (macOS, incl. the pending tap absorbing taps, exact-key
+  dedupe after the drain, opt-out, latest capture, and late replies
   after cancellation, reconnect and timeout, duplicate and unknown answers) and `ReceptionColor` with
   `ReceptionColorTests.swift` (simulator); all pass.
 - Builds use the example app as committed; runtime behaviour is covered under "Verification" below.
@@ -140,6 +139,12 @@ Known limitations:
   connection has ended skips sending. A continuation already awaiting an acknowledgement from an
   isolate that died at that instant stays suspended until process exit. Debug only (hot restart), bounded by the
   calls in flight at that moment.
+- A duplicate delivery of the launch response that arrives after the drain and after the user has already closed
+  the chat reopens it once (legacy path, key `"launch"` vs `identifier|date`; not observed in practice, duplicates
+  arrive within the launch second).
+- Distinct taps captured before configure keep only the latest.
+- A tap routed while another screen is being presented does not open the chat (SDK presenter, see "Upstream SDK
+  follow-ups").
 
 Other changes after review: `welcomeIconOffset` components outside -1000…1000 are ignored (the SDK's appearance
 report traps on huge values); calls to Dart queued for an earlier connection are skipped by a connection token;
@@ -159,6 +164,9 @@ To fix in the SDK and re-vendor with the next SDK release:
   (`Localizable.xcstrings` around line 7340, used by `RemoteAttachmentImage.swift:21`).
 - A changed `appearance.preferredColorScheme` is not applied to an already presented chat (accent color and language
   do update), observed in the customer walkthrough.
+- `ChatPresenter.present()` skips the chat while another screen is being presented (`Views/ChatPresenter.swift:48`,
+  "another screen is being presented"), so a notification tap at that moment is dropped instead of presenting after
+  the transition.
 
 ## Verification
 
