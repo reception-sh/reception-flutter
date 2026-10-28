@@ -13,7 +13,7 @@ call. Unsupported platforms never reach the host. Paywall availability follows t
 missing, failing or replaced callback, or after 5 s), sent through the shared connection; host errors only log. Setting payloads (paywall messages, appearance JSON) are built at
 assignment time, so mutating the caller's list before the connection resolves has no effect.
 
-Tests: 59 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout, exports), ported from the RN suites. Host→Dart calls
+Tests: 60 in `test/` (Reception, settings, appearance, platforms, testing, availability timeout, exports), ported from the RN suites. Host→Dart calls
 go through the real binary messenger.
 
 Deviations and notes:
@@ -33,7 +33,8 @@ Deviations and notes:
 - App callbacks (`onEvent`, `onPaywall`, `paywallAvailability`) never throw into Pigeon: exceptions are reported with
   `FlutterError.reportError` (library `reception_flutter`), because Pigeon error replies with non-string details crash
   the Swift side. A throwing availability callback resolves `false`.
-- Caller-owned data is copied at call time: paywalls (with unmodifiable products), metadata, and the push routing
+- `ReceptionPaywall` copies `products` into an unmodifiable list in its (non-const) constructor.
+- Caller-owned data is copied at call time: paywall lists, metadata, and the push routing
   conversation ID are read before any await.
 - `welcomeIconOffset` is limited to -1000…1000 points per axis; larger values trapped in the SDK's integer conversion.
 - The example configures with `Reception.configure` unless `RECEPTION_SERVICE_URL` is defined, ships
