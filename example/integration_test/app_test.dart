@@ -1,6 +1,8 @@
 // Drives the example app on an iOS simulator against the local backend:
 //   flutter test integration_test -d <device> \
-//     --dart-define=RECEPTION_APP_ID=app_... --dart-define=RECEPTION_AUTOSTART=false
+//     --dart-define=RECEPTION_APP_ID=app_... \
+//     --dart-define=RECEPTION_SERVICE_URL=http://localhost:3123 \
+//     --dart-define=RECEPTION_AUTOSTART=false
 // Add --dart-define=EXPECT_UNREAD=true after a dashboard reply to wait for the
 // unread count.
 import 'package:flutter/widgets.dart';

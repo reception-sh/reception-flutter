@@ -3,8 +3,8 @@
   "aps": {
     "alert": { "title": "Reception Verification", "body": "Tap to open your support conversation" },
     "badge": 1,
-    "thread-id": "cmvr0ehvn008f00qf8lj8h3rg",
+    "thread-id": "cmvs3gp2o009x00qfd232ve9h",
     "sound": "default"
   },
-  "reception": { "conversationId": "cmvr0ehvn008f00qf8lj8h3rg" }
+  "reception": { "conversationId": "cmvs3gp2o009x00qfd232ve9h" }
 }

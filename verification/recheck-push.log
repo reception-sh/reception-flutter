@@ -1,8 +1,0 @@
-Timestamp               Ty Process[PID:TID]
-2026-10-27 19:20:29.390 I  Runner[40799:6dce6bc] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
-2026-10-27 19:20:30.747 Db Runner[40799:6dce6bc] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
-2026-10-27 19:20:59.167 Db Runner[40799:6dce6bc] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
-2026-10-27 19:20:59.798 Db Runner[40799:6dce6bc] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
-Timestamp               Ty Process[PID:TID]
-2026-10-27 19:20:28.250 Df SpringBoard[29146:6dce682] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.a
-2026-10-27 19:20:59.166 Df SpringBoard[29146:6dceb20] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.a

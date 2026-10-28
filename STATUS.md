@@ -162,53 +162,53 @@ To fix in the SDK and re-vendor with the next SDK release:
 
 ## Verification
 
-Final simulator verification of the example app on the final plugin code (main at a2b487f: Dart connection path,
-request/resolve paywall availability, launch-tap dedupe, callback guards, color conversion), 2026-10-27
-18:41–19:02 CET, Flutter 3.47.8, Xcode 26.5, iPhone 17 Pro / iOS 26.5, local backend on :3123. Exact commands,
-results and evidence: `verification/commands.txt`, `verification/screenshots.txt`, `verification/*.log`; summary in
-German: `verification/EXPLAINER.md`. This supersedes the earlier rounds and the notes above that the example is
-still the template and that runtime behaviour is unverified.
+Final simulator verification of the example app on the final plugin code: main at 12a01d3 (`Reception`-prefixed
+types, opt-in `RECEPTION_SERVICE_URL`, cold-start taps opened 500 ms after configure with pending-tap duplicate
+handling, plugin logic RunnerTests, Flutter minimum 3.44), 2026-10-28 13:29–14:02 CET, Flutter 3.47.8, Xcode 26.5,
+iPhone 17 Pro / iOS 26.5, local backend on :3123. Exact commands, results and evidence: `verification/commands.txt`,
+`verification/screenshots.txt`, `verification/*.log`; summary in German: `verification/EXPLAINER.md`. This
+supersedes the earlier rounds (2026-10-27) and the notes above that the example is still the template and that
+runtime behaviour is unverified.
 
-Example: `example/lib/main.dart` exercises the whole public API (configure at startup when
-`RECEPTION_APP_ID` is defined, `RECEPTION_AUTOSTART=false` for the Configure button), `example/integration_test/`
-drives it on a simulator, `example/ios/Runner/AppDelegate.swift` adds the example's own notification-permission
-channel (`xcrun simctl privacy` has no notifications service), `Info.plist` declares `en`/`de` localizations, and
-`Runner/Runner.entitlements` adds the Push Notifications entitlement (`aps-environment` development).
+Example: `example/lib/main.dart` exercises the whole public API (configure at startup when `RECEPTION_APP_ID` is
+defined, against `RECEPTION_SERVICE_URL` when that is set, `RECEPTION_AUTOSTART=false` for the Configure button),
+`example/integration_test/` drives it on a simulator, `example/ios/Runner/AppDelegate.swift` adds the example's own
+notification-permission channel (`xcrun simctl privacy` has no notifications service), `Info.plist` declares
+`en`/`de` localizations, and `Runner/Runner.entitlements` adds the Push Notifications entitlement.
 
 All sections passed:
-- a. analyze, format, 51 Dart tests, SDK sync check (107 files), native tests (incl. launch-tap dedupe and
-  duplicate/unknown/late availability answers), pod lint with `LANG` unset, `flutter pub publish --dry-run`
-  (204 KB, 0 warnings).
-- b. clean SwiftPM build (0 warning lines), setup check, both previews, integration test (1 test).
+- a. analyze (root and example), format, 60 Dart tests, SDK sync check (107 files), native tests, pod lint with
+  `LANG` unset, `flutter pub publish --dry-run` (207 KB, 0 warnings), RunnerTests `build-for-testing` and run
+  (2 tests passed).
+- b. integration test (1 test), clean SwiftPM build (0 warning lines), setup check, both previews.
 - c. inbox reply → unread badge → reply in chat; identity and metadata in the inbox details; `hidden` absent from
-  the Send offer dialog; offer card tap → `paywallOpened` and `onPaywall('plans')` with the chat still open;
-  review card tap → `reviewOpened` (iOS hands the App Store link to Safari on the simulator; the app keeps running).
+  the Send offer dialog; offer card tap → `ReceptionPaywallOpened` and `onPaywall('plans')` with the chat still
+  open; review card tap → `ReceptionReviewOpened` (iOS hands the App Store link to Safari on the simulator).
 - d. simulator APNs token registered (sandbox); foreground banner with chat closed and unread refreshed by the
-  receipt; no banner with chat open; background tap and cold-start tap open the chat; a second push tapped 33 s
-  after the cold-start tap opens the chat again (the dedupe only suppresses the repeated launch tap).
+  receipt; no banner with chat open; background tap; cold-start tap opens the chat 0.67 s after configure with the
+  example's purple appearance (after Dart settings); a second push for the same conversation tapped 24 s later opens
+  the chat again in the running app.
 - e. CocoaPods build, setup check and German strings from `Reception.bundle`; SwiftPM restored, no artifacts.
 - f. hot restart under `flutter run`: unread and configuration re-read, availability (including the hanging
   callback failing closed and restoring) works.
-- g. language override, dark/light, embedded view, deleteData (`dataDeleted`, server data gone), logout (empty chat).
-- h. fresh `flutter create` app: SwiftPM and CocoaPods builds after raising the deployment target, no Podfile edits.
+- g. language override, dark/light, embedded view, deleteData (`ReceptionDataDeleted`, server data gone), logout
+  (empty chat).
+- h. fresh `flutter create` app: SwiftPM and CocoaPods builds after raising the deployment target to 17.0, no
+  Podfile edits.
 
-Final re-check on main at 6a2a7b0 (after 12dbdc0 launch-tap suppression limited to one duplicate within 10 s, and
-a98bb28 per-connection call tracking), 2026-10-27 19:10–19:23 CET: analyze, 51 Dart tests, native tests (incl.
-launch-tap dedupe), clean SwiftPM build (0 warnings), integration test, setup check, background tap, cold-start tap,
-a second push for the same conversation tapped 31 s after the cold start (opens the chat again), and hot restart
-with the availability check all pass (`verification/commands.txt` "FINAL RE-CHECK", `verification/recheck-*.log`).
-
-Observed, not bugs: `setPushToken` called before configure is cached by the plugin and applied after configure (as
-PUSH-DESIGN specifies), so the example's "Calls before configure" registers its dummy `aabb` token until the real
-APNs token replaces it; `flutter test integration_test` uninstalls the app afterwards (the next install is a new
-device with a new conversation) and leaves its test-harness build in `example/build/ios/iphonesimulator/Runner.app`,
-which shows a white screen when launched standalone; rebuild the example before installing it.
+Observed, not bugs: `flutter test integration_test` uninstalls the app afterwards (the next install is a new device
+with a new conversation) and leaves its test-harness build in `example/build/ios/iphonesimulator/Runner.app`, which
+shows a white screen when launched standalone; run it first or rebuild the example before installing it. In the
+2026-10-27 rounds, `setPushToken` called before configure was cached and applied after configure (as PUSH-DESIGN
+specifies), so the example's "Calls before configure" registered its dummy `aabb` token until the real token
+replaced it. During this round the Mac's data volume ran full, which crashed one `flutter run` compiler and left the
+simulator shut down; the affected steps were repeated after freeing space (see `verification/commands.txt`).
 
 Not verified: real APNs delivery from the backend to a physical device (pushes were simulated with
 `xcrun simctl push`); the App Store review sheet itself (no App Store on the simulator); a server-side
 `ReceptionIdentityRejected` (a malformed token is ignored locally by the SDK with "Identity token ignored, its user_id
 could not be read"); automations reacting to `track`; photo sending; release builds; Android/web at runtime (unit
-tests only).
+tests only); Flutter 3.44–3.46 at runtime (this round used 3.47.8).
 
 ### Bugs found during verification
 

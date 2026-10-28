@@ -1,0 +1,22 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -xctestrun runnertests-dd/Build/Products/Runner_iphonesimulator26.5-arm64.xctestrun -destination id=1B82EA4D-9E6C-401B-9BF1-DF6EEE286309
+
+2026-10-28 13:34:09.174 xcodebuild[44377:116312429] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-10-28 13:34:09.182 xcodebuild[44377:116312429] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-10-28 13:34:10.947 xcodebuild[44377:116312429] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-10-28 13:34:11.392 xcodebuild[44377:116312429] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-10-28 13:34:11.501 xcodebuild[44377:116312429] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-10-28 13:34:14.289 xcodebuild[44377:116312429] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-10-28 13:35:14.431 xcodebuild[44377:116312429] [MT] IDETestOperationsObserverDebug: 63.447 elapsed -- Testing started completed.
+2026-10-28 13:35:14.431 xcodebuild[44377:116312429] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-28 13:35:14.431 xcodebuild[44377:116312429] [MT] IDETestOperationsObserverDebug: 63.447 sec, +63.447 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/andi/Library/Developer/Xcode/DerivedData/Runner-bblptoiikzefhjbqvdmapzdtptry/Logs/Test/Test-Runner-2026.10.28_13-34-09-+0100.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started
+Test suite 'RunnerTests' started on 'Clone 1 of iPhone 17 Pro - Runner (44798)'
+Test case 'RunnerTests.testNotificationRoutingOpensOnce()' passed on 'Clone 1 of iPhone 17 Pro - Runner (44798)' (0.002 seconds)
+Test case 'RunnerTests.testPushTokenDecoding()' passed on 'Clone 1 of iPhone 17 Pro - Runner (44798)' (0.001 seconds)

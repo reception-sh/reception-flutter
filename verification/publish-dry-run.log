@@ -12,7 +12,7 @@ Publishing reception_flutter 1.0.0 to https://pub.dev:
 ├── README.md (2 KB)
 ├── analysis_options.yaml (<1 KB)
 ├── example
-│   ├── README.md (2 KB)
+│   ├── README.md (3 KB)
 │   ├── analysis_options.yaml (1 KB)
 │   ├── integration_test
 │   │   └── app_test.dart (5 KB)
@@ -77,15 +77,16 @@ Publishing reception_flutter 1.0.0 to https://pub.dev:
 │   │       └── RunnerTests.swift (<1 KB)
 │   ├── lib
 │   │   └── main.dart (11 KB)
-│   └── pubspec.yaml (<1 KB)
+│   ├── pubspec.yaml (<1 KB)
+│   └── reception-push.apns (<1 KB)
 ├── ios
 │   ├── reception_flutter
 │   │   ├── Package.swift (<1 KB)
 │   │   └── Sources
 │   │       └── reception_flutter
 │   │           ├── Messages.g.swift (43 KB)
-│   │           ├── NotificationRouting.swift (1 KB)
-│   │           ├── OnceCompletion.swift (<1 KB)
+│   │           ├── NotificationRouting.swift (3 KB)
+│   │           ├── OnceCompletion.swift (1 KB)
 │   │           ├── PaywallRequests.swift (1 KB)
 │   │           ├── PaywallValues.swift (<1 KB)
 │   │           ├── PushToken.swift (<1 KB)
@@ -93,8 +94,8 @@ Publishing reception_flutter 1.0.0 to https://pub.dev:
 │   │           ├── ReceptionChatPlatformView.swift (1 KB)
 │   │           ├── ReceptionColor.swift (<1 KB)
 │   │           ├── ReceptionFlutterPlugin.swift (2 KB)
-│   │           ├── ReceptionHost.swift (9 KB)
-│   │           ├── ReceptionNotifications.swift (7 KB)
+│   │           ├── ReceptionHost.swift (10 KB)
+│   │           ├── ReceptionNotifications.swift (8 KB)
 │   │           └── Vendor
 │   │               └── Reception
 │   │                   ├── LICENSE (1 KB)
@@ -214,13 +215,13 @@ Publishing reception_flutter 1.0.0 to https://pub.dev:
 │   │                           └── WelcomeIcon.swift (<1 KB)
 │   └── reception_flutter.podspec (1 KB)
 ├── lib
-│   ├── reception_flutter.dart (<1 KB)
+│   ├── reception_flutter.dart (1 KB)
 │   ├── src
-│   │   ├── appearance.dart (12 KB)
+│   │   ├── appearance.dart (13 KB)
 │   │   ├── chat_view.dart (<1 KB)
 │   │   ├── errors.dart (1 KB)
 │   │   ├── messages.g.dart (37 KB)
-│   │   ├── platform.dart (<1 KB)
+│   │   ├── platform.dart (1 KB)
 │   │   ├── reception.dart (13 KB)
 │   │   ├── sdk_version.dart (<1 KB)
 │   │   ├── state.dart (3 KB)
@@ -230,17 +231,18 @@ Publishing reception_flutter 1.0.0 to https://pub.dev:
 │   └── reception.dart (4 KB)
 ├── pubspec.yaml (<1 KB)
 ├── test
-│   ├── appearance_test.dart (8 KB)
+│   ├── appearance_test.dart (9 KB)
 │   ├── availability_timeout_test.dart (<1 KB)
+│   ├── exports_test.dart (2 KB)
 │   ├── fake_host.dart (4 KB)
 │   ├── platforms_test.dart (3 KB)
-│   ├── reception_test.dart (15 KB)
+│   ├── reception_test.dart (18 KB)
 │   ├── settings_test.dart (6 KB)
 │   └── testing_test.dart (1 KB)
 └── vendor
     └── ios-sdk.json (12 KB)
 
-Total compressed archive size: 204 KB.
+Total compressed archive size: 207 KB.
 Validating package...
 The server may enforce additional checks.
 

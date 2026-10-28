@@ -1,11 +1,11 @@
-Final round, 2026-10-27 18:41–19:02 CET (see commands.txt). Dashboard screenshots blur the dashboard user's email.
+Final round, 2026-10-28 13:29–14:02 CET on 12a01d3 (see commands.txt). Dashboard screenshots blur the dashboard user's email.
 /Users/andi/Code/support/reception-flutter/verification/00-before-configure.png — Manual-configure build at launch: Configured false, nothing available.
 /Users/andi/Code/support/reception-flutter/verification/00b-calls-before-configure.png — API calls before configure completed without a crash.
 /Users/andi/Code/support/reception-flutter/verification/00c-configured-by-button.png — Configure button: Configured true, Available: plans.
 /Users/andi/Code/support/reception-flutter/verification/01-setup-check-spm.png — SwiftPM build configured at startup after the setup check; only `plans` available.
 /Users/andi/Code/support/reception-flutter/verification/preview-welcome.png — -ReceptionPreview welcome.
 /Users/andi/Code/support/reception-flutter/verification/preview-conversation.png — -ReceptionPreview conversation with the purple local appearance.
-/Users/andi/Code/support/reception-flutter/verification/02-dashboard-reply.png — Inbox: "Hello back from the dashboard" sent (later messages visible).
+/Users/andi/Code/support/reception-flutter/verification/02-dashboard-reply.png — Inbox: "Hello back from the dashboard" sent.
 /Users/andi/Code/support/reception-flutter/verification/03-unread-badge.png — Unread 1 and the badge on Open chat after returning to the app.
 /Users/andi/Code/support/reception-flutter/verification/04-reply-in-chat.png — Dashboard reply inside the native chat.
 /Users/andi/Code/support/reception-flutter/verification/05-message-sent.png — Message sent from the app after identify + setMetadata.
@@ -15,11 +15,11 @@ Final round, 2026-10-27 18:41–19:02 CET (see commands.txt). Dashboard screensh
 /Users/andi/Code/support/reception-flutter/verification/10-push-background-banner.png — Push while the app is in the background (Settings in front).
 /Users/andi/Code/support/reception-flutter/verification/11-push-background-tap-opened-chat.png — Tapping the background notification opened the conversation.
 /Users/andi/Code/support/reception-flutter/verification/12-push-cold-banner.png — Push with the app terminated.
-/Users/andi/Code/support/reception-flutter/verification/13-push-cold-start-opened-chat.png — Cold start from the notification tap opened the conversation.
-/Users/andi/Code/support/reception-flutter/verification/13b-second-push-banner.png — Second push for the same conversation 33 s later, chat closed, app running.
+/Users/andi/Code/support/reception-flutter/verification/13-push-cold-start-opened-chat.png — Cold start from the notification tap opened the conversation with the example's purple appearance (after Dart settings).
+/Users/andi/Code/support/reception-flutter/verification/13b-second-push-banner.png — Second push for the same conversation 24 s later, chat closed, app running.
 /Users/andi/Code/support/reception-flutter/verification/13c-second-push-tap-opened-chat.png — Tapping the second push opened the chat again (launch-tap dedupe not over-suppressing).
-/Users/andi/Code/support/reception-flutter/verification/14a-push-receipt-before.png — Before the reply + push: unread 0.
-/Users/andi/Code/support/reception-flutter/verification/14-push-receipt-unread.png — Reply + push in the foreground: banner and unread 1.
+/Users/andi/Code/support/reception-flutter/verification/14a-push-receipt-before.png — Before the reply + push: unread 1.
+/Users/andi/Code/support/reception-flutter/verification/14-push-receipt-unread.png — Reply + push in the foreground: banner and unread 2.
 /Users/andi/Code/support/reception-flutter/verification/15-language-override-german.png — languageOverride 'de': German chat and card buttons.
 /Users/andi/Code/support/reception-flutter/verification/16-dark-appearance-chat.png — Dark appearance: adaptive purple colours.
 /Users/andi/Code/support/reception-flutter/verification/17-light-appearance-chat.png — Light appearance again.

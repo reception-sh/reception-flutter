@@ -1,5 +1,5 @@
 Building com.example.customerCheck for simulator (ios)...
-Running pod install...                                             730ms
+Running pod install...                                             771ms
 Running Xcode build...                                          
-Xcode build done.                                           22.2s
+Xcode build done.                                           32.3s
 ✓ Built build/ios/iphonesimulator/Runner.app

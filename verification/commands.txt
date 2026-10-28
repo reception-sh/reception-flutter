@@ -1,143 +1,123 @@
-FINAL ROUND — 2026-10-27, 18:41–19:02 CET, on main at a2b487f ("Update status after request/resolve
-availability"; Dart connection path, request/resolve paywall availability, launch-tap dedupe, callback guards,
-color conversion). Earlier rounds the same day are superseded; all evidence below is from this round.
+FINAL ROUND — 2026-10-28, 13:29–14:02 CET, on main at 12a01d3 ("Status: pending-tap state machine; restore
+minimum version section"): `Reception`-prefixed public types, opt-in local service URL
+(RECEPTION_SERVICE_URL), cold-start taps opened 500 ms after configure with pending-tap duplicate handling,
+plugin logic RunnerTests, Flutter minimum 3.44. All earlier rounds are superseded; all evidence below is from this
+round. (verification/customer-walkthrough/ is a separate record and was not touched.)
 
 Flutter 3.47.8 (Dart 3.13.7), Xcode 26.5, iPhone 17 Pro / iOS 26.5 (simulator 1B82EA4D-9E6C-401B-9BF1-DF6EEE286309,
 written D). Local backend only: http://localhost:3123 (Next.js dev server, not restarted). Test app "Flutter
-Example", bundle id sh.reception.receptionFlutterExample; $RECEPTION_APP_ID is its public App ID, passed with
---dart-define and never committed. The organization has a (local) subscription and the app an App Store ID.
+Example", bundle id sh.reception.receptionFlutterExample, local subscription and App Store ID set. $RECEPTION_APP_ID
+is its public App ID; every example build and run passes
+  --dart-define=RECEPTION_APP_ID=$RECEPTION_APP_ID --dart-define=RECEPTION_SERVICE_URL=http://localhost:3123
+(written $DEFINES below). The App ID is never committed.
 
 Tooling: the Synara device/browser tools reject calls from this agent ("caller_turn_inactive"), so
   * simulator taps: a throwaway XCUITest bundle in /tmp/rfv/driver (tap by label, tap a notification banner,
-    answer the permission alert, type and send), run with xcodebuild test-without-building
-    -only-testing:DriverUITests/DriverUITests/<test>; not part of the repository;
-  * dashboard: headless Google Chrome with a throwaway profile, driven over the DevTools protocol; real
-    dashboard UI, logged in with the console code as the organization's owner account (code never printed or
-    stored); the post-login redirect goes to AUTH_URL=http://localhost:3000, so :3123 was reopened manually;
+    answer the permission alert, type and send), run with xcodebuild test-without-building; not in the repository;
+  * dashboard: headless Google Chrome with a throwaway profile over the DevTools protocol; real dashboard UI,
+    logged in with the console code as the organization's owner account (code never printed or stored);
   * SDK debug lines: xcrun simctl spawn D log config --subsystem com.reception.sdk --mode "level:debug,persist:debug"
-    (debug Logger lines are not persisted otherwise; reset afterwards).
-Screenshots: xcrun simctl io D screenshot verification/<name>.png; dashboard: Page.captureScreenshot, with the
-dashboard user's email in the "… replied" label blurred.
+    (reset afterwards).
+Screenshots: xcrun simctl io D screenshot verification/<name>.png; dashboard screenshots blur the dashboard user's
+email in the "… replied" label.
+
+Environment incidents (not product issues): the Mac's data volume ran full (197 MB free) during this round. The
+first `flutter run` crashed its incremental compiler ("No space left on device"), after which it forwarded no
+Dart output, and the simulator was found shut down after the RunnerTests run. I freed only my own build output
+(RunnerTests derived data, my earlier customer-check and bisect DerivedData), rebooted the simulator and repeated
+the affected steps; every result below is from the repeated, clean runs.
 
 a. Repository checks — PASS
   flutter analyze                                    PASS; "No issues found!" (analyze.log)
-  dart format --set-exit-if-changed .                PASS; 22 files, 0 changed (format.log)
-  flutter test                                       PASS; 51 tests, "All tests passed!" (test.log)
+  cd example && flutter analyze                      PASS; "No issues found!" (analyze-example.log)
+  dart format --set-exit-if-changed .                PASS; 23 files, 0 changed (format.log)
+  flutter test                                       PASS; 60 tests, "All tests passed!" (test.log)
   dart run tool/sync_ios_sdk.dart --check            PASS; "107 pinned SDK files match (SDK 1.6.0)." (sync-check.log)
-  tool/test_native.sh D                              PASS; routing incl. launch tap dedupe, push token, once-completion,
-                                                     paywall requests (duplicate/unknown/late answers), ReceptionColor
-                                                     (test-native.log)
+  tool/test_native.sh D                              PASS; routing incl. launch tap dedupe, push token, once-completion
+                                                     (fallback with report, custom timeout), paywall requests,
+                                                     ReceptionColor (test-native.log)
   env -u LANG -u LC_ALL -u LC_CTYPE tool/pod_lint.sh PASS; both lints, only warning the `source` primary key (pod-lint.log)
-  flutter pub publish --dry-run                      PASS; 204 KB, "Package has 0 warnings."; no example/build,
-                                                     verification/, .dart_tool, tool/ or maintainer docs (publish-dry-run.log)
+  flutter pub publish --dry-run                      PASS; 207 KB, "Package has 0 warnings." (publish-dry-run.log)
+  xcodebuild build-for-testing -workspace example/ios/Runner.xcworkspace -scheme Runner -destination 'id=D'
+                                                     PASS; "** TEST BUILD SUCCEEDED **"; only Xcode's AppIntents
+                                                     metadata note (runnertests-build-for-testing.log)
+  xcodebuild test-without-building -xctestrun <built .xctestrun> -destination 'id=D'
+                                                     PASS; RunnerTests testNotificationRoutingOpensOnce and
+                                                     testPushTokenDecoding passed (runnertests-run.log)
 
 b. SwiftPM build and run — PASS
-  rm -rf example/build/ios; flutter build ios --simulator --debug --dart-define=RECEPTION_APP_ID=$RECEPTION_APP_ID
+  flutter test integration_test -d D $DEFINES --dart-define=RECEPTION_AUTOSTART=false
+    PASS; 1 test, "All tests passed!" (integration-test.log). Run first, because it leaves its test-harness build
+    in example/build and uninstalls the app.
+  rm -rf example/build/ios; flutter build ios --simulator --debug $DEFINES
     PASS; 0 warning lines; Runner.app/reception_flutter_reception_flutter.bundle (example-build-spm.log)
-  xcrun simctl uninstall/install; xcrun simctl launch --terminate-running-process D sh.reception.receptionFlutterExample -ReceptionSetupCheck $RECEPTION_APP_ID
-    PASS; "Configured, SDK 1.6.0" → "Setup check started" → "Setup check passed" (setup-check-spm.log, 01;
-    repeated after the integration test had reinstalled the app, see c).
-  -ReceptionPreview welcome | conversation
-    PASS (preview-welcome.png, preview-conversation.png).
-  flutter test integration_test -d D --dart-define=RECEPTION_APP_ID=$RECEPTION_APP_ID --dart-define=RECEPTION_AUTOSTART=false
-    PASS; 1 test, "All tests passed!" (integration-test.log): calls before configure, configure, settings,
-    availablePaywalls == [plans], identify, open/close with isChatOpen + chatOpened, hanging availability fails
-    closed and restores, language, embedded view, Dart-side restart. Note: the test's "Calls before configure"
-    includes setPushToken('aabb'); the plugin caches it and applies it after configure ("Push token staged, 4 hex
-    chars, sandbox"), as PUSH-DESIGN specifies. flutter test uninstalls the app afterwards, so the next install
-    registers a new device.
-  Manual-configure build (RECEPTION_AUTOSTART=false): 00 before configure, 00b calls before configure completed
-    (SDK: "... called before configure, ignored"), 00c Configure button → Configured true, Available: plans. PASS
+  xcrun simctl uninstall/install; launch -ReceptionSetupCheck $RECEPTION_APP_ID
+    PASS; "Configured, SDK 1.6.0" → "Setup check started" → "Device registered" → "Setup check passed"
+    (setup-check-spm.log, 01).
+  -ReceptionPreview welcome | conversation → PASS (preview-welcome.png, preview-conversation.png, purple appearance).
+  Manual-configure build (RECEPTION_AUTOSTART=false): before configure (00), calls before configure completed
+    (00b), Configure button → Configured true, Available: plans (00c). PASS
 
-c. Dashboard — PASS (review card: event PASS, App Store sheet not meaningful on the simulator)
-  First reply went to the previous device's conversation (the integration test had reinstalled the app);
-  setup check repeated on the current device, then inbox reply "Hello back from the dashboard" (02).
-  Settings → back to the app: unread 1 and badge (03); open chat shows the reply (04); message sent (05).
-  Identify and metadata → inbox details: Flutter Test Customer, flutter-test@example.test, User ID
-    flutter-verification-user, custom fields plan Pro, source Flutter example (26). PASS
-  Send offer dialog lists only "Plans"; `hidden` is not offered (27). PASS
-  Under flutter run (flutter-run.log): card arrived live (28); tap → "event paywallOpened", "event
-    onPaywall:plans, chat:true", chat stays open (29), Message.actionClickedAt set. PASS
-  Ask for review → "Send review request": card "Rate on the App Store" (30); tap → "event reviewOpened",
-    actionClickedAt set; iOS handed the App Store link to Safari, which cannot open it on the simulator (31);
-    the app process kept running and was brought back. PASS
+c. Dashboard — PASS
+  Inbox reply "Hello back from the dashboard" to this device's "Hello from setup" (02); Settings → app: unread 1
+    and badge (03); open chat shows the reply (04); message sent after Identify and metadata (05).
+  Inbox details: Flutter Test Customer, flutter-test@example.test, User ID flutter-verification-user, custom fields
+    plan Pro, source Flutter example (26).
+  Send offer dialog lists only "Plans" (`hidden` not offered) (27). Under flutter run $DEFINES (flutter-run.log):
+    card arrived live (28); tap → "event chatOpened" (open), "event paywallOpened", "event onPaywall:plans,
+    chat:true"; chat stays open (29); click recorded on the server.
+  Ask for review → "Send review request": card "Rate on the App Store" (30); tap → "event reviewOpened", click
+    recorded; iOS hands the App Store link to Safari, which cannot open it on the simulator (31); the app keeps
+    running and was brought back.
 
-d. Push (verification/reception-push.apns, conversation of the current device; deleted later by g) — PASS
+d. Push (verification/reception-push.apns, this device's conversation; deleted later by g) — PASS
   "Enable notifications" + XCUITest "Allow" (07): "Push token staged, 160 hex chars, sandbox"; server stores the
     token, environment SANDBOX (push-token.log).
-  Note: SpringBoard restarted once at 18:52 and sent the app to the background; scenario 1 was repeated.
-  (1) foreground, chat closed, fresh inbox reply then xcrun simctl push D sh.reception.receptionFlutterExample verification/reception-push.apns
-      PASS; before: unread 0 (14a); 1.5 s after the push: banner (08) and unread 1 (14).
-  (2) chat open (confirmed by the accessibility tree): push → no banner, also 3 s later (09). PASS
-      (A first attempt tapped Open chat while the previous banner was up; the chat did not open and that push
-      correctly showed a banner.)
-  (3) background (Settings in front): push, XCUITest tapped the banner → conversation open (10, 11). PASS
-  (4) cold start: xcrun simctl terminate D sh.reception.receptionFlutterExample; push at 18:55:38; tap →
-      SpringBoard "Foreground application launch succeeed", new process 29693 "Configured" 18:55:42, "Chat
-      presented" 18:55:43 (12, 13, push.log). PASS
-  (5) new: close the chat, second push for the same conversation at 18:56:11 (33 s after the cold-start push),
-      banner (13b), tap → "Chat presented" 18:56:13 in the same process (13c). PASS: the launch-tap dedupe only
-      suppresses the repeated launch tap.
+  (1) foreground, chat closed: unread 1 before (14a); inbox reply + xcrun simctl push D sh.reception.receptionFlutterExample verification/reception-push.apns
+      → banner (08) and unread 2 within 2.5 s (14).
+  (2) chat open (confirmed in the accessibility tree): push → no banner at 1.5 s and 3 s (09).
+  (3) background (Settings in front), push 13:53:01, XCUITest tapped the banner → "Chat presented" 13:53:04 (10, 11).
+  (4) cold start: app terminated, push 13:53:39, tap → SpringBoard launch for the notification response, new process
+      49333 "Configured" 13:53:43.785, "Remote appearance refreshed", "Chat presentation requested" 13:53:44.451
+      (0.67 s after configure), "Chat presented" 13:53:45.6; the chat shows the example's purple appearance, i.e.
+      after Dart applied its settings (12, 13, push.log).
+  (5) chat closed, second push for the same conversation 13:54:03 (24 s after the cold-start push), tap → "Chat
+      presentation requested" / "Chat presented" 13:54:05–06 in the same process (13b, 13c).
 
 e. CocoaPods — PASS
-  flutter config --no-enable-swift-package-manager; rm -rf example/build/ios; flutter build ios --simulator --debug ...
+  flutter config --no-enable-swift-package-manager; rm -rf example/build/ios; flutter build ios --simulator --debug $DEFINES
     PASS; generated Podfile unchanged (platform line commented); only
     Frameworks/reception_flutter.framework/Reception.bundle with 48 lproj (example-build-cocoapods.log).
-  install; -ReceptionSetupCheck → "Setup check passed" (setup-check-cocoapods.log). PASS
-  launch -AppleLanguages '(de)' → "Nachricht", "Gesendet", "Di." (23). PASS
-  flutter config --enable-swift-package-manager; git checkout of the CocoaPods-modified xcconfig/pbxproj/
-  workspace; rm example/ios/Podfile Podfile.lock Pods; clean SwiftPM rebuild (example-build-spm-final.log) and the
-  same German launch (24). PASS; no CocoaPods artifacts committed.
+  install; -ReceptionSetupCheck → "Setup check passed" (setup-check-cocoapods.log).
+  launch -AppleLanguages '(de)' → "Nachricht", "Gesendet", "Mi." (23).
+  flutter config --enable-swift-package-manager; git checkout of the CocoaPods-modified xcconfig/pbxproj/workspace;
+  rm example/ios/Podfile Podfile.lock Pods; clean SwiftPM rebuild, 0 warning lines (example-build-spm-final.log);
+  same German launch (24). No CocoaPods artifacts committed.
 
-f. Hot restart (flutter run, input through a FIFO) — PASS
-  Inbox reply, Settings → app: "unread 1"; R → "Restarted application in 386ms", "unread 1" re-read from native,
-  "started: configured true, unread 1", "available (plans)" (22). Hanging availability + Refresh → "available ()";
+f. Hot restart (flutter run $DEFINES, input through a FIFO) — PASS
+  Inbox reply, Settings → app: "unread 1"; R → "Restarted application in 369ms", "unread 1" re-read from native,
+  "started: configured true, unread 1", "available (plans)" (22); hanging availability + Refresh → "available ()";
   restore + Refresh → "available (plans)" (flutter-run.log).
 
 g. Flows — PASS
-  German / app language → German chat, card buttons "Angebot ansehen", "Im App Store bewerten" (15).
-  xcrun simctl ui D appearance dark / light with the chat open (16, 17).
-  Embedded chat (ReceptionChatView in an Expanded) (18).
+  German / app language → German chat and card buttons "Angebot ansehen", "Im App Store bewerten" (15);
+  appearance dark / light with the chat open (16, 17); embedded ReceptionChatView in an Expanded (18);
   Delete support data → "Data deletion resolved", events chatOpened, chatOpened, dataDeleted
-    (events-after-delete.txt), server device and messages deleted (19).
-  Logout → unread 0 (20); Open chat → empty welcome state (21).
+  (events-after-delete.txt), server messages deleted (19); Logout → unread 0 (20); Open chat → empty welcome (21).
 
 h. Customer-style install (/tmp/reception-customer-check) — PASS
   flutter create --platforms=ios -i swift customer_check; flutter pub add reception_flutter --path <repo>;
   lib/main.dart = the guide's configure snippet + TextButton(onPressed: Reception.openChat); flutter analyze clean.
-  flutter build ios --simulator --debug at the template's iOS 15.0: FAIL as expected, "The package product
-    'reception-flutter' requires minimum platform version 17.0 ..." (customer-build-spm-target15.log).
-  IPHONEOS_DEPLOYMENT_TARGET 15.0 → 17.0 (the three project-level configurations): SwiftPM PASS
-    (customer-build-spm.log); CocoaPods PASS with no Podfile edit (customer-build-cocoapods.log).
-  CocoaPods build installed, Support tapped: plugin linked; with the placeholder App ID the SDK refuses configure
-    and ignores openChat, no crash (25). SwiftPM re-enabled.
+  Build at the template's iOS 15.0: FAIL as expected, "requires minimum platform version 17.0"
+    (customer-build-spm-target15.log).
+  IPHONEOS_DEPLOYMENT_TARGET 15.0 → 17.0: SwiftPM PASS (customer-build-spm.log); CocoaPods PASS with no Podfile edit,
+    Reception.bundle embedded (customer-build-cocoapods.log). Installed, Support tapped: plugin linked; with the
+    placeholder App ID the SDK ignores openChat, no crash (25). SwiftPM re-enabled; the app was uninstalled.
 
 Not verified
-  * Real APNs delivery from the backend to a physical device (pushes were simulated with xcrun simctl push; the
+  * Real APNs delivery from the backend to a physical device (pushes simulated with xcrun simctl push; the
     simulator token is registered on the server).
-  * The App Store review sheet itself (the simulator cannot open the App Store link; the event and click are verified).
-  * Server-side IdentityRejectedEvent (a malformed token is dropped locally by the SDK); automations reacting to
-    track(); photo sending; Release builds; Android/web no-op at runtime (unit tests only).
-
-FINAL RE-CHECK — 2026-10-27, 19:10–19:23 CET, on main at 6a2a7b0 (includes 12dbdc0 "Limit launch tap suppression
-to one duplicate within 10 s of the drain" and a98bb28 "Track Dart calls per connection and cancel them on
-invalidate"). Same device, tooling and rules as above; screenshots unchanged (nothing differed). Logs: recheck-*.log.
-  flutter analyze                PASS; "No issues found!"
-  flutter test                   PASS; 51 tests
-  tool/test_native.sh D          PASS; including "launch tap dedupe"
-  rm -rf example/build/ios; flutter build ios --simulator --debug ...   PASS; 0 warning lines
-  flutter test integration_test -d D ... --dart-define=RECEPTION_AUTOSTART=false   PASS; "All tests passed!"
-    Note: this command overwrites example/build/ios/iphonesimulator/Runner.app with the test-harness build, which
-    shows a white screen when launched standalone (it waits for the test driver). I first installed that build by
-    mistake; bisecting with clean builds of 47680b7, 12dbdc0 and a98bb28 showed all three start normally. Rebuild
-    the example after the integration test before installing it.
-  Reinstalled example, -ReceptionSetupCheck → "Setup check passed"; Enable notifications + Allow →
-    "Push token staged, 160 hex chars, sandbox".
-  (3) background tap: push 19:19:45 with Settings in front, banner tapped → "Chat presented" 19:19:48. PASS
-  (4) cold start: app terminated, push 19:20:26, tap → SpringBoard launch for the notification response, new
-      process 40799 "Configured" 19:20:29, "Chat presented" 19:20:30. PASS
-  (5) follow-up: chat closed, second push for the same conversation 19:20:57 (31 s later), tap → "Chat
-      presentation requested" / "Chat presented" 19:20:59 in the same process. PASS (recheck-push.log)
-  Hot restart under flutter run: R → "Restarted application in 285ms", "started: configured true", "available
-    (plans)"; hanging availability + Refresh → "available ()"; restore + Refresh → "available (plans)"; Open chat →
-    "event chatOpened" through the re-assigned callback. PASS (recheck-flutter-run.log)
+  * The App Store review sheet itself (no App Store on the simulator; event and click verified).
+  * Server-side ReceptionIdentityRejected (a malformed token is dropped locally by the SDK); automations reacting
+    to track(); photo sending; Release builds; Android/web no-op at runtime (unit tests only); Flutter 3.44–3.46
+    (only 3.47.8 was used here).
