@@ -1,0 +1,13 @@
+Timestamp               Ty Process[PID:TID]
+2026-10-28 14:15:15.702 Db Runner[59896:6f0a3a7] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-28 14:15:16.375 Db Runner[59896:6f0a3a7] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-28 14:15:59.351 I  Runner[60447:6f0c266] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-28 14:15:59.948 Db Runner[60447:6f0c266] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-28 14:15:59.955 Db Runner[60447:6f0c266] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-28 14:16:00.990 Db Runner[60447:6f0c266] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-28 14:16:23.871 Db Runner[60447:6f0c266] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-28 14:16:24.495 Db Runner[60447:6f0c266] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+Timestamp               Ty Process[PID:TID]
+2026-10-28 14:15:15.693 Df SpringBoard[45146:6f0b549] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.a
+2026-10-28 14:15:57.946 Df SpringBoard[45146:6f0c231] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.a
+2026-10-28 14:16:23.869 Df SpringBoard[45146:6f0c765] [com.apple.UserNotifications:AppLaunching] [sh.reception.receptionFlutterExample] Foreground application launch succeeed for action response com.a

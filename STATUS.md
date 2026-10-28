@@ -204,6 +204,13 @@ All sections passed:
 - h. fresh `flutter create` app: SwiftPM and CocoaPods builds after raising the deployment target to 17.0, no
   Podfile edits.
 
+Final re-check after the routing simplification (193b2db: exact-key dedupe plus one pending tap, drained 500 ms after
+configure) on main at 09fdaa7, 2026-10-28 14:11–14:19 CET: analyze (root and example), 60 Dart tests, native tests
+(incl. pending tap), integration test, clean SwiftPM build, foreground banner with unread refresh, no banner with
+the chat open, background tap, cold-start tap (chat 0.60 s after configure, purple appearance), a second push for
+the same conversation tapped 26 s later (opens again), and hot restart with the availability check all pass
+(`verification/commands.txt` "FINAL RE-CHECK AFTER ROUTING SIMPLIFICATION", `verification/recheck-*.log`).
+
 Observed, not bugs: `flutter test integration_test` uninstalls the app afterwards (the next install is a new device
 with a new conversation) and leaves its test-harness build in `example/build/ios/iphonesimulator/Runner.app`, which
 shows a white screen when launched standalone; run it first or rebuild the example before installing it. In the

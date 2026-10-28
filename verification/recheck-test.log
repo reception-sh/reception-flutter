@@ -1,0 +1,62 @@
+00:00 +0: loading /Users/andi/Code/support/reception-flutter/test/exports_test.dart
+00:00 +0: /Users/andi/Code/support/reception-flutter/test/appearance_test.dart: all 23 options produce the native JSON shape and round trip
+00:00 +1: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +2: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +3: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +4: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +5: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +6: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +7: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +8: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +9: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +10: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +11: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +12: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +13: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +14: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +15: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +16: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +17: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +18: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +19: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +20: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +21: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +22: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +23: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +24: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: TargetPlatform.android never touches the host, throws, or changes default state
+00:00 +25: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: TargetPlatform.macOS never touches the host, throws, or changes default state
+00:00 +26: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +27: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +28: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +29: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView hosts the native chat on iOS
+00:01 +30: /Users/andi/Code/support/reception-flutter/test/exports_test.dart: the public library exports exactly the Reception-prefixed names
+00:01 +31: /Users/andi/Code/support/reception-flutter/test/settings_test.dart: all setting getters reflect assignment before the host answers
+00:01 +32: /Users/andi/Code/support/reception-flutter/test/settings_test.dart: all setting getters reflect assignment before the host answers
+00:01 +33: /Users/andi/Code/support/reception-flutter/test/settings_test.dart: settings are sent with increasing revisions and native values
+00:01 +34: /Users/andi/Code/support/reception-flutter/test/settings_test.dart: events and an earlier response cannot overwrite a pending newer assignment
+00:01 +35: /Users/andi/Code/support/reception-flutter/test/settings_test.dart: out-of-order responses keep the latest acknowledged value
+00:01 +36: /Users/andi/Code/support/reception-flutter/test/settings_test.dart: settings reconcile independently when another property is still pending
+00:01 +37: /Users/andi/Code/support/reception-flutter/test/settings_test.dart: failure restores confirmed state but cannot discard a newer assignment
+00:01 +38: /Users/andi/Code/support/reception-flutter/test/settings_test.dart: invalid appearance fields keep their previous value end to end
+00:01 +39: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: connects lazily, once, before the first host call
+00:01 +40: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: configuration hydrates state and host errors become typed errors
+00:01 +41: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: identity variants, metadata and push forward only valid inputs
+00:01 +42: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: push recognizes the SDK routing envelope and ignores unrelated payloads
+00:01 +43: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: track forwards events
+00:01 +44: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: logout and deletion update state; deletion preserves code and HTTP status
+00:01 +45: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: live state notifies changes, unsubscribes, and ignores stale snapshots
+00:01 +46: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: available paywalls notify only when their content changes
+00:01 +47: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: events map every type, preserve typed identity rejection and handler replacement
+00:01 +48: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: paywall availability round trip, failure, replacement and stale generations fail closed
+00:01 +49: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: availability is resolved even when the host rejects the answer
+00:01 +50: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: paywall callbacks and registrations forward without closing chat
+00:01 +51: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: paywall details pass through to the host
+00:01 +52: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: a hot restart reconnects and stops answering for the old callbacks
+00:01 +53: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: a failed connect is retried by the next call
+00:01 +54: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: concurrent first calls share one connect and keep their order
+00:01 +55: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: setting payloads are captured at assignment, before the connection resolves
+00:01 +56: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: throwing app callbacks are reported and never reach the host as errors
+00:01 +57: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: paywalls are frozen at assignment
+00:01 +58: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: metadata and push payloads are read at call time
+00:01 +59: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: a paywall keeps its products when the passed list changes later
+00:01 +60: All tests passed!

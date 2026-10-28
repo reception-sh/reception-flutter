@@ -121,3 +121,25 @@ Not verified
   * Server-side ReceptionIdentityRejected (a malformed token is dropped locally by the SDK); automations reacting
     to track(); photo sending; Release builds; Android/web no-op at runtime (unit tests only); Flutter 3.44–3.46
     (only 3.47.8 was used here).
+
+FINAL RE-CHECK AFTER ROUTING SIMPLIFICATION — 2026-10-28, 14:11–14:19 CET, on main at 09fdaa7 (includes 193b2db
+"Simplify cold-start routing to exact keys and one pending tap", drained 500 ms after configure). Same device,
+tooling and rules as above; screenshots unchanged (nothing differed). Logs: recheck-*.log.
+  flutter analyze (root, example)              PASS; "No issues found!" both
+  flutter test                                 PASS; 60 tests
+  tool/test_native.sh D                        PASS; "NotificationRouting: receipts, taps, repeats, eviction at 64
+                                               keys and pending tap passed"
+  flutter test integration_test -d D $DEFINES --dart-define=RECEPTION_AUTOSTART=false   PASS; 1 test
+  rm -rf example/build/ios; flutter build ios --simulator --debug $DEFINES   PASS; 0 warning lines; fresh install,
+    -ReceptionSetupCheck → "Setup check passed"; Enable notifications + Allow → "Push token staged, 160 hex chars,
+    sandbox".
+  (1) foreground, chat closed: unread 0; inbox reply + push → banner and unread 1 within 2.5 s. PASS
+  (2) chat open (accessibility tree): push → no banner at 1.5 s and 3 s. PASS
+  (3) background (Settings in front): push 14:15:13, banner tapped → "Chat presented" 14:15:16. PASS
+  (4) cold start: terminated, push 14:15:55, tap → new process 60447 "Configured" 14:15:59.351, "Chat presentation
+      requested" 14:15:59.955 (0.60 s after configure), "Chat presented" 14:16:00.99; purple appearance. PASS
+  (5) chat closed, second push for the same conversation 14:16:21 (26 s later), tap → "Chat presented" 14:16:24.5
+      in the same process. PASS (recheck-push.log)
+  Hot restart under flutter run $DEFINES: inbox reply → "unread 1"; R → "Restarted application in 285ms", "unread 1",
+    "started: configured true, unread 1", "available (plans)"; hanging availability + Refresh → "available ()";
+    restore + Refresh → "available (plans)"; Open chat → "event chatOpened". PASS (recheck-flutter-run.log)
