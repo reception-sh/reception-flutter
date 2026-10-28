@@ -219,8 +219,11 @@ specifies), so the example's "Calls before configure" registered its dummy `aabb
 replaced it. During this round the Mac's data volume ran full, which crashed one `flutter run` compiler and left the
 simulator shut down; the affected steps were repeated after freeing space (see `verification/commands.txt`).
 
-Not verified: real APNs delivery from the backend to a physical device (pushes were simulated with
-`xcrun simctl push`); the App Store review sheet itself (no App Store on the simulator); a server-side
+Physical device (2026-10-28, iPhone 16 Pro, iOS 27.2, Release build against the hosted service, see
+`verification/commands.txt` "PHYSICAL DEVICE ROUND"): real APNs delivery from the backend, banner with chat closed,
+no banner with chat open, background tap opens chat, cold-start tap opens chat — all passed as observed by the developer.
+
+Not verified: release builds beyond the device round above; the App Store review sheet itself (no App Store on the simulator); a server-side
 `ReceptionIdentityRejected` (a malformed token is ignored locally by the SDK with "Identity token ignored, its user_id
 could not be read"); automations reacting to `track`; photo sending; release builds; Android/web at runtime (unit
 tests only); Flutter 3.44–3.46 at runtime (this round used 3.47.8).
