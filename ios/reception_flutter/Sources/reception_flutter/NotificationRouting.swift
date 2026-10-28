@@ -1,12 +1,10 @@
-import Foundation
-
 /// Decides how each notification receipt and tap is handled so repeats act once: cold-start, scene and
-/// notification-center deliveries of the same response, and hot restarts. Remembers the latest 64 keys.
+/// notification-center deliveries of the same response, and hot restarts. There is one chat per device, so every
+/// tap means "open the chat", and opening it again while it is presented changes nothing.
 ///
-/// A tap that launched the app waits as the pending tap until configure drains it. While it waits, a proxy tap for
-/// the same conversation is its duplicate: recorded as opened, not routed; the drain opens the chat once. A legacy
-/// launch tap (key `launchKey`, no notification identifier) whose duplicate has not arrived yet arms a marker when
-/// drained: within 10 s, the first proxy tap for that conversation delivered before this launch is ignored once.
+/// Keys are deduplicated exactly (the latest 64 are remembered). A tap that launched the app waits as the pending
+/// tap (latest wins) until the deferred drain after configure opens the chat once; every tap arriving meanwhile is
+/// recorded as opened and not routed. Afterwards taps route by key again.
 @MainActor
 internal final class NotificationRouting {
   enum Action { case receive, receiveAndOpen, open, ignore }
@@ -15,58 +13,34 @@ internal final class NotificationRouting {
   static let launchKey = "launch"
   private var opened: [String: Bool] = [:]
   private var order: [String] = []
-  private let launchDate: Date
-  private var pending: (key: String, conversationId: String, duplicateSeen: Bool)?
-  private var marker: (conversationId: String, armedAt: Date)?
-
-  init(launchDate: Date = Date()) {
-    self.launchDate = launchDate
-  }
+  private var pending: (key: String, conversationId: String)?
 
   var hasPendingTap: Bool { pending != nil }
 
   /// Keeps a tap that arrived before configure; the latest wins.
   func queueTap(key: String, conversationId: String) {
-    pending = (key, conversationId, false)
+    pending = (key, conversationId)
   }
 
-  /// Opt-out: forgets the pending tap and the launch marker.
+  /// Opt-out: forgets the pending tap.
   func discardPendingTap() {
     pending = nil
-    marker = nil
   }
 
-  /// Takes the pending tap; returns the conversation to open, or nil if there was none.
-  func drainPendingTap(at now: Date = Date()) -> String? {
+  /// Takes the pending tap and records its key; returns the conversation to open, or nil if there was none.
+  func drainPendingTap() -> String? {
     guard let tap = pending else { return nil }
     pending = nil
     record(tap.key, openChat: true)
-    if tap.key == Self.launchKey, !tap.duplicateSeen { marker = (tap.conversationId, now) }
     return tap.conversationId
-  }
-
-  /// A default-action tap delivered by the notification center.
-  func tapAction(for key: String, conversationId: String, deliveredAt date: Date, at now: Date = Date()) -> Action {
-    if let tap = pending, tap.conversationId == conversationId {
-      record(key, openChat: true)
-      pending?.duplicateSeen = true
-      return .ignore
-    }
-    let action = action(for: key, openChat: true)
-    guard let marker else { return action }
-    if now.timeIntervalSince(marker.armedAt) > 10 {
-      self.marker = nil
-    } else if action == .receiveAndOpen, marker.conversationId == conversationId, date < launchDate {
-      self.marker = nil
-      return .ignore
-    }
-    return action
   }
 
   func action(for key: String, openChat: Bool) -> Action {
     let previous = opened[key]
     if previous == true || (previous == false && !openChat) { return .ignore }
     record(key, openChat: openChat)
+    // The pending tap's drain opens the chat; a tap before it would open it with the app's settings not yet applied.
+    if openChat && pending != nil { return .ignore }
     if openChat { return previous == nil ? .receiveAndOpen : .open }
     return .receive
   }

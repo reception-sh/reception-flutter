@@ -12,7 +12,6 @@ internal final class ReceptionNotifications {
   /// Nil until the first successful configure decides whether the plugin handles notifications.
   private var handlesNotifications: Bool?
   private var drain: Task<Void, Never>?
-  /// Its launch date is when the process first uses push state, at the latest when a launch tap is captured.
   private let routing = NotificationRouting()
   private var proxy: ReceptionNotificationCenter?
   private var reportedReplacement = false
@@ -80,13 +79,6 @@ internal final class ReceptionNotifications {
 
   func route(key: String, conversationId: String, openChat: Bool) {
     perform(routing.action(for: key, openChat: openChat), conversationId: conversationId, openChat: openChat)
-  }
-
-  /// A default-action tap delivered by the notification center.
-  func routeTap(_ notification: UNNotification, conversationId: String) {
-    let action = routing.tapAction(
-      for: Self.key(notification), conversationId: conversationId, deliveredAt: notification.date)
-    perform(action, conversationId: conversationId, openChat: true)
   }
 
   private func perform(_ action: NotificationRouting.Action, conversationId: String, openChat: Bool) {
@@ -182,7 +174,8 @@ internal final class ReceptionNotificationCenter: NSObject, @preconcurrency UNUs
   ) {
     if handles, let id = Reception.pushConversationId(response.notification.request.content.userInfo) {
       if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-        ReceptionNotifications.shared.routeTap(response.notification, conversationId: id)
+        ReceptionNotifications.shared.route(
+          key: ReceptionNotifications.key(response.notification), conversationId: id, openChat: true)
       }
       completionHandler()
       return
