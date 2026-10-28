@@ -85,8 +85,8 @@ notifications (equivalent to completing with `[]`).
   while `isChatOpen`, else `[.banner, .list, .sound]`; never forwarded. Otherwise forward to `previous` if it
   implements the selector; without one complete `[]` (iOS shows nothing in the foreground without a delegate).
 - `didReceive response`: Reception payload with `UNNotificationDefaultActionIdentifier` → tap routed through
-  `NotificationRouting` (receive-and-open, or just open after an earlier receipt), subject to the launch-tap marker
-  rule below; dismiss/custom actions route nothing but still complete; never forwarded. Otherwise forward to
+  `NotificationRouting` (receive-and-open, or just open after an earlier receipt; absorbed while a pending tap
+  waits); dismiss/custom actions route nothing but still complete; never forwarded. Otherwise forward to
   `previous` if it implements the selector; else complete.
 - `openSettingsFor` → forward only when implemented by previous.
 - The proxy is `@MainActor final class … : NSObject, UNUserNotificationCenterDelegate` using the completion-handler
@@ -102,14 +102,11 @@ notifications (equivalent to completing with `[]`).
   configured with `handlesNotifications: true` taps route immediately. That configure schedules the drain on the main
   actor 500 ms later, so the appearance and language settings Dart sends right after `configure` returns apply
   first; a later configure reschedules it. The drain opens the chat once and records the tap's key; opting out
-  cancels it and discards the pending tap.
-- While the pending tap waits, a proxy tap for the same conversation is its duplicate (scene path: same key; legacy:
-  no identifier to match): recorded as opened, not routed. The drain still opens the chat once.
-- Launch-tap marker: when the drain routes a `"launch"` tap whose duplicate has not arrived yet, routing arms a
-  marker, because iOS's later proxy delivery of the same response cannot match by key. Within 10 s of the drain,
-  the first proxy tap for that conversation whose notification was delivered before this launch (the routing's
-  launch date, at the latest the launch-tap capture) and that would otherwise receive-and-open is ignored, and the
-  marker clears; it also clears after 10 s or on opt-out. Afterwards every tap routes.
+  cancels it and discards the pending tap (a later opt-in starts fresh).
+- There is one chat per device, so every tap means "open the chat", and `openChat()` is a no-op while the chat is
+  presented. While the pending tap waits, every tap (any key, any conversation) is recorded as opened and not
+  routed; receipts still route. After the drain, taps route by exact key: a repeated key is ignored, a different
+  key opens the chat. No conversation matching, no time window.
 - Running/background taps arrive through the proxy's `didReceive`.
 - `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` is **receipt only** (never a tap) and only
   after a configure with `handlesNotifications: true`: Reception payload → direct
@@ -119,13 +116,13 @@ notifications (equivalent to completing with `[]`).
 ### Routing state (`NotificationRouting`)
 - Port of RN: per key `receive` / `receiveAndOpen` / `open` / `ignore`; proxy receipts and taps share the machine so
   receipt-then-tap yields `open`, not a second receive-and-open.
-- Deterministic bound: at most 64 keys, oldest evicted first. The pending tap and the launch marker are part of the
-  same pure state machine (native tests in `tool/native_tests`). Lives in `ReceptionNotifications.shared`, so it
+- Deterministic bound: at most 64 keys, oldest evicted first, deduplicated by exact key. The pending tap is part of
+  the same pure state machine (native tests in `tool/native_tests`). Lives in `ReceptionNotifications.shared`, so it
   survives hot restarts; nothing is replayed to Dart.
 
 ### Opt-out (`handlesNotifications: false`)
 - Gates launch and scene capture, pending-tap draining, fetch handling and proxy installation. An opt-out configure
-  discards the pending tap and clears the launch-tap marker.
+  cancels the drain and discards the pending tap.
 - If a proxy is already installed from an earlier configure and a later configure opts out: the proxy becomes
   pass-through (forwards everything, handles nothing); if it still owns `center.delegate`, `previous` is restored.
   A later opt-in reinstalls it only if `previous` is still the delegate. Never overwrite a newer delegate.
