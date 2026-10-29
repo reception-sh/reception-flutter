@@ -127,9 +127,10 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   }
 
   func configure(appId: String, handlesNotifications: Bool) throws -> SnapshotMessage {
-    // A rejected App ID leaves any earlier configuration, and its push ownership, unchanged.
-    guard ReceptionAPI.accepts(appId: appId) else { return snapshot() }
+    // The SDK logs why it refuses a malformed App ID; a refused one leaves any earlier configuration,
+    // and its push ownership, unchanged.
     Reception.configure(appId: appId)
+    guard ReceptionAPI.accepts(appId: appId) else { return snapshot() }
     ReceptionNotifications.shared.configured(handlesNotifications: handlesNotifications)
     return snapshot()
   }
