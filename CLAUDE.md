@@ -32,6 +32,7 @@ no-ops. Customers read https://reception.sh/docs/flutter; this file is for maint
 
 ## Checks before a release
 
+`tool/release_check.sh` runs the automated checks in one command (clean tree required; see CONTRIBUTING.md). Individually:
 `flutter analyze`, `dart format --set-exit-if-changed .`, `flutter test`, `tool/test_native.sh` (needs a booted
 simulator, or pass a device), `dart run tool/sync_ios_sdk.dart --check`, example build with SwiftPM on and off,
 `tool/pod_lint.sh`, RunnerTests compile (after any Flutter build of the example, e.g. `flutter build ios
