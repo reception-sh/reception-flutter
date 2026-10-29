@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   s.license = { :type => 'BSD' }
   s.author = 'Flutter Dev Team'
   s.source = { :http => 'https://flutter.dev' }
-  s.ios.deployment_target = '13.0'
+  s.ios.deployment_target = '17.0'
   s.vendored_frameworks = 'Flutter.xcframework'
 end
 SPEC
