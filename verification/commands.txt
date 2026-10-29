@@ -276,3 +276,41 @@ PRODUCTION-SIGNED BUILD, 2026-10-29 (Xcode 27.1, macOS 27.2)
   tool/release_check.sh with Xcode 27.1: pod lint first failed because the lint-only Flutter podspec declared
     deployment target 13.0, which Xcode 27 rejects (supported range 15.0–27.1); fixed to 17.0 in tool/pod_lint.sh;
     all steps pass afterwards.
+
+EXTENDED ROUND, PART 2 (Xcode 27.1) — 2026-10-29, 13:04–13:28 CET, on main at a39c6da–d54b719 (no lib/ios/example changes in between; includes d0a0b85 "Let the
+SDK log a refused App ID"). Xcode 27.1 (27A9275) with first-launch completed; the XCUITest driver was rebuilt with it
+and attaches again. Xcode 27's xcodebuild sometimes stays alive after the test summary; the wrapper now stops it once
+"Test Suite 'Selected tests' passed/failed" is written. The example was built from a scratch copy (git archive HEAD
+example; path dependency on the repo) because tool/release_check.sh was building in the repo; no flutter config
+changes, no pod lint. Item 7 (archive) was handled by the coordinator. Screenshots 54–70.
+
+ 3. Photo sending — PASS
+    xcrun simctl addmedia D <12 generated JPEGs>; Open chat → Add photos → system picker ("Select up to 5 photos");
+    5 selected → Done → five thumbnails in the composer, Add photos disabled (55) → Send → five photo bubbles (56);
+    server: one USER message with 5 attachments; dashboard conversation shows the five images (57).
+ 9. Limits — PASS
+    Photo count: six taps in the picker leave five selected ("5 Photos") (54); the composer disables Add photos at
+    five (55).
+    Rate limit: ten messages sent back to back (XCUITest type + send) → SDK "Rate limited, HTTP 429, retry after 5s",
+    the last message held ("Not delivered · Sending again in 4 seconds"), notice above the composer "Message limit
+    reached. You can send again in … seconds." (58); after it lifted the held message was delivered, the notice was
+    gone and a new message sent normally; all eleven reached the server in order (59).
+    Length: pasting 4,100 characters → Send disabled, notice "Messages can contain up to 4,000 characters." (60)
+    (extended/xcode27-limit-notices.txt). Values are observed behaviour only.
+12. Embedded chat with keyboard — PASS
+    Embedded page (Scaffold, default resizeToAvoidBottomInset: true; ReceptionChatView in an Expanded): composer
+    focused and typed into with the software keyboard up; the composer sits directly above the keyboard (field
+    frame y 492, keyboard y 583) and the latest messages stay visible above it (61). A plain tap focused the field
+    while the simulator had hidden the software keyboard; typing through XCUITest brings it up, in the presented
+    chat as well — simulator keyboard state, not app behaviour.
+ 5. Firebase coexistence, full permission (permission alert answered "Allow" by the driver) — PASS
+    Delegate FLTFirebaseMessagingPlugin → ReceptionNotificationCenter. Reception push in the foreground with the chat
+    closed → banner (62); FCM-shaped push → "FCM onMessage fcm-verification-1", no banner (Firebase's foreground
+    presentation default) (63); chat open → Reception push → no banner, "Push payload recognized" (64); app in the
+    background (Settings) → banner (65) → tap → "Chat presentation requested", ReceptionChatOpened, "Chat presented"
+    (66) (extended/xcode27-coexist-firebase.log). A first background attempt tapped while the chat was still open
+    ("Chat presentation skipped, chat already open") and was repeated with the chat confirmed closed.
+ 6. flutter_local_notifications coexistence, full permission via FLN requestPermissions — PASS
+    Foreground FLN show() → banner "Local reminder" presented (67), delivered after 288 ms (FLN's own completion, no
+    fallback); Reception push with the chat closed → banner (68); chat open → no banner (69); background → tap →
+    "Chat presented" (70) (extended/xcode27-coexist-fln.log).

@@ -1,0 +1,4 @@
+'Sending again in 1 second'
+'Message limit reached. You can send again in 1 second.'
+'Message limit reached. You can send again in 1 second.'
+'Messages can contain up to 4,000 characters.'

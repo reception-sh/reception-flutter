@@ -45,7 +45,7 @@ Future<void> main() async {
   );
   log('configured ${Reception.isConfigured}');
   log('delegate after Reception: ${await native.invokeMethod('delegate')}');
-  log('authorization ${await native.invokeMethod('provisional')}');
+  log('authorization ${await native.invokeMethod('request')}');
   await Reception.registerForPushIfAuthorized();
   runApp(
     MaterialApp(

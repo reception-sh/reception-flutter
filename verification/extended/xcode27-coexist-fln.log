@@ -1,0 +1,71 @@
+Timestamp               Ty Process[PID:TID]
+2026-10-29 13:23:24.058 Db Runner[24189:1378f6] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvtij6uh002h00iv7b9rzo8y
+2026-10-29 13:23:24.058 Db Runner[24189:1378f6] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-29 13:23:24.058 Db Runner[24189:1378f6] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation skipped, chat already open
+2026-10-29 13:23:24.274 Db Runner[24189:1378f6] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:23:24.613 Db Runner[24189:1378f6] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:23:24.639 Db Runner[24189:1378f6] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:23:41.670 Df Runner[24771:1387c9] (Flutter) flutter: [coexist] Firebase initialized
+2026-10-29 13:23:41.680 Df Runner[24771:1387c9] (Flutter) flutter: [coexist] delegate before Reception: FLTFirebaseMessagingPlugin
+2026-10-29 13:23:41.720 I  Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 13:23:41.726 Df Runner[24771:1387c9] (Flutter) flutter: [coexist] configured true
+2026-10-29 13:23:41.730 Df Runner[24771:1387c9] (Flutter) flutter: [coexist] delegate after Reception: ReceptionNotificationCenter
+2026-10-29 13:23:41.737 Df Runner[24771:1387c9] (Flutter) flutter: [coexist] authorization granted=true
+2026-10-29 13:23:42.068 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-29 13:23:42.069 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Access token refreshed
+2026-10-29 13:23:42.275 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:23:42.321 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:24:08.303 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvtij6uh002h00iv7b9rzo8y
+2026-10-29 13:24:08.303 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-29 13:24:08.878 Df Runner[24771:1387c9] (Flutter) flutter: [coexist] Reception event Instance of 'ReceptionChatOpened'
+2026-10-29 13:24:09.016 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:24:09.039 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:24:09.423 Db Runner[24771:1387c9] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-29 13:24:52.111 Df Runner[25393:139584] (Flutter) flutter: [coexist] delegate before Reception: AppDelegate
+2026-10-29 13:24:52.136 I  Runner[25393:139584] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 13:24:52.141 Df Runner[25393:139584] (Flutter) flutter: [coexist] configured true
+2026-10-29 13:24:52.148 Df Runner[25393:139584] (Flutter) flutter: [coexist] delegate after Reception: ReceptionNotificationCenter
+2026-10-29 13:24:52.203 Db Runner[25393:139584] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-29 13:24:52.234 I  Runner[25393:139584] [com.reception.sdk:Reception] [Reception] INFO Device registered
+2026-10-29 13:24:52.267 Db Runner[25393:139584] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:24:52.284 Db Runner[25393:139584] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:24:55.135 Df Runner[25393:139584] (Flutter) flutter: [coexist] FLN requestPermissions -> true
+2026-10-29 13:24:55.572 Db Runner[25393:139584] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:24:55.587 Db Runner[25393:139584] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:25:07.450 Df Runner[25393:139584] (Flutter) flutter: [coexist] FLN notification delivered (1 active) after 288 ms
+2026-10-29 13:25:22.118 Df Runner[25615:1399e2] (Flutter) flutter: [coexist] delegate before Reception: AppDelegate
+2026-10-29 13:25:22.137 I  Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 13:25:22.138 Df Runner[25615:1399e2] [com.reception.sdk:SetupCheck] [Reception] Setup check started
+2026-10-29 13:25:22.146 Df Runner[25615:1399e2] (Flutter) flutter: [coexist] configured true
+2026-10-29 13:25:22.153 Df Runner[25615:1399e2] (Flutter) flutter: [coexist] delegate after Reception: ReceptionNotificationCenter
+2026-10-29 13:25:22.158 Df Runner[25615:1399e2] (Flutter) flutter: [coexist] FLN requestPermissions -> true
+2026-10-29 13:25:22.478 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-29 13:25:22.478 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Access token refreshed
+2026-10-29 13:25:22.524 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:25:22.545 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:25:22.573 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Message sent
+2026-10-29 13:25:22.688 Df Runner[25615:1399e2] [com.reception.sdk:SetupCheck] [Reception] Setup check passed
+2026-10-29 13:25:34.467 Df Runner[25615:1399e2] (Flutter) flutter: [coexist] FLN notification delivered (1 active) after 296 ms
+2026-10-29 13:25:52.056 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvtinqt3002p00ive5nyet0u
+2026-10-29 13:25:52.076 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:26:02.460 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-29 13:26:02.945 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:26:03.371 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-29 13:26:09.962 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvtinqt3002p00ive5nyet0u
+2026-10-29 13:26:09.980 Db Runner[25615:1399e2] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:26:12.734 Df Runner[25777:139f54] (Flutter) flutter: [coexist] delegate before Reception: AppDelegate
+2026-10-29 13:26:12.755 I  Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 13:26:12.760 Df Runner[25777:139f54] (Flutter) flutter: [coexist] configured true
+2026-10-29 13:26:12.764 Df Runner[25777:139f54] (Flutter) flutter: [coexist] delegate after Reception: ReceptionNotificationCenter
+2026-10-29 13:26:12.772 Df Runner[25777:139f54] (Flutter) flutter: [coexist] FLN requestPermissions -> true
+2026-10-29 13:26:13.099 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-29 13:26:13.099 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Access token refreshed
+2026-10-29 13:26:13.128 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:26:13.143 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:26:25.087 Df Runner[25777:139f54] (Flutter) flutter: [coexist] FLN notification delivered (1 active) after 303 ms
+2026-10-29 13:26:29.121 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:26:52.458 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvtinqt3002p00ive5nyet0u
+2026-10-29 13:26:52.458 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-29 13:26:53.047 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 13:26:53.069 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 13:26:53.425 Db Runner[25777:139f54] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented

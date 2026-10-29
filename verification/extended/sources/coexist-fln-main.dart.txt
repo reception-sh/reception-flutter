@@ -44,9 +44,8 @@ Future<void> main() async {
         alert: true,
         badge: true,
         sound: true,
-        provisional: true,
       );
-  log('FLN requestPermissions(provisional) -> $granted');
+  log('FLN requestPermissions -> $granted');
   await Reception.registerForPushIfAuthorized();
   runApp(
     MaterialApp(
@@ -59,9 +58,14 @@ Future<void> main() async {
             children: [for (final line in value) Text(line)],
           ),
         ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: Reception.openChat,
+          label: const Text('Support'),
+        ),
       ),
     ),
   );
+  await Future<void>.delayed(const Duration(seconds: 12));
   final started = DateTime.now();
   await notifications.show(
     id: 1,

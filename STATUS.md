@@ -243,6 +243,15 @@ over the embedded chat, visible banners and taps in the coexistence apps. The si
 keychain prompt; an unsigned Release build carries the resource bundle with `PrivacyInfo.xcprivacy` and 48
 localizations.
 
+Extended round, part 2 (2026-10-29, Xcode 27.1, main a39c6da–d54b719; `verification/commands.txt` "EXTENDED ROUND,
+PART 2", screenshots 54–70) closed those gaps: photo sending (five photos via the system picker, shown in the app and
+the dashboard), the photo count (the picker and composer stop at five), the server's message rate limit (notice
+above the composer, the held message is resent after the cooldown, sending resumes), the 4,000-character length
+limit (Send disabled with a notice), the embedded chat with the software keyboard (composer above the keyboard,
+`resizeToAvoidBottomInset` default true), and Firebase and flutter_local_notifications with full permission: banner
+with the chat closed, no banner with the chat open, background tap opens the chat, FCM payloads still reach
+`FirebaseMessaging.onMessage`, and FLN's foreground local notification still presents.
+
 ### Bugs found during verification
 
 1. `ios/reception_flutter/Sources/reception_flutter/ReceptionHost.swift:131` (`configure`): a malformed App ID

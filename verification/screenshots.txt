@@ -52,3 +52,21 @@ Extended round, 2026-10-29 (see commands.txt "EXTENDED ROUND"):
 /Users/andi/Code/support/reception-flutter/verification/51-web-embedded-noop.png — Web build: embedded page renders nothing after Configure/Open chat clicks.
 /Users/andi/Code/support/reception-flutter/verification/52-packed-consumer-debug.png — Consumer of the packed copy, Debug: testing override configures; placeholder configure changes nothing.
 /Users/andi/Code/support/reception-flutter/verification/53-coexist-fln.png — flutter_local_notifications app: delegate chain and FLN notification delivered in 0.6 s.
+Extended round, part 2 with Xcode 27.1 (see commands.txt "EXTENDED ROUND, PART 2"):
+/Users/andi/Code/support/reception-flutter/verification/54-photo-limit.png — Photo picker: six taps, five selected ("Select up to 5 photos").
+/Users/andi/Code/support/reception-flutter/verification/55-attached.png — Five photos attached; Add photos disabled.
+/Users/andi/Code/support/reception-flutter/verification/56-photos-sent.png — Photos sent in the chat.
+/Users/andi/Code/support/reception-flutter/verification/57-dashboard-photos.png — The five photos in the dashboard conversation.
+/Users/andi/Code/support/reception-flutter/verification/58-cooldown.png — Message limit notice; last message held and retried.
+/Users/andi/Code/support/reception-flutter/verification/59-after-cooldown.png — After the cooldown: held message delivered, new message sent.
+/Users/andi/Code/support/reception-flutter/verification/60-length-limit.png — 4,100 characters: Send disabled with the 4,000-character notice.
+/Users/andi/Code/support/reception-flutter/verification/61-embedded-keyboard.png — Embedded chat with the software keyboard: composer above the keyboard.
+/Users/andi/Code/support/reception-flutter/verification/62-fb-foreground-banner.png — Firebase app: Reception banner in the foreground, chat closed.
+/Users/andi/Code/support/reception-flutter/verification/63-fb-fcm-foreground.png — Firebase app: FCM payload reached onMessage.
+/Users/andi/Code/support/reception-flutter/verification/64-fb-chat-open-no-banner.png — Firebase app: chat open, no Reception banner.
+/Users/andi/Code/support/reception-flutter/verification/65-fb-background-banner.png — Firebase app in the background: Reception banner.
+/Users/andi/Code/support/reception-flutter/verification/66-fb-background-tap.png — Firebase app: tap opened the chat.
+/Users/andi/Code/support/reception-flutter/verification/67-fln-foreground-local.png — FLN app: foreground local notification presented.
+/Users/andi/Code/support/reception-flutter/verification/68-fln-reception-banner.png — FLN app: Reception banner, chat closed.
+/Users/andi/Code/support/reception-flutter/verification/69-fln-chat-open-no-banner.png — FLN app: chat open, no banner.
+/Users/andi/Code/support/reception-flutter/verification/70-fln-background-tap.png — FLN app: background tap opened the chat.

@@ -20,6 +20,8 @@ Flutter baut iPhone- und Android-Apps mit der Sprache Dart. Reception ergänzt d
 - In der ersten Runde fehlte das Paket `meta` in `pubspec.yaml`, und ein Prüfskript brauchte eine UTF-8-Spracheinstellung. Beides ist behoben.
 - Flutter-Apps müssen ihre Sprachen in der iOS-`Info.plist` eintragen (`CFBundleLocalizations`), sonst bleibt der Chat trotz deutscher Gerätesprache englisch. Das verlangt auch Flutters eigene Anleitung; unsere Doku sollte es erwähnen.
 
-**Nicht geprüft:** echte Push-Zustellung vom Server auf ein iPhone (Pushes wurden im Simulator nachgestellt), das App-Store-Bewertungsfenster selbst (im Simulator gibt es keinen App Store), Fotos senden, Release-Builds und ältere Flutter-Versionen als 3.47 (Mindestversion ist 3.44).
+**Zusatzrunde (29.10.2026):** Auch geprüft sind jetzt Fotos senden (bis zu fünf, im Chat und im Dashboard), die Grenzen für Nachrichtenmenge, Länge und Fotoanzahl (die App zeigt jeweils einen Hinweis und sendet danach weiter), der eingebettete Chat mit eingeblendeter Tastatur, ein vom Server abgelehnter Identitäts-Token und ein korrekt signierter (im Dashboard „verifiziert“), eine Automation, die den Chat öffnet, das iPad, Web und macOS (dort ohne Wirkung), ein Paket-Abbild in einer frischen App, sowie das Zusammenspiel mit Firebase Messaging und flutter_local_notifications: Banner, Antippen und deren eigene Benachrichtigungen funktionieren weiter.
+
+**Nicht geprüft:** echte Push-Zustellung vom Server auf ein iPhone im Simulator-Ablauf (Pushes wurden nachgestellt; ein separater Gerätetest ist in STATUS.md vermerkt), das App-Store-Bewertungsfenster selbst (im Simulator gibt es keinen App Store) und ältere Flutter-Versionen als 3.47 (Mindestversion ist 3.44).
 
 [Anleitung](https://reception.sh/docs/flutter) · [Befehle und Ergebnisse](commands.txt) · [Screenshots](screenshots.txt)
