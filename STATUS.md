@@ -354,3 +354,22 @@ G10 flutter_local_notifications must be initialized without its launch prompt (d
 notification tap opens the chat inside `configure`, before Dart assigns the appearance, so a dark app's chat opens
 light (`ReceptionNotifications.configured` routes the launch tap; a later `preferredColorScheme` does not reach the
 open sheet). Details and fix text in `GAPS.md`.
+
+## Android and web builds
+
+2026-10-29, on f701a02, Flutter 3.47.8, Android SDK from Homebrew (`openjdk@17`, `android-commandlinetools`,
+no Android Studio or emulator). Evidence and exact commands: `verification/android/commands.txt`.
+
+PASS. An app that depends on the plugin builds for Android and web; Flutter prints nothing about the missing
+Android or web implementation (no error, no warning). It registers the plugin for iOS only, so Android's
+`GeneratedPluginRegistrant` never references it.
+
+- Example: `flutter build apk --debug` in `example/` fails only because the example has no `android/` runner
+  (`Flutter failed to read file at ".../example/android/app/build.gradle"`). The committed example, exported with
+  `git archive` and given an Android runner in /tmp, builds `app-debug.apk`.
+- Fresh `flutter create` app calling `configure`, `openChat`, `unreadCount.value` and rendering
+  `ReceptionChatView`: `flutter build apk --debug` and `flutter build web` pass (web: only Flutter's standard
+  "Wasm dry run succeeded" note).
+- Consumer widget test with `TargetPlatform.android`: calls complete, unread count 0, no Pigeon host call, the
+  chat view renders a 0×0 `SizedBox`, one log line "[Reception] Support chat is available on iOS only.". The same
+  test with `TargetPlatform.iOS` fails at the bridge, so the check is real.

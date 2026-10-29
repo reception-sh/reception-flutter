@@ -1,0 +1,9 @@
+Doctor summary (to see all details, run flutter doctor -v):
+[✓] Flutter (Channel stable, 3.47.8, on macOS 27.2 26B123 darwin-arm64, locale en-US)
+[✓] Android toolchain - develop for Android devices (Android SDK version 36.0.0)
+[✓] Xcode - develop for iOS and macOS (Xcode 26.5)
+[✓] Chrome - develop for the web
+[✓] Connected device (5 available)
+[✓] Network resources
+
+• No issues found!

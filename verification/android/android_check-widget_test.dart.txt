@@ -1,0 +1,60 @@
+import 'package:android_check/main.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:reception_flutter/reception_flutter.dart';
+
+const _channelPrefix = 'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.';
+const _hostMethods = ['connect', 'configure', 'openChat', 'closeChat'];
+
+void main() {
+  testWidgets('Reception is a no-op on Android', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    final logs = <String>[];
+    final originalDebugPrint = debugPrint;
+    debugPrint = (message, {wrapWidth}) => logs.add(message ?? '');
+    final hostCalls = <String>[];
+    final messenger = tester.binding.defaultBinaryMessenger;
+    for (final method in _hostMethods) {
+      messenger.setMockMessageHandler('$_channelPrefix$method', (_) async {
+        hostCalls.add(method);
+        return null;
+      });
+    }
+    try {
+      await Reception.configure(appId: 'app_x');
+      await Reception.openChat();
+      expect(Reception.unreadCount.value, 0);
+      expect(Reception.isConfigured, isFalse);
+
+      await tester.pumpWidget(const AndroidCheckApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Unread: 0 (0)'), findsOneWidget);
+      await tester.tap(find.text('Open chat'));
+      await tester.pumpAndSettle();
+
+      final chatView = find.byType(ReceptionChatView);
+      expect(chatView, findsOneWidget);
+      final rendered = find.descendant(
+        of: chatView,
+        matching: find.byWidgetPredicate((_) => true),
+      );
+      expect(rendered, findsOneWidget, reason: 'only SizedBox.shrink');
+      final box = tester.widget<SizedBox>(rendered);
+      expect((box.width, box.height, box.child), (0.0, 0.0, null));
+      expect(find.byType(UiKitView), findsNothing);
+      expect(find.byType(AndroidView), findsNothing);
+      expect(find.byType(PlatformViewLink), findsNothing);
+
+      expect(hostCalls, isEmpty, reason: 'no Pigeon host call off iOS');
+      expect(logs, ['[Reception] Support chat is available on iOS only.']);
+    } finally {
+      for (final method in _hostMethods) {
+        messenger.setMockMessageHandler('$_channelPrefix$method', null);
+      }
+      debugPrint = originalDebugPrint;
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+}

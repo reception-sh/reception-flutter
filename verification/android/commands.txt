@@ -1,0 +1,117 @@
+ANDROID AND WEB BUILD CHECK — 2026-10-29, 11:20–11:45 CET, plugin at main f701a02
+("Status: physical device round"). Plugin sources (lib/, ios/, pubspec.yaml) in the working tree equal HEAD.
+The working tree had one unrelated uncommitted change (example/lib/main.dart, identity token define); it was not
+used: the example check below builds the committed example from `git archive HEAD`.
+
+Question: does the iOS-only plugin (pubspec `flutter.plugin.platforms` declares only `ios`) break Android or web
+builds of apps that depend on it, and is its Dart layer a no-op on Android?
+Result: PASS. No build printed any message about the plugin missing an Android (or web) implementation — neither an
+error nor a warning. Flutter lists the plugin under `ios` only in .flutter-plugins-dependencies and leaves it out of
+Android's GeneratedPluginRegistrant.java, so Gradle never sees it.
+
+Logs in this directory: *.log (exit code appended as the last line). Consumer app sources:
+android_check-main.dart.txt, android_check-widget_test.dart.txt (stored as .txt so the plugin's analyzer and
+formatter ignore them).
+
+------------------------------------------------------------------------------------------------------------------
+0. Toolchain (no Android Studio, no emulator image)
+
+export PATH=/opt/homebrew/bin:$PATH
+brew install --cask temurin@17
+  -> FAILED: the cask runs `sudo installer -pkg ...`; "sudo: a terminal is required to read the password".
+brew install openjdk@17                      # formula, no sudo: OpenJDK 17.0.21.0.3 (Homebrew build)
+brew install --cask android-commandlinetools # SDK root /opt/homebrew/share/android-commandlinetools
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
+export PATH=/opt/homebrew/opt/openjdk@17/bin:/opt/homebrew/bin:$PATH
+A=/opt/homebrew/share/android-commandlinetools
+yes | sdkmanager --sdk_root=$A --licenses                 # "All SDK package licenses accepted"
+sdkmanager --sdk_root=$A --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+flutter config --android-sdk $A --jdk-dir $JAVA_HOME
+yes | flutter doctor --android-licenses                   # "All SDK package licenses accepted."
+flutter doctor -v
+  -> before the first build: "✗ Flutter requires Android SDK 36 and the Android BuildTools 28.0.3"
+     The first Gradle build then auto-installed (licenses already accepted): NDK 28.2.13676358 (r28c),
+     platforms;android-36, build-tools;36.0.0. Afterwards flutter doctor: "[✓] Android toolchain - develop for
+     Android devices (Android SDK version 36.0.0)", "No issues found!" (flutter-doctor.log).
+Installed: platform-tools, platforms android-35 + android-36, build-tools 35.0.0 + 36.0.0, NDK 28.2.13676358;
+SDK directory 3.6 GB. Flutter 3.47.8 template: Gradle 9.3.1, AGP 9.1.0, Kotlin 2.4.0.
+
+------------------------------------------------------------------------------------------------------------------
+1. Example app
+
+a) As requested, in the repository (example-build-apk-asis.log) — FAIL, unrelated to the plugin:
+cd example && flutter build apk --debug --dart-define=RECEPTION_APP_ID=app_placeholder
+  Flutter failed to read file at "/Users/andi/Code/support/reception-flutter/example/android/app/build.gradle". The file or directory could not be found.
+  PathNotFoundException: Cannot open file, path = '/Users/andi/Code/support/reception-flutter/example/android/app/build.gradle' (OS Error: No such file or directory, errno = 2)
+  exit=1
+  Cause: example/ has no android/ runner (it was created for iOS only). The repository was not changed to add one.
+
+b) Committed example with an Android runner added outside the repository (example-build-apk.log, cold, 471.6 s
+   including NDK download; example-build-apk-warm.log, 8.3 s) — PASS:
+rm -rf /tmp/rf-example-android && mkdir -p /tmp/rf-example-android
+git archive HEAD | tar -x -C /tmp/rf-example-android
+cd /tmp/rf-example-android/example            # pubspec keeps `reception_flutter: path: ../` (the HEAD copy)
+flutter create --platforms=android --org sh.reception --project-name reception_flutter_example .
+  (lib/main.dart verified byte-identical to HEAD afterwards; the generated test/widget_test.dart was deleted)
+flutter build apk --debug --dart-define=RECEPTION_APP_ID=app_placeholder
+  Running Gradle task 'assembleDebug'...                            471.6s
+  ✓ Built build/app/outputs/flutter-apk/app-debug.apk
+  exit=0
+  Only other output: sdkmanager's own "WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Use Android
+  CLI instead." while Gradle auto-installed NDK/platform 36 — not from the plugin.
+.flutter-plugins-dependencies: {'ios': ['integration_test', 'reception_flutter'], 'android': ['integration_test'], 'web': [], ...}
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java registers only IntegrationTestPlugin.
+
+------------------------------------------------------------------------------------------------------------------
+2. Fresh consumer app, Android APK (consumer-build-apk.log) — PASS
+
+mkdir -p /tmp/android-check && cd /tmp/android-check
+flutter create --org sh.reception android_check && cd android_check
+flutter pub add 'reception_flutter:{"path":"/Users/andi/Code/support/reception-flutter"}'
+lib/main.dart (android_check-main.dart.txt): `await Reception.configure(appId: 'app_x')` before runApp, an
+  ElevatedButton calling `Reception.openChat`, a ValueListenableBuilder on `Reception.unreadCount` that also reads
+  `Reception.unreadCount.value`, and `const Expanded(child: ReceptionChatView())`.
+flutter analyze                               # No issues found!
+flutter build apk --debug
+  Running Gradle task 'assembleDebug'...                             19.5s
+  ✓ Built build/app/outputs/flutter-apk/app-debug.apk
+  exit=0
+.flutter-plugins-dependencies: {'ios': ['reception_flutter'], 'android': [], 'macos': [], 'linux': [], 'windows': [], 'web': []}
+GeneratedPluginRegistrant.java contains no reference to reception.
+
+------------------------------------------------------------------------------------------------------------------
+3. Consumer-side widget test on Android (consumer-test.log) — PASS
+
+test/widget_test.dart (android_check-widget_test.dart.txt): debugDefaultTargetPlatformOverride =
+TargetPlatform.android; mock handlers on the Pigeon host channels connect/configure/openChat/closeChat record any
+call; debugPrint captured. Asserts: configure and openChat complete without throwing; unreadCount.value == 0;
+isConfigured == false; the app renders "Unread: 0 (0)"; tapping "Open chat" does nothing; ReceptionChatView's only
+descendant is a SizedBox with width 0, height 0 and no child; no UiKitView/AndroidView/PlatformViewLink; zero host
+channel calls; the only log line is exactly "[Reception] Support chat is available on iOS only." (once).
+flutter test test/widget_test.dart
+  00:00 +1: All tests passed!
+  exit=0
+Negative control (consumer-test-ios-control.log; temporary copy with TargetPlatform.iOS, deleted afterwards):
+  fails with "The following ReceptionError was thrown running a test: bridge_error (0)" from Reception._call —
+  on iOS the call goes to the Pigeon bridge (the mock replies null), so the Android pass is not vacuous.
+
+Plugin's own suite, for reference (plugin-test.log; includes platforms_test.dart for android and macOS):
+cd /Users/andi/Code/support/reception-flutter && flutter test
+  00:01 +60: All tests passed!
+  exit=0
+
+------------------------------------------------------------------------------------------------------------------
+4. Fresh consumer app, web (consumer-build-web.log) — PASS
+
+cd /tmp/android-check/android_check && flutter build web
+  Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
+  Use --no-wasm-dry-run to disable these warnings.
+  Font asset "CupertinoIcons.ttf" was tree-shaken, ... / Font asset "MaterialIcons-Regular.otf" was tree-shaken, ...
+  Compiling lib/main.dart for the Web...                             33.3s
+  ✓ Built build/web
+  exit=0
+  The only "warning" is Flutter's standard Wasm dry-run note (it succeeded, so the plugin's Dart code is also
+  Wasm-compatible); nothing mentions reception_flutter.
+
+Not done: no emulator image installed and no APK run on a device (not needed for the build check; the runtime
+no-op behaviour is covered by the widget test above).

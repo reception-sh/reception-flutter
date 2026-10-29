@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+import 'package:reception_flutter/reception_flutter.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Reception.configure(appId: 'app_x');
+  runApp(const AndroidCheckApp());
+}
+
+class AndroidCheckApp extends StatelessWidget {
+  const AndroidCheckApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Android check',
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Android check')),
+        body: Column(
+          children: [
+            ValueListenableBuilder<int>(
+              valueListenable: Reception.unreadCount,
+              builder: (context, count, _) =>
+                  Text('Unread: ${Reception.unreadCount.value} ($count)'),
+            ),
+            ElevatedButton(
+              onPressed: Reception.openChat,
+              child: const Text('Open chat'),
+            ),
+            const Expanded(child: ReceptionChatView()),
+          ],
+        ),
+      ),
+    );
+  }
+}
