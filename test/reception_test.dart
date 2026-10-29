@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reception_flutter/reception_flutter.dart';
+import 'package:reception_flutter/src/sdk_version.dart';
 import 'package:reception_flutter/src/messages.g.dart';
 import 'package:reception_flutter/src/reception.dart' show resetReception;
 
@@ -25,7 +26,7 @@ void main() {
 
   test('connects lazily, once, before the first host call', () async {
     expect(Reception.isConfigured, isFalse);
-    expect(Reception.version, '1.6.0');
+    expect(Reception.version, sdkVersion);
     expect(host.calls, isEmpty);
     await Reception.openChat();
     await Reception.closeChat();
