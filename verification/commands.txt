@@ -254,3 +254,25 @@ Environment blockers this round (not product issues):
     in Views/BubbleShape.swift → exit 1, "changed or missing: Sources/Reception/Views/BubbleShape.swift".
 12. Embedded chat with keyboard — BLOCKED (focusing the native composer needs a tap). The embedded page is a
     Scaffold with the default resizeToAvoidBottomInset (true) and ReceptionChatView in an Expanded.
+
+================================================================================
+PRODUCTION-SIGNED BUILD, 2026-10-29 (Xcode 27.1, macOS 27.2)
+================================================================================
+  xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -destination 'generic/platform=iOS' \
+    -archivePath <tmp>/Runner.xcarchive -allowProvisioningUpdates -allowProvisioningDeviceRegistration \
+    DEVELOPMENT_TEAM=<team> CODE_SIGN_STYLE=Automatic archive
+    PASS (ARCHIVE SUCCEEDED).
+  xcodebuild -exportArchive ... -exportOptionsPlist (method release-testing, automatic signing)
+    First attempts FAIL with "PLA Update available" (Apple's program license had to be accepted by the account
+    holder); PASS afterwards: reception_flutter_example.ipa, signing certificate "Apple Distribution" created by
+    automatic signing.
+  IPA inspection: entitlements aps-environment=production, get-task-allow=false;
+    Payload/Runner.app/reception_flutter_reception_flutter.bundle contains PrivacyInfo.xcprivacy and the
+    localization tables (SwiftPM resource bundle survives archiving and export).
+  xcrun devicectl device install app --device ALO reception_flutter_example.ipa; launch
+    PASS; the app registers its token as PRODUCTION with the hosted service (SDK reads aps-environment from the
+    embedded profile). The production delivery (dashboard reply → api.push.apple.com → banner → tap) is the
+    developer's check; see the "Physical device" paragraph in STATUS.md for the result.
+  tool/release_check.sh with Xcode 27.1: pod lint first failed because the lint-only Flutter podspec declared
+    deployment target 13.0, which Xcode 27 rejects (supported range 15.0–27.1); fixed to 17.0 in tool/pod_lint.sh;
+    all steps pass afterwards.
