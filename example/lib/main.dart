@@ -24,6 +24,14 @@ const autostart =
     bool.fromEnvironment('RECEPTION_AUTOSTART', defaultValue: true) &&
     appId != 'app_YOUR_APP_ID';
 
+/// Token for the Identify with token button, for example a server-signed test
+/// token passed with `--dart-define=RECEPTION_IDENTITY_TOKEN=...`; never commit
+/// one. The default is malformed and is dropped by the SDK without a request.
+const identityToken = String.fromEnvironment(
+  'RECEPTION_IDENTITY_TOKEN',
+  defaultValue: 'invalid.test.token',
+);
+
 final status = ValueNotifier('Ready');
 final events = ValueNotifier<List<String>>(const []);
 final configured = ValueNotifier(false);
@@ -234,10 +242,10 @@ class HomePage extends StatelessWidget {
               });
             }, 'Identity and metadata staged');
           }),
-          button('Identify with invalid token', () {
+          button('Identify with token', () {
             run(
               () => Reception.identify(
-                const ReceptionIdentity.token('invalid.test.token'),
+                const ReceptionIdentity.token(identityToken),
               ),
               'Token identity staged',
             );

@@ -53,5 +53,13 @@ instead (and to try the calls before configure).
   Add the same `RECEPTION_SERVICE_URL` define when the App ID belongs to a local backend.
   Add `--dart-define=EXPECT_UNREAD=true` after a dashboard reply to wait for unread.
 
+- **Identity tokens:** Identify with token uses `--dart-define=RECEPTION_IDENTITY_TOKEN=...` (a
+  server-signed test token; never commit one). Without it the button sends a malformed token, which
+  the SDK drops without a request.
+- **Extended scenarios:** `integration_test/extended_test.dart` drives identity rejection, automations
+  and iPad checks from Dart (`--dart-define=EXT_MODE=identity|automation|ipad`, plus the App ID and
+  service URL defines); it prints `SHOT:<name>` markers for host-side `xcrun simctl io` screenshots.
+  The automation mode needs a `paywall_declined` automation with an open-chat action.
+
 `ios/Runner/Info.plist` lists `en` and `de` in `CFBundleLocalizations`; without it iOS
 resolves the app, and the chat, to English regardless of the device language.
