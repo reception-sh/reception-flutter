@@ -250,7 +250,9 @@ localizations.
    refused a malformed App ID; copy it from your dashboard", as in a Swift app); actual: no log line at all and
    `isConfigured` unchanged. Reproduce: in a fresh app call `await Reception.configure(appId: 'app_YOUR_APP_ID')`
    and read the `com.reception.sdk` log (`verification/extended/packed-consumer-debug-*.log`). Keeping earlier
-   configuration unchanged is intended; only the diagnostic is missing.
+   configuration unchanged is intended; only the diagnostic is missing. **Fixed** the same day: `configure` now
+   calls `Reception.configure` first (the SDK logs the refusal) and only then applies notification ownership for
+   accepted IDs.
 
 Earlier rounds: the two found in the first round (`meta` missing from `dependencies`; `tool/pod_lint.sh` failing
 without a UTF-8 locale) were fixed in 8b37473 and re-verified: the publish dry-run reports 0 warnings and pod
