@@ -1,0 +1,34 @@
+import Flutter
+import UIKit
+import UserNotifications
+
+@main
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    // Verification helper: report the notification delegate and request provisional
+    // authorization (no prompt, so no UI automation is needed).
+    let channel = FlutterMethodChannel(name: "coexist/native", binaryMessenger: engineBridge.applicationRegistrar.messenger())
+    channel.setMethodCallHandler { call, result in
+      switch call.method {
+      case "delegate":
+        let delegate = UNUserNotificationCenter.current().delegate
+        result(delegate.map { String(describing: type(of: $0)) } ?? "nil")
+      case "provisional":
+        UNUserNotificationCenter.current().requestAuthorization(options: [.provisional, .alert, .sound, .badge]) { granted, _ in
+          UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async { result("granted=\(granted) status=\(settings.authorizationStatus.rawValue)") }
+          }
+        }
+      default: result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+Timestamp               Ty Process[PID:TID]
+2026-10-29 12:12:33.070 E  Runner[92056:10930d] [com.reception.sdk:Reception] [Reception] ERROR Device update failed, HTTP 401 identity_token_invalid

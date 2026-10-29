@@ -1,0 +1,4 @@
+Timestamp               Ty Process[PID:TID]
+2026-10-29 12:33:12.815 I  Runner[99818:115dbf] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 12:33:12.817 Df Runner[99818:115dbf] (Flutter) flutter: [consumer] debug configureReceptionForTesting -> isConfigured=true
+2026-10-29 12:33:12.819 Df Runner[99818:115dbf] (Flutter) flutter: [consumer] debug configure(placeholder) -> isConfigured=true

@@ -1,0 +1,91 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:reception_flutter/reception_flutter.dart';
+import 'package:reception_flutter/testing.dart';
+
+const appId = String.fromEnvironment('RECEPTION_APP_ID');
+const native = MethodChannel('coexist/native');
+final notifications = FlutterLocalNotificationsPlugin();
+final lines = ValueNotifier<List<String>>([]);
+void log(String line) {
+  debugPrint('[coexist] $line');
+  lines.value = [...lines.value, line];
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // flutter_local_notifications as documented: no permission requests at init.
+  await notifications.initialize(
+    settings: const InitializationSettings(
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      ),
+    ),
+    onDidReceiveNotificationResponse: (response) =>
+        log('FLN tapped ${response.id}'),
+  );
+  log('delegate before Reception: ${await native.invokeMethod('delegate')}');
+  await configureReceptionForTesting(
+    appId: appId,
+    serviceUrl: Uri.parse('http://localhost:3123'),
+  );
+  Reception.logLevel = ReceptionLogLevel.debug;
+  log('configured ${Reception.isConfigured}');
+  log('delegate after Reception: ${await native.invokeMethod('delegate')}');
+  // Permission later, through FLN; provisional needs no prompt.
+  final granted = await notifications
+      .resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin
+      >()
+      ?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: true,
+      );
+  log('FLN requestPermissions(provisional) -> $granted');
+  await Reception.registerForPushIfAuthorized();
+  runApp(
+    MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('FLN + Reception')),
+        body: ValueListenableBuilder(
+          valueListenable: lines,
+          builder: (context, value, _) => ListView(
+            padding: const EdgeInsets.all(16),
+            children: [for (final line in value) Text(line)],
+          ),
+        ),
+      ),
+    ),
+  );
+  final started = DateTime.now();
+  await notifications.show(
+    id: 1,
+    title: 'Local reminder',
+    body: 'Shown by flutter_local_notifications in the foreground',
+    notificationDetails: const NotificationDetails(
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBanner: true,
+        presentList: true,
+        presentSound: true,
+      ),
+    ),
+  );
+  for (var i = 0; i < 12; i++) {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    final active = await notifications.getActiveNotifications();
+    if (active.isNotEmpty) {
+      log(
+        'FLN notification delivered (${active.length} active) after '
+        '${DateTime.now().difference(started).inMilliseconds} ms',
+      );
+      return;
+    }
+  }
+  log('FLN notification not delivered within 3 s');
+}

@@ -1,0 +1,14 @@
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+* reception_flutter 1.0.0 from path /Users/andi/Code/support/reception-flutter (was 1.0.0 from path ..)
+  test_api 0.7.12 (0.7.15 available)
+Changed 1 dependency!
+2 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Archiving sh.reception.receptionFlutterExample...
+Automatically signing iOS for device deployment using specified development team in Xcode project: HQ6MG8UKPR
+Running Xcode build...                                          
+Xcode archive done.                                         870.6s
+
+Oops; flutter has exited unexpectedly: "PathNotFoundException: Deletion failed, path = '/var/folders/5n/f10879md74d8gvnd1pc171r00000gn/T/flutter_tools.GfEoF3/flutter_ios_build_temp_dirnLdQ0M' (OS Error: No such file or directory, errno = 2)".

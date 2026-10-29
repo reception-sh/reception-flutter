@@ -1,0 +1,29 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:reception_flutter/reception_flutter.dart';
+import 'package:reception_flutter/testing.dart';
+
+const appId = String.fromEnvironment('RECEPTION_APP_ID', defaultValue: 'app_YOUR_APP_ID');
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final mode = kReleaseMode ? 'release' : kProfileMode ? 'profile' : 'debug';
+  // 1. The localhost override: Debug simulator builds only; a no-op elsewhere.
+  await configureReceptionForTesting(appId: appId, serviceUrl: Uri.parse('http://localhost:3123'));
+  final afterTesting = Reception.isConfigured;
+  debugPrint('[consumer] $mode configureReceptionForTesting -> isConfigured=$afterTesting');
+  // 2. A placeholder App ID with the production configure: refused, no crash.
+  await Reception.configure(appId: 'app_YOUR_APP_ID');
+  debugPrint('[consumer] $mode configure(placeholder) -> isConfigured=${Reception.isConfigured}');
+  runApp(MaterialApp(
+    home: Scaffold(
+      body: Center(
+        child: Text(
+          '$mode build\nafter configureReceptionForTesting: Configured: $afterTesting\n'
+          'after configure(placeholder): Configured: ${Reception.isConfigured}',
+          textAlign: TextAlign.center,
+        ),
+      ),
+    ),
+  ));
+}

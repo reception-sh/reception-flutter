@@ -228,9 +228,31 @@ Not verified: release builds beyond the device round above; the App Store review
 could not be read"); automations reacting to `track`; photo sending; release builds; Android/web at runtime (unit
 tests only); Flutter 3.44–3.46 at runtime (this round used 3.47.8).
 
+Extended round (2026-10-29, main f701a02–9ec88e3, macOS 27.2; `verification/commands.txt` "EXTENDED ROUND",
+screenshots 40–53, `verification/extended/`): server-side identity rejection (`ReceptionIdentityRejected` with
+`identity_token_invalid`) and a correctly signed token (Verified in the dashboard), an `OPEN_CHAT` automation opened by
+`track` in 2.8 s (and no reaction to an unmatched event), iPad sheet/embedded/dark, web and macOS builds as no-ops
+with one notice, a packed copy (`git archive` minus `.pubignore`) in a fresh consumer with SwiftPM and CocoaPods (the
+testing override's localhost literals are absent from the Release binary), and the sync checker failing on one
+changed byte all pass. Firebase (firebase_messaging 17.0.1) and flutter_local_notifications 22.3.3 coexist: the
+proxy wraps their delegates, FCM payloads reach `FirebaseMessaging.onMessage`, FLN's foreground notification is
+delivered through FLN's own completion, Reception payloads are recognized. Not verified this round, because UI
+automation was unavailable after the macOS update (XCUITest cannot attach until Xcode's first-launch setup is run
+with admin rights; no Accessibility permission): photo sending, rate limits/length/photo-count limits, the keyboard
+over the embedded chat, visible banners and taps in the coexistence apps. The signed archive/IPA is blocked by a
+keychain prompt; an unsigned Release build carries the resource bundle with `PrivacyInfo.xcprivacy` and 48
+localizations.
+
 ### Bugs found during verification
 
-None open. The two found in the first round (`meta` missing from `dependencies`; `tool/pod_lint.sh` failing
+1. `ios/reception_flutter/Sources/reception_flutter/ReceptionHost.swift:131` (`configure`): a malformed App ID
+   returns before `Reception.configure`, so nothing is logged. Expected: the native SDK's diagnostic ("Configure
+   refused a malformed App ID; copy it from your dashboard", as in a Swift app); actual: no log line at all and
+   `isConfigured` unchanged. Reproduce: in a fresh app call `await Reception.configure(appId: 'app_YOUR_APP_ID')`
+   and read the `com.reception.sdk` log (`verification/extended/packed-consumer-debug-*.log`). Keeping earlier
+   configuration unchanged is intended; only the diagnostic is missing.
+
+Earlier rounds: the two found in the first round (`meta` missing from `dependencies`; `tool/pod_lint.sh` failing
 without a UTF-8 locale) were fixed in 8b37473 and re-verified: the publish dry-run reports 0 warnings and pod
 lint passes with `LANG`/`LC_ALL` unset.
 

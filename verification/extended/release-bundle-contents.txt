@@ -1,0 +1,103 @@
+reception_flutter_reception_flutter.bundle
+lproj: 48
+Info.plist
+PrivacyInfo.xcprivacy
+{
+  "NSPrivacyAccessedAPITypes" => [
+    0 => {
+      "NSPrivacyAccessedAPIType" => "NSPrivacyAccessedAPICategoryUserDefaults"
+      "NSPrivacyAccessedAPITypeReasons" => [
+        0 => "CA92.1"
+      ]
+    }
+  ]
+  "NSPrivacyCollectedDataTypes" => [
+    0 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypeCustomerSupport"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    1 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypePhotosorVideos"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    2 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypeDeviceID"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    3 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypeProductInteraction"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+        1 => "NSPrivacyCollectedDataTypePurposeAnalytics"
+        2 => "NSPrivacyCollectedDataTypePurposeDeveloperAdvertising"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    4 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypeOtherDiagnosticData"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    5 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypeOtherDataTypes"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    6 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypeUserID"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    7 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypeName"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    8 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypeEmailAddress"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+    9 => {
+      "NSPrivacyCollectedDataType" => "NSPrivacyCollectedDataTypePurchaseHistory"
+      "NSPrivacyCollectedDataTypeLinked" => true
+      "NSPrivacyCollectedDataTypePurposes" => [
+        0 => "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+        1 => "NSPrivacyCollectedDataTypePurposeAnalytics"
+        2 => "NSPrivacyCollectedDataTypePurposeDeveloperAdvertising"
+      ]
+      "NSPrivacyCollectedDataTypeTracking" => false
+    }
+  ]
+  "NSPrivacyTracking" => false
+  "NSPrivacyTrackingDomains" => [
+  ]
+}

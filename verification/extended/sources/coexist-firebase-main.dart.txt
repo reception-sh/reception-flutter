@@ -1,0 +1,68 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:reception_flutter/reception_flutter.dart';
+import 'package:reception_flutter/testing.dart';
+
+const appId = String.fromEnvironment('RECEPTION_APP_ID');
+const native = MethodChannel('coexist/native');
+final lines = ValueNotifier<List<String>>([]);
+void log(String line) {
+  debugPrint('[coexist] $line');
+  lines.value = [...lines.value, line];
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    // Placeholder project (syntactically valid, not a real Firebase project).
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: 'AIzaSyAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        appId: '1:123456789012:ios:0123456789abcdef012345',
+        messagingSenderId: '123456789012',
+        projectId: 'reception-coexist-placeholder',
+        iosBundleId: 'sh.reception.receptionFlutterExample',
+      ),
+    );
+    log('Firebase initialized');
+  } catch (error) {
+    log('Firebase init failed: $error');
+  }
+  FirebaseMessaging.onMessage.listen(
+    (message) => log('FCM onMessage ${message.messageId}'),
+  );
+  log('delegate before Reception: ${await native.invokeMethod('delegate')}');
+  await configureReceptionForTesting(
+    appId: appId,
+    serviceUrl: Uri.parse('http://localhost:3123'),
+  );
+  Reception.logLevel = ReceptionLogLevel.debug;
+  Reception.onEvent = (event) => log('Reception event $event');
+  Reception.unreadCount.addListener(
+    () => log('Reception unread ${Reception.unreadCount.value}'),
+  );
+  log('configured ${Reception.isConfigured}');
+  log('delegate after Reception: ${await native.invokeMethod('delegate')}');
+  log('authorization ${await native.invokeMethod('provisional')}');
+  await Reception.registerForPushIfAuthorized();
+  runApp(
+    MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Firebase + Reception')),
+        body: ValueListenableBuilder(
+          valueListenable: lines,
+          builder: (context, value, _) => ListView(
+            padding: const EdgeInsets.all(16),
+            children: [for (final line in value) Text(line)],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: Reception.openChat,
+          label: const Text('Support'),
+        ),
+      ),
+    ),
+  );
+}

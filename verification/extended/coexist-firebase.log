@@ -1,0 +1,53 @@
+Timestamp               Ty Process[PID:TID]
+2026-10-29 12:40:18.652 E  Runner[6471:11c903] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000012] Could not locate configuration file: 'GoogleService-Info.plist'.
+2026-10-29 12:40:18.671 E  Runner[6471:11c903] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:40:19.153 E  Runner[6471:11c903] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:40:19.172 E  Runner[6471:11c903] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:41:24.653 E  Runner[6911:11d3f8] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000012] Could not locate configuration file: 'GoogleService-Info.plist'.
+2026-10-29 12:41:24.668 E  Runner[6911:11d3f8] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:41:25.058 E  Runner[6911:11d3fc] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:41:25.077 E  Runner[6911:11d3fc] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:41:25.093 Df Runner[6911:11d3f8] [com.google.firebase:[FirebaseMessaging]] 13.1.1 - [FirebaseMessaging][I-FCM001000] FIRMessaging Remote Notifications proxy enabled, will swizzle remote notification receiver handlers. If you'd
+https://firebase.google.com/docs/cloud-messaging/ios/client#method_swizzling_in_firebase_messaging
+to ensure proper integration.
+2026-10-29 12:41:25.099 Df Runner[6911:11d3e6] (Flutter) flutter: [coexist] Firebase initialized
+2026-10-29 12:41:25.107 Df Runner[6911:11d3e6] (Flutter) flutter: [coexist] delegate before Reception: FLTFirebaseMessagingPlugin
+2026-10-29 12:41:25.130 I  Runner[6911:11d3e6] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 12:41:25.134 Df Runner[6911:11d3e6] (Flutter) flutter: [coexist] configured true
+2026-10-29 12:41:25.135 E  Runner[6911:11d3fc] [com.google.firebase:[FirebaseMessaging]] 13.1.1 - [FirebaseMessaging][I-FCM012002] Error in application:didFailToRegisterForRemoteNotificationsWithError: no valid “aps-environment” entitle
+2026-10-29 12:41:25.144 Db Runner[6911:11d3e6] [com.reception.sdk:Reception] [Reception] DEBUG Device registration started
+2026-10-29 12:41:25.146 Df Runner[6911:11d3e6] (Flutter) flutter: [coexist] delegate after Reception: ReceptionNotificationCenter
+2026-10-29 12:41:25.178 Df Runner[6911:11d3e6] (Flutter) flutter: [coexist] authorization granted=true status=3
+2026-10-29 12:41:25.553 E  Runner[6911:11d3f9] [com.google.firebase:[FirebaseMessaging]] 13.1.1 - [FirebaseMessaging][I-FCM012002] Error in application:didFailToRegisterForRemoteNotificationsWithError: no valid “aps-environment” entitle
+2026-10-29 12:41:25.556 Db Runner[6911:11d3e6] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-29 12:41:25.581 I  Runner[6911:11d3e6] [com.reception.sdk:Reception] [Reception] INFO Device registered
+2026-10-29 12:41:25.630 Db Runner[6911:11d3e6] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 12:41:25.655 Db Runner[6911:11d3e6] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 12:41:56.668 E  Runner[6976:11d65c] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000012] Could not locate configuration file: 'GoogleService-Info.plist'.
+2026-10-29 12:41:56.672 E  Runner[6976:11d65c] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:41:56.861 E  Runner[6976:11d65c] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:41:56.873 E  Runner[6976:11d65c] [com.google.firebase:[FirebaseCore]] 13.1.1 - [FirebaseCore][I-COR000005] No app has been configured yet.
+2026-10-29 12:41:56.877 Df Runner[6976:11d661] [com.google.firebase:[FirebaseMessaging]] 13.1.1 - [FirebaseMessaging][I-FCM001000] FIRMessaging Remote Notifications proxy enabled, will swizzle remote notification receiver handlers. If you'd
+https://firebase.google.com/docs/cloud-messaging/ios/client#method_swizzling_in_firebase_messaging
+to ensure proper integration.
+2026-10-29 12:41:56.882 Df Runner[6976:11d654] (Flutter) flutter: [coexist] Firebase initialized
+2026-10-29 12:41:56.890 E  Runner[6976:11d65c] [com.google.firebase:[FirebaseMessaging]] 13.1.1 - [FirebaseMessaging][I-FCM012002] Error in application:didFailToRegisterForRemoteNotificationsWithError: no valid “aps-environment” entitle
+2026-10-29 12:41:56.890 Df Runner[6976:11d654] (Flutter) flutter: [coexist] delegate before Reception: FLTFirebaseMessagingPlugin
+2026-10-29 12:41:56.912 I  Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 12:41:56.914 Df Runner[6976:11d654] [com.reception.sdk:SetupCheck] [Reception] Setup check started
+2026-10-29 12:41:56.923 Df Runner[6976:11d654] (Flutter) flutter: [coexist] configured true
+2026-10-29 12:41:56.930 E  Runner[6976:11d661] [com.google.firebase:[FirebaseMessaging]] 13.1.1 - [FirebaseMessaging][I-FCM012002] Error in application:didFailToRegisterForRemoteNotificationsWithError: no valid “aps-environment” entitle
+2026-10-29 12:41:56.931 Df Runner[6976:11d654] (Flutter) flutter: [coexist] delegate after Reception: ReceptionNotificationCenter
+2026-10-29 12:41:56.935 Df Runner[6976:11d654] (Flutter) flutter: [coexist] authorization granted=true status=3
+2026-10-29 12:41:56.943 E  Runner[6976:11d672] [com.google.firebase:[FirebaseMessaging]] 13.1.1 - [FirebaseMessaging][I-FCM012002] Error in application:didFailToRegisterForRemoteNotificationsWithError: no valid “aps-environment” entitle
+2026-10-29 12:41:57.253 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-29 12:41:57.253 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Access token refreshed
+2026-10-29 12:41:57.367 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 12:41:57.392 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 12:41:57.443 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Message sent
+2026-10-29 12:41:57.445 Df Runner[6976:11d654] (Flutter) flutter: [coexist] Reception event Instance of 'ReceptionMessageSent'
+2026-10-29 12:41:57.478 Df Runner[6976:11d654] [com.reception.sdk:SetupCheck] [Reception] Setup check passed
+2026-10-29 12:42:09.046 Df Runner[6976:11d654] (Flutter) flutter: [coexist] FCM onMessage fcm-verification-1
+2026-10-29 12:42:12.224 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvth3wnz000z00iv99wdodc9
+2026-10-29 12:42:12.253 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 12:42:27.466 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread

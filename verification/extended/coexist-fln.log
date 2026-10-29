@@ -1,0 +1,28 @@
+Timestamp               Ty Process[PID:TID]
+2026-10-29 12:42:43.018 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 12:42:58.988 Db Runner[6976:11d654] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 12:44:03.349 Df Runner[8152:11eedb] (Flutter) flutter: [coexist] delegate before Reception: AppDelegate
+2026-10-29 12:44:03.382 I  Runner[8152:11eedb] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 12:44:03.396 Df Runner[8152:11eedb] (Flutter) flutter: [coexist] configured true
+2026-10-29 12:44:03.401 Df Runner[8152:11eedb] (Flutter) flutter: [coexist] delegate after Reception: ReceptionNotificationCenter
+2026-10-29 12:44:03.420 Df Runner[8152:11eedb] (Flutter) flutter: [coexist] FLN requestPermissions(provisional) -> true
+2026-10-29 12:44:03.799 Db Runner[8152:11eedb] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-29 12:44:03.806 I  Runner[8152:11eedb] [com.reception.sdk:Reception] [Reception] INFO Device registered
+2026-10-29 12:44:03.869 Db Runner[8152:11eedb] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 12:44:03.897 Db Runner[8152:11eedb] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 12:44:04.071 Df Runner[8152:11eedb] (Flutter) flutter: [coexist] FLN notification delivered (1 active) after 641 ms
+2026-10-29 12:44:17.072 Df Runner[8193:11f0b2] (Flutter) flutter: [coexist] delegate before Reception: AppDelegate
+2026-10-29 12:44:17.092 I  Runner[8193:11f0b2] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.6.0
+2026-10-29 12:44:17.093 Df Runner[8193:11f0b2] [com.reception.sdk:SetupCheck] [Reception] Setup check started
+2026-10-29 12:44:17.104 Df Runner[8193:11f0b2] (Flutter) flutter: [coexist] configured true
+2026-10-29 12:44:17.114 Df Runner[8193:11f0b2] (Flutter) flutter: [coexist] delegate after Reception: ReceptionNotificationCenter
+2026-10-29 12:44:17.127 Df Runner[8193:11f0b2] (Flutter) flutter: [coexist] FLN requestPermissions(provisional) -> true
+2026-10-29 12:44:17.460 Db Runner[8193:11f0b2] [com.reception.sdk:Reception] [Reception] DEBUG Remote appearance refreshed, revision 0
+2026-10-29 12:44:17.460 Db Runner[8193:11f0b2] [com.reception.sdk:Reception] [Reception] DEBUG Access token refreshed
+2026-10-29 12:44:17.518 Db Runner[8193:11f0b2] [com.reception.sdk:Reception] [Reception] DEBUG Device updated
+2026-10-29 12:44:17.544 Db Runner[8193:11f0b2] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread
+2026-10-29 12:44:17.578 Db Runner[8193:11f0b2] [com.reception.sdk:Reception] [Reception] DEBUG Message sent
+2026-10-29 12:44:17.666 Df Runner[8193:11f0b2] [com.reception.sdk:SetupCheck] [Reception] Setup check passed
+2026-10-29 12:44:17.723 Df Runner[8193:11f0b2] (Flutter) flutter: [coexist] FLN notification delivered (1 active) after 588 ms
+2026-10-29 12:44:28.926 Db Runner[8193:11f0b2] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvth6wsu001700ivtljfan8g
+2026-10-29 12:44:28.946 Db Runner[8193:11f0b2] [com.reception.sdk:Reception] [Reception] DEBUG Unread refresh, 0 unread

@@ -37,3 +37,18 @@ Final round, 2026-10-28 13:29–14:02 CET on 12a01d3 (see commands.txt). Dashboa
 /Users/andi/Code/support/reception-flutter/verification/29-offer-tapped-chat-open.png — After tapping View offer: chat stays open (events in flutter-run.log).
 /Users/andi/Code/support/reception-flutter/verification/30-review-card-in-chat.png — Review card "Rate on the App Store" in the chat.
 /Users/andi/Code/support/reception-flutter/verification/31-review-tapped.png — After tapping it: iOS opened the link in Safari (no App Store on the simulator); reviewOpened recorded.
+Extended round, 2026-10-29 (see commands.txt "EXTENDED ROUND"):
+/Users/andi/Code/support/reception-flutter/verification/40-identity-rejected-events.png — Events list: identityRejected:identity_token_invalid after a wrongly signed token.
+/Users/andi/Code/support/reception-flutter/verification/41-identity-rejected-chat.png — Chat opened during the identity rejection run.
+/Users/andi/Code/support/reception-flutter/verification/42-dashboard-verified-user.png — Users page: correctly signed token → Flutter Verified Customer with the Verified checkmark.
+/Users/andi/Code/support/reception-flutter/verification/43-automation-chat-opened.png — track('paywall_declined', opensChat: true) opened the chat with the automation message.
+/Users/andi/Code/support/reception-flutter/verification/44-automation-unmatched.png — track with no matching automation: chat stays closed.
+/Users/andi/Code/support/reception-flutter/verification/45-ipad-home.png — iPad Pro 11-inch (M5): example home.
+/Users/andi/Code/support/reception-flutter/verification/46-ipad-sheet.png — iPad: presented chat sheet.
+/Users/andi/Code/support/reception-flutter/verification/47-ipad-sheet-dark.png — iPad: chat sheet in dark mode.
+/Users/andi/Code/support/reception-flutter/verification/48-ipad-embedded.png — iPad: embedded ReceptionChatView.
+/Users/andi/Code/support/reception-flutter/verification/49-ipad-embedded-dark.png — iPad: embedded chat in dark mode.
+/Users/andi/Code/support/reception-flutter/verification/50-web-noop.png — Web build: Configured false, no-op state.
+/Users/andi/Code/support/reception-flutter/verification/51-web-embedded-noop.png — Web build: embedded page renders nothing after Configure/Open chat clicks.
+/Users/andi/Code/support/reception-flutter/verification/52-packed-consumer-debug.png — Consumer of the packed copy, Debug: testing override configures; placeholder configure changes nothing.
+/Users/andi/Code/support/reception-flutter/verification/53-coexist-fln.png — flutter_local_notifications app: delegate chain and FLN notification delivered in 0.6 s.

@@ -1,0 +1,21 @@
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+2 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/andi/Code/support/reception-flutter/example/integration_test/extended_test.dart
+Adding Swift Package Manager integration...                        878ms
+Running Xcode build...                                          
+Xcode build done.                                           12.9s
+00:00 +0: extended: automation
+[example] started: configured true, unread 0
+[example] available (plans)
+[example] event chatOpened
+RESULT automation opened=true after 2780 ms
+SHOT:automation-chat
+RESULT unmatched opened=false
+SHOT:automation-unmatched
+00:28 +1: (tearDownAll)
+00:29 +1: All tests passed!

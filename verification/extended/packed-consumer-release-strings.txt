@@ -1,0 +1,2 @@
+iphonesimulator/Runner.app/Frameworks/reception_flutter.framework/reception_flutter: 127.0.0.1=2 localhost=2
+iphoneos/Runner.app/Frameworks/reception_flutter.framework/reception_flutter: 127.0.0.1=0 localhost=0

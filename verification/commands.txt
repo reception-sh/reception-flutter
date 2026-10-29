@@ -169,3 +169,88 @@ sh.reception.receptionFlutterExample, APNs key configured in the live dashboard.
     4. App terminated → banner tapped → app launches, chat opens (purple theme). PASS
   Not captured: device screenshots (devicectl has no screenshot command; USB syslog was unavailable over the
   wireless tunnel), so this round is recorded from the developer's observations plus the build/install logs.
+
+
+EXTENDED ROUND — 2026-10-29, 11:30–12:46 CET, on main at f701a02–9ec88e3 (plugin code unchanged in between; the two commits add CONTRIBUTING.md, tool/release_check.sh and Android/web records) (macOS 27.2, Xcode 26.5, Flutter 3.47.8; iPhone 17 Pro
+simulator D booted by me — the simulator already booted at the start was "StepKey Global QA", not ours, and was left
+alone). Evidence: screenshots 40–53, verification/extended/ (logs, scratch-app sources as .txt). Tokens, the
+identity secret and the App ID are never written to the repository.
+
+Environment blockers this round (not product issues):
+  * UI automation unavailable: after the macOS update, XCUITest runs fail with "DTServiceHubClient failed to bless
+    service hub for simulator" (xcodebuild -checkFirstLaunchStatus = 69; -runFirstLaunch waits for an admin
+    authorization I cannot give), and this process has no Accessibility/event-posting permission
+    (AXIsProcessTrusted false); the Synara device tools still reject this agent. Everything that needs a native tap
+    (photo picker, permission alert, notification banner taps, typing into the native composer) is BLOCKED below.
+    Flutter-side steps were driven from Dart with example/integration_test/extended_test.dart (EXT_MODE=identity|
+    automation|ipad), screenshots by "xcrun simctl io D screenshot" on SHOT markers.
+  * Code signing blocked: "flutter build ipa" (team HQ6MG8UKPR set only in a scratch copy) hangs in codesign waiting
+    for a SecurityAgent keychain dialog (another agent's archive in /tmp/rf-adhoc was stuck at the same prompt).
+  * Dashboard: the local dev server's /login page reloaded in a loop (Turbopack HMR sends a "restart" message for one
+    chunk continuously). Dashboard steps used a single CDP session that drops those HMR "restart" messages
+    (/tmp/rfv/cdpflow.mjs); real dashboard UI otherwise.
+
+ 1. Server-side identity rejection — PASS
+    Identity secret revealed through Settings → Flutter Example → Security (stored 0600 in /tmp only). Tokens HS256
+    {user_id, name, email, exp +1 h}: one signed with a random wrong secret, one with the real secret; passed to the
+    example's "Identify with token" button via --dart-define=RECEPTION_IDENTITY_TOKEN (new optional define).
+    flutter test integration_test/extended_test.dart -d D $DEFINES --dart-define=EXT_MODE=identity --dart-define=RECEPTION_IDENTITY_TOKEN=<wrongly signed>
+      → "RESULT rejected=true events=[identityRejected:identity_token_invalid, chatOpened]"; SDK: "Device update
+      failed, HTTP 401 identity_token_invalid" (40, 41, extended/identity-rejected-*.log).
+    Same with the correctly signed token → "rejected=false"; server Device identityVerifiedAt set, name "Flutter
+      Verified Customer"; the Users page shows the Verified checkmark (aria-label "Verified") (42).
+ 2. Automations — PASS
+    Inserted (as authorised) an enabled automation for Flutter Example: event paywall_declined, actions
+    [open_chat, message "Saw you passed on the plans. Anything we can help with?"], no conditions (the current schema
+    uses an actions list; scripts/seed-local.ts still writes the older delivery/text fields).
+    EXT_MODE=automation: chat closed → Reception.track('paywall_declined', opensChat: true) → chat open after 2780 ms
+    with the automation message (43); track('no_matching_automation', opensChat: true) → chat stays closed for 6 s
+    (44) (extended/automation-test.log).
+ 3. Photo sending — BLOCKED (needs the native photo picker; no UI automation, see above).
+ 4. iPad Pro 11-inch (M5) simulator — PASS
+    EXT_MODE=ipad: home (45), presented chat as a full-height sheet (46), dark (47), embedded ReceptionChatView (48),
+    dark (49); simulator shut down afterwards (extended/ipad-test.log).
+ 5. Firebase coexistence (/tmp/coexist-firebase; firebase_core 5.1.0, firebase_messaging 17.0.1) — PARTIAL PASS
+    Firebase.initializeApp(options: placeholder FirebaseOptions) instead of a GoogleService-Info.plist (equivalent
+    configuration, no Xcode resource edit). A placeholder apiKey of the wrong shape makes Firebase Installations
+    throw an uncaught Objective-C exception at launch (Firebase behaviour, before Reception runs); with a
+    well-formed placeholder key: "Firebase initialized".
+    Delegate before configure: FLTFirebaseMessagingPlugin; after configureReceptionForTesting:
+    ReceptionNotificationCenter (wraps it). Provisional authorization (no prompt): status 3.
+    Foreground: FCM-shaped push (gcm.message_id) → "FCM onMessage fcm-verification-1" (forwarded to Firebase);
+    Reception push → "Push payload recognized, conversation …" and no onMessage (extended/coexist-firebase.log).
+    BLOCKED: visible banner (provisional authorization delivers quietly; full permission needs the alert tap) and the
+    background tap.
+ 6. flutter_local_notifications coexistence (/tmp/coexist-fln; flutter_local_notifications 22.3.3) — PARTIAL PASS
+    FLN's documented AppDelegate line, initialize with all request*Permission false, permission requested later via
+    FLN requestPermissions(provisional: true). Delegate before: AppDelegate (FLN setup); after configure:
+    ReceptionNotificationCenter. Foreground FLN show() → delivered (getActiveNotifications 1) after 588–641 ms, i.e.
+    FLN's own completion through the proxy, no 10 s fallback (53). Reception push → "Push payload recognized"
+    (extended/coexist-fln.log). BLOCKED: banner visibility (provisional) and taps.
+ 7. App Store archive — BLOCKED at signing; fallback PASS
+    flutter build ipa --export-method development (team set in a scratch copy only): codesign waits for a keychain
+    dialog (extended/archive-attempt.log). Fallback: flutter build ios --release --no-codesign → Runner.app contains
+    reception_flutter_reception_flutter.bundle with PrivacyInfo.xcprivacy and 48 .lproj (plus Flutter's own privacy
+    manifest) (extended/release-bundle-contents.txt). No privacy report (needs a signed archive).
+ 8. Web and macOS (scratch copy of the example with web/macos added by flutter create) — PASS
+    flutter build web: built; served locally and loaded in headless Chrome: console "[Reception] Support chat is
+    available on iOS only." once, "[example] started: configured false"; clicking Calls before configure, Configure,
+    Open chat and Embedded chat: no further notice, no exception; the embedded page renders nothing (50, 51,
+    extended/web-console.log). flutter build macos: built; running the Release app logs the notice once and starts
+    (extended/macos-run.log; no screenshot permission on this Mac).
+ 9. Rate limits / message length / photo count — BLOCKED (need typing and the photo picker in the native chat).
+10. Packed artifact install — PASS (Release on the simulator not possible)
+    git archive HEAD minus the .pubignore'd paths → /tmp/rf-packed (1.4 MB); a fresh consumer (/tmp/rf-consumer)
+    depends on it by path. Debug SwiftPM and Debug CocoaPods (project-level "flutter: config:
+    enable-swift-package-manager: false") build and run: configureReceptionForTesting(localhost) → isConfigured true,
+    then configure('app_YOUR_APP_ID') → unchanged and nothing logged (52). "flutter build ios --simulator --release"
+    → "Release mode is not supported for simulators.", so the Release check is static: the localhost literals of the
+    testing override are in the Debug binary (127.0.0.1 ×2, localhost ×2) and absent from the Release device binary
+    (0, 0) (extended/packed-consumer-*).
+    Finding: a malformed App ID is dropped silently (see STATUS.md "Bugs found during verification").
+11. Sync checker drift — PASS
+    Scratch copy: clean → "107 pinned SDK files match"; Version.swift 1.6.0 → 1.6.1 → exit 1, "changed or missing:
+    Sources/Reception/Version.swift", "version mismatch", "lib/src/sdk_version.dart does not match"; one space → tab
+    in Views/BubbleShape.swift → exit 1, "changed or missing: Sources/Reception/Views/BubbleShape.swift".
+12. Embedded chat with keyboard — BLOCKED (focusing the native composer needs a tap). The embedded page is a
+    Scaffold with the default resizeToAvoidBottomInset (true) and ReceptionChatView in an Expanded.

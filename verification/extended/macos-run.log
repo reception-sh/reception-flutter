@@ -1,0 +1,4 @@
+sandbox_extension_issue_file_to_process failed for /tmp/rf-platforms/example/build/macos/Build/Products/Release/reception_flutter_example.app: 1 (Operation not permitted)
+[IMPORTANT:flutter/shell/platform/embedder/embedder_surface_metal_impeller.mm(53)] Using the Impeller rendering backend (MetalSDF).
+flutter: [Reception] Support chat is available on iOS only.
+flutter: [example] started: configured false, unread 0
