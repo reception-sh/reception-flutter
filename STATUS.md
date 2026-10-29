@@ -222,6 +222,11 @@ simulator shut down; the affected steps were repeated after freeing space (see `
 Physical device (2026-10-28, iPhone 16 Pro, iOS 27.2, Release build against the hosted service, see
 `verification/commands.txt` "PHYSICAL DEVICE ROUND"): real APNs delivery from the backend, banner with chat closed,
 no banner with chat open, background tap opens chat, cold-start tap opens chat — all passed as observed by the developer.
+Production path (2026-10-29): a release-testing export signed "Apple Distribution" with `aps-environment=production`,
+built with Xcode 27.1, installed via devicectl; the token registered as PRODUCTION with the hosted service, a dashboard
+reply was delivered through api.push.apple.com and the banner tap opened the chat (developer-observed). Note for
+maintainers: build the archive in an isolated checkout — a concurrent `flutter build` in the same `example/` rewrites
+`ios/Flutter/Generated.xcconfig` and its dart-defines, which once produced an archive configured for the local test app.
 
 Not verified: release builds beyond the device round above; the App Store review sheet itself (no App Store on the simulator); a server-side
 `ReceptionIdentityRejected` (a malformed token is ignored locally by the SDK with "Identity token ignored, its user_id
