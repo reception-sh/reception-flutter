@@ -153,7 +153,7 @@ internal final class DeviceStore {
         teamProfileCache.clear()
         for name in ["chatRevision", "cursor", "pending", "draftText", "hasConversation", "hasStartedChat",
                      "conversationStatus", "lastMessageAt", "pushActive", "unreadPolling", "pendingActionClicks",
-                     "cooldowns", "lastLimitCheck"] { defaults?.removeObject(forKey: key(name)) }
+                     "cooldowns", "lastLimitCheck", "subscriptionStates"] { defaults?.removeObject(forKey: key(name)) }
     }
     static func generation(for scope: String, rotate: Bool = false) -> String {
         let defaults = UserDefaults(suiteName: "com.reception.sdk")
