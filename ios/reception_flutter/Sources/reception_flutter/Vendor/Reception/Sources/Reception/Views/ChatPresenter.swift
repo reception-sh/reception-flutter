@@ -1,10 +1,59 @@
 import SafariServices
 import SwiftUI
 import UIKit
+import UIKit.UIGestureRecognizerSubclass
+
+/// Lets each touch decide whether the sheet may be dragged away. With the keyboard up, only a touch that begins on
+/// the header may; one over the messages scrolls them or puts the keyboard away instead. With the keyboard down,
+/// every drag may, like any sheet. It never recognizes anything itself and recognizes alongside every other gesture,
+/// so it sees each touch through to its end.
+@MainActor
+private final class SheetHandleRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
+    weak var sheet: UIViewController?
+    private var keyboardVisible = false
+
+    init() {
+        super.init(target: nil, action: nil)
+        cancelsTouchesInView = false
+        delegate = self
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    @objc private func keyboardWillShow() { keyboardVisible = true }
+    @objc private func keyboardWillHide() { keyboardVisible = false }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesBegan(touches, with: event)
+        guard let touch = touches.first, let view else { return }
+        let onHeader = ChatPresenter.isSheetHandle(touchStartingAt: touch.location(in: view).y)
+        sheet?.isModalInPresentation = ChatPresenter.locksSheet(keyboardVisible: keyboardVisible, onHeader: onHeader)
+        // With the keyboard up, iOS spends the first drag on putting it away; ending editing here lets one drag close.
+        if keyboardVisible && onHeader { view.endEditing(true) }
+    }
+
+    // A touch on the grabber never reaches this view, so between touches the sheet stays draggable.
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesEnded(touches, with: event)
+        sheet?.isModalInPresentation = false
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesCancelled(touches, with: event)
+        sheet?.isModalInPresentation = false
+    }
+
+    override func reset() { sheet?.isModalInPresentation = false }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
+}
 
 @MainActor
 internal final class ChatPresenter: NSObject, UIAdaptivePresentationControllerDelegate {
     private weak var hostingController: UIViewController?
+    private let sheetHandle = SheetHandleRecognizer()
     private var presentationPending = false
     private var dismissing = false
     private var dismissalCompleted = false
@@ -18,16 +67,18 @@ internal final class ChatPresenter: NSObject, UIAdaptivePresentationControllerDe
             name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(retryPresentation),
             name: UIScene.didActivateNotification, object: nil)
-        // A downward swipe over the messages while typing dismisses the keyboard, never the whole sheet: the sheet
-        // refuses interactive dismissal while the keyboard is up and allows it again as soon as it is gone.
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
-    @objc private func keyboardWillShow() { hostingController?.isModalInPresentation = true }
-    @objc private func keyboardWillHide() { hostingController?.isModalInPresentation = false }
+    /// Whether a touch began on the header: the grabber inset and the title bar.
+    static func isSheetHandle(touchStartingAt y: CGFloat) -> Bool {
+        y <= Theme.sheetHandleHeight
+    }
+
+    /// While the keyboard is up, only a drag from the header closes the sheet; one over the messages scrolls them or
+    /// dismisses the keyboard. With the keyboard down, a drag anywhere closes it, like any sheet.
+    static func locksSheet(keyboardVisible: Bool, onHeader: Bool) -> Bool {
+        keyboardVisible && !onHeader
+    }
 
     /// Presents the chat, or arranges for it: after a dismissal in progress, or once a window is active. Answers
     /// false only when another screen is still opening, so a caller that can wait tries again.
@@ -65,6 +116,8 @@ internal final class ChatPresenter: NSObject, UIAdaptivePresentationControllerDe
             controller.overrideUserInterfaceStyle = .unspecified
         }
         controller.presentationController?.delegate = self
+        sheetHandle.sheet = controller
+        controller.view.addGestureRecognizer(sheetHandle)
         hostingController = controller
         presentingController.present(controller, animated: true) {
             if self.hostingController === controller { Log.debug("Chat presented") }
