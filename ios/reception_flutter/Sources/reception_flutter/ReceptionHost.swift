@@ -255,12 +255,19 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     Reception.shared.screens = screens.map { screen in
       if let value = screen.value {
         return ReceptionScreen(screen.id, value: value) { [weak self] given in
-          self?.send { try await $0.onScreen(id: screen.id, value: given) }
+          self?.openScreen(screen.id, value: given)
         }
       }
-      return ReceptionScreen(screen.id) { [weak self] in
-        self?.send { try await $0.onScreen(id: screen.id, value: nil) }
-      }
+      return ReceptionScreen(screen.id) { [weak self] in self?.openScreen(screen.id, value: nil) }
+    }
+  }
+
+  /// The chat has closed; Dart gets that state before the screen's callback, so `isChatOpen` already reads false there.
+  private func openScreen(_ id: String, value: String?) {
+    let state = snapshot()
+    send {
+      try await $0.onState(state: state)
+      try await $0.onScreen(id: id, value: value)
     }
   }
 

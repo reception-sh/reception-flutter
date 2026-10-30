@@ -2,7 +2,7 @@
   "sdkVersion": "1.7.0",
   "releaseTag": null,
   "basedOnTag": "1.6.0",
-  "commit": "5e381b751aae52699a3a1c4f340a3ddc638ad036",
+  "commit": "a0c489ad703d9e95ed84459ce09218893d0fa341",
   "files": {
     "LICENSE": "1c287eec2cb254623843cc5f2506683d333c5ab6199f3bb463f0b7d58ac923de",
     "Sources/Reception/Appearance.swift": "f7d27bf22f556e3a985df1d7dd5fde2cf89405ad356db575e7992ccd359e7761",
@@ -93,7 +93,7 @@
     "Sources/Reception/Views/BubbleShape.swift": "9f10e4cf1188066655fbe5f1c73f494a4967cf29fe3341f7432dde481e9e2175",
     "Sources/Reception/Views/ChatContent.swift": "6dc8655311f673b67482f996949666ab6a050d1e602c235bd662fe3bf1f2c009",
     "Sources/Reception/Views/ChatHistory.swift": "643a889924212bb94d0873d5e0dab7a303dcd528a89704d05a1d3c0a305808ec",
-    "Sources/Reception/Views/ChatPresenter.swift": "dc723466c31c315fde5fc4ccec2605020e0bba1831a0ad2a42b6159ed1b5656c",
+    "Sources/Reception/Views/ChatPresenter.swift": "2c6ca5c12f6d8eafe24448ad85ac09af0266abdf3684abda8775fffa7e68a58f",
     "Sources/Reception/Views/ChatTitle.swift": "ffe566c3b10ef686ff56c6632a8ace378cb8e8c13866ad68380c87cc29d33afe",
     "Sources/Reception/Views/Composer.swift": "0175b5d509622ab7f348e6f8c383f6ab385674011cb4496b711beaab960d6f79",
     "Sources/Reception/Views/ComposerDimensions.swift": "c1559e02e098db273fa28d07e9b3d78818a0976202bc9a1fbb2f5ad018ba158a",
