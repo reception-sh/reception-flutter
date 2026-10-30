@@ -41,6 +41,7 @@ abstract final class Reception {   // static-only facade, like RN's `Reception` 
   static String? get languageOverride; static set languageOverride(String? value);
   static ReceptionLogLevel get logLevel; static set logLevel(ReceptionLogLevel value);
   static List<ReceptionPaywall> get paywalls; static set paywalls(List<ReceptionPaywall> value);
+  static List<ReceptionScreen> get screens; static set screens(List<ReceptionScreen> value); // setter validates IDs, host setScreens([{id, value?}]); host onScreen(id, value) runs the matching callback
   // callbacks
   static void Function(ReceptionEvent event)? onEvent;            // Dart only; native always forwards events
   static void Function(String id)? onPaywall;                     // setter calls host setPaywallHandler(enabled)
@@ -57,7 +58,7 @@ keep their previous value and warn), `ReceptionColor` (`ReceptionColor.hex('#RRG
 `ReceptionColor.adaptive(light:, dark:)`, validated hex), `ReceptionWelcomeIcon` (symbol | image | hidden),
 `ReceptionCloseIcon`, `ReceptionFontDesign`, `ReceptionColorScheme`, `ReceptionPaywall`, `ReceptionPaywallProduct`,
 `ReceptionEvent` (sealed: `ReceptionChatOpened`, `ReceptionMessageSent`, `ReceptionImageSent`,
-`ReceptionReviewOpened`, `ReceptionPaywallOpened`, `ReceptionDataDeleted`, `ReceptionIdentityRejected(error)`),
+`ReceptionReviewOpened`, `ReceptionPaywallOpened`, `ReceptionLinkOpened`, `ReceptionDataDeleted`, `ReceptionIdentityRejected(error)`), `ReceptionScreen` (`ReceptionScreen(id, onOpen:)` | `ReceptionScreen.withValue(id, value:, onOpenWithValue:)`, `isValid` mirrors the SDK's ID rule),
 `ReceptionError(code, status)` (implements Exception; `bridge_error`/0 for unknown), `ReceptionPushEnvironment`,
 `ReceptionLogLevel`, `ReceptionIdentity`. Files in `lib/src/`: `reception.dart`, `types.dart`, `appearance.dart`,
 `state.dart`, `chat_view.dart`, `platform.dart` (support guard, warnings, callback error reporting), `errors.dart`,

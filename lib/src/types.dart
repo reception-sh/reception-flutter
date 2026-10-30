@@ -170,6 +170,45 @@ class ReceptionIdentity {
   final String? token;
 }
 
+/// A place in your app that link cards can open: a tab, a screen, a sheet, the
+/// paywall. List them in [Reception.screens]; the dashboard offers them by
+/// name, and only app versions that list a screen get links to it.
+@immutable
+class ReceptionScreen {
+  /// A screen that opens the same way every time. [id] uses letters, digits,
+  /// `_`, `-` or `.`, at most 64 characters, starting with a letter or digit.
+  const ReceptionScreen(this.id, {required void Function() this.onOpen})
+    : valueName = null,
+      onOpenWithValue = null;
+
+  /// A screen that needs a value from the link, such as an order number.
+  /// [value] names it in the dashboard; every link to this screen carries one.
+  const ReceptionScreen.withValue(
+    this.id, {
+    required String value,
+    required void Function(String value) this.onOpenWithValue,
+  }) : valueName = value,
+       onOpen = null;
+
+  /// The name the dashboard shows and links use, such as `settings`.
+  final String id;
+
+  /// What the value is called in the dashboard; null when the screen takes none.
+  final String? valueName;
+
+  /// Opens the screen; set for a screen without a value.
+  final void Function()? onOpen;
+
+  /// Opens the screen with the link's value; set for a screen with one.
+  final void Function(String value)? onOpenWithValue;
+
+  static final _id = RegExp(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$');
+
+  /// Whether [id] and [valueName] follow the SDK's rules.
+  bool get isValid =>
+      _id.hasMatch(id) && (valueName == null || valueName!.trim().isNotEmpty);
+}
+
 /// Something that happened in the chat, delivered to `Reception.onEvent`.
 sealed class ReceptionEvent {
   const ReceptionEvent();
@@ -205,6 +244,12 @@ final class ReceptionPaywallOpened extends ReceptionEvent {
   const ReceptionPaywallOpened();
 }
 
+/// The person tapped a link card's button.
+final class ReceptionLinkOpened extends ReceptionEvent {
+  /// Creates the event.
+  const ReceptionLinkOpened();
+}
+
 /// This device's support data was deleted.
 final class ReceptionDataDeleted extends ReceptionEvent {
   /// Creates the event.
@@ -229,6 +274,7 @@ ReceptionEvent? eventFromMessage(EventMessage message) =>
       ('imageSent', _) => const ReceptionImageSent(),
       ('reviewOpened', _) => const ReceptionReviewOpened(),
       ('paywallOpened', _) => const ReceptionPaywallOpened(),
+      ('linkOpened', _) => const ReceptionLinkOpened(),
       ('dataDeleted', _) => const ReceptionDataDeleted(),
       ('identityRejected', final ErrorMessage error) =>
         ReceptionIdentityRejected(ReceptionError.from(error)),

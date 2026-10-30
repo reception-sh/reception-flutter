@@ -33,6 +33,8 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     guard Self.current === self else { return }
     Reception.shared.onEvent = nil
     Reception.shared.onPaywall = nil
+    // Without Dart nothing can open a screen, so none is reported until Dart lists them again.
+    Reception.shared.screens = []
     // A missing Dart callback must not turn a previously filtered offer into an available one.
     if Reception.shared.paywallAvailability != nil {
       Reception.shared.paywallAvailability = { _ in false }
@@ -105,6 +107,7 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     case .imageSent: message = EventMessage(type: "imageSent")
     case .reviewOpened: message = EventMessage(type: "reviewOpened")
     case .paywallOpened: message = EventMessage(type: "paywallOpened")
+    case .linkOpened: message = EventMessage(type: "linkOpened")
     case .dataDeleted: message = EventMessage(type: "dataDeleted")
     }
     send { try await $0.onEvent(event: message) }
@@ -244,6 +247,21 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
   func setPaywallHandler(enabled: Bool) throws {
     guard isCurrent else { return }
     Reception.shared.onPaywall = enabled ? { [weak self] id in self?.send { try await $0.onPaywall(id: id) } } : nil
+  }
+
+  /// Dart validated the list; each screen forwards its ID and value, and Dart runs the matching open.
+  func setScreens(screens: [ScreenMessage]) throws {
+    guard isCurrent else { return }
+    Reception.shared.screens = screens.map { screen in
+      if let value = screen.value {
+        return ReceptionScreen(screen.id, value: value) { [weak self] given in
+          self?.send { try await $0.onScreen(id: screen.id, value: given) }
+        }
+      }
+      return ReceptionScreen(screen.id) { [weak self] in
+        self?.send { try await $0.onScreen(id: screen.id, value: nil) }
+      }
+    }
   }
 
   func setPaywallAvailability(enabled: Bool, generation: Int64) throws -> SnapshotMessage {

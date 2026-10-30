@@ -1,6 +1,7 @@
 import SwiftUI
 import Observation
 import Network
+import UserNotifications
 
 @MainActor @Observable
 internal final class ChatModel {
@@ -28,6 +29,10 @@ internal final class ChatModel {
     var isVisible = false
     var isLoading = false
     var uploadProgress: Double?
+    /// Read when the chat appears and on every foreground; nil until the first read.
+    var notificationAuthorization: UNAuthorizationStatus?
+    /// Hides the notification card right after Continue, before the new authorization is read.
+    var pushPromptAnswered = false
     let session: DeviceSession?
     var polling: Task<Void, Never>?
     var streamID: UUID?
@@ -52,6 +57,23 @@ internal final class ChatModel {
     var readCursor: ReadCursor?
     var reloadTask: Task<Void, Never>?
     var pollDeferred = false
+    /// Closes the chat the SDK presented, then continues; a host-embedded chat continues at once. Replaced in tests.
+    var closePresentedChat: (@escaping () -> Void) -> Void = { next in
+        if !Reception.shared.presenter.dismiss(completion: next) { next() }
+    }
+    /// Opens a link card's URL through the system and reports whether it was accepted. Replaced in tests.
+    var openExternal: @MainActor (URL, @escaping @MainActor @Sendable (Bool) -> Void) -> Void = { url, completion in
+        UIApplication.shared.open(url, options: [:], completionHandler: completion)
+    }
+    /// Hands a web link to an installed app that claims it (WhatsApp, YouTube, ...) and reports whether one did.
+    /// Replaced in tests.
+    var openInClaimingApp: @MainActor (URL, @escaping @MainActor @Sendable (Bool) -> Void) -> Void = { url, completion in
+        UIApplication.shared.open(url, options: [.universalLinksOnly: true], completionHandler: completion)
+    }
+    /// Shows a web link in Safari over the chat and reports whether a screen could present it. Replaced in tests.
+    var presentWebLink: @MainActor (URL) -> Bool = { Reception.shared.presenter.presentWebPage($0) }
+    /// A link tap is closing the chat; further link taps wait until it finished.
+    var isClosingForLink = false
     var canSend: Bool { current && (!sendingDisabled || session?.halt == .blocked) }
     var current: Bool { session != nil && session === Reception.shared.session && session?.invalidated == false }
 

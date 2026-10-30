@@ -379,6 +379,43 @@ void main() {
     },
   );
 
+  test('screens are validated, reported by ID and value, and opened', () async {
+    final opened = <String>[];
+    Reception.screens = [
+      ReceptionScreen('settings', onOpen: () => opened.add('settings')),
+      ReceptionScreen.withValue(
+        'order',
+        value: 'Order number',
+        onOpenWithValue: (number) => opened.add('order $number'),
+      ),
+      ReceptionScreen('settings', onOpen: () => opened.add('duplicate')),
+    ];
+    await pumpEventQueue();
+    expect(Reception.screens.map((screen) => screen.id), ['settings', 'order']);
+    final sent = host.callsTo('setScreens').single.single! as List<Object?>;
+    expect(
+      sent.cast<ScreenMessage>().map((screen) => (screen.id, screen.value)),
+      [('settings', null), ('order', 'Order number')],
+    );
+    await host.send('onScreen', ['settings', null]);
+    await host.send('onScreen', ['order', '42']);
+    await host.send('onScreen', ['order', null]);
+    await host.send('onScreen', ['gone', null]);
+    expect(opened, ['settings', 'order 42']);
+    final logs = captureLogs();
+    Reception.screens = [ReceptionScreen('bad id', onOpen: () {})];
+    Reception.screens = [
+      ReceptionScreen.withValue('x', value: ' ', onOpenWithValue: (_) {}),
+    ];
+    await pumpEventQueue();
+    expect(logs, hasLength(2));
+    expect(Reception.screens.map((screen) => screen.id), ['settings', 'order']);
+    expect(host.callsTo('setScreens'), hasLength(1));
+    Reception.screens = const [];
+    await pumpEventQueue();
+    expect(host.callsTo('setScreens').last, [<Object?>[]]);
+  });
+
   test('paywall details pass through to the host', () async {
     final detailed = [
       ReceptionPaywall(

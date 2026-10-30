@@ -18,6 +18,7 @@ import 'package:reception_flutter/reception_flutter.dart'
         ReceptionIdentity,
         ReceptionIdentityRejected,
         ReceptionImageSent,
+        ReceptionLinkOpened,
         ReceptionLogLevel,
         ReceptionMessageSent,
         ReceptionPaywall,
@@ -25,6 +26,7 @@ import 'package:reception_flutter/reception_flutter.dart'
         ReceptionPaywallProduct,
         ReceptionPushEnvironment,
         ReceptionReviewOpened,
+        ReceptionScreen,
         ReceptionWelcomeIcon;
 import 'package:reception_flutter/reception_flutter.dart' as public;
 
@@ -45,6 +47,7 @@ void main() {
       ReceptionIdentity,
       ReceptionIdentityRejected,
       ReceptionImageSent,
+      ReceptionLinkOpened,
       ReceptionLogLevel,
       ReceptionMessageSent,
       ReceptionPaywall,
@@ -52,9 +55,10 @@ void main() {
       ReceptionPaywallProduct,
       ReceptionPushEnvironment,
       ReceptionReviewOpened,
+      ReceptionScreen,
       ReceptionWelcomeIcon,
     ];
-    expect(exported.toSet(), hasLength(22));
+    expect(exported.toSet(), hasLength(24));
     expect(
       exported.map((type) => '$type'),
       everyElement(startsWith('Reception')),
@@ -68,9 +72,10 @@ void main() {
       public.ReceptionImageSent(),
       public.ReceptionReviewOpened(),
       public.ReceptionPaywallOpened(),
+      public.ReceptionLinkOpened(),
       public.ReceptionDataDeleted(),
       public.ReceptionIdentityRejected(public.ReceptionError('code', 0)),
     ];
-    expect(events, hasLength(7));
+    expect(events, hasLength(8));
   });
 }

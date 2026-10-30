@@ -157,7 +157,7 @@ Open questions: none.
 
 ## Upstream SDK follow-ups (reception-ios)
 
-Items 1 and 2 below were fixed in reception-ios 1.6.1 (2026-10-29) and the plugin re-vendored to that tag; items 3 and 4 remain open upstream.
+Items 1 and 2 below are fixed in reception-ios 1.7.0, which the plugin vendors; items 3 and 4 remain open upstream.
 
 To fix in the SDK and re-vendor with the next SDK release:
 - `DeviceStore.clear()` omits the persisted `subscriptionStates` key, so stale dictionaries stay in UserDefaults after

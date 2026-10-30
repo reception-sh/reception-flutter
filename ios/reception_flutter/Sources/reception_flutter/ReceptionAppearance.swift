@@ -29,6 +29,7 @@ internal enum ReceptionAppearance {
     if let value = values["hidesTitle"] as? Bool { style.hidesTitle = value }
     if let value = values["hidesWelcomeTitle"] as? Bool { style.hidesWelcomeTitle = value }
     if let value = values["hidesWelcomeText"] as? Bool { style.hidesWelcomeText = value }
+    if let value = values["hidesPushStatus"] as? Bool { style.hidesPushStatus = value }
     if let value = values["closeIcon"] as? String, let icon = Reception.CloseIcon(rawValue: value) {
       style.closeIcon = icon
     }

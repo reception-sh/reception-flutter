@@ -143,6 +143,7 @@ class ReceptionAppearance {
     this.hidesTitle,
     this.hidesWelcomeTitle,
     this.hidesWelcomeText,
+    this.hidesPushStatus,
   });
 
   /// Outgoing bubble fills and accented controls.
@@ -215,6 +216,10 @@ class ReceptionAppearance {
   /// Hides the welcome text.
   final bool? hidesWelcomeText;
 
+  /// Hides the "You'll get a notification when we reply." line under the
+  /// person's latest message.
+  final bool? hidesPushStatus;
+
   /// Returns a copy with the given fields replaced. It cannot clear a field;
   /// assign a new [ReceptionAppearance] without it to unset a field.
   ReceptionAppearance copyWith({
@@ -241,6 +246,7 @@ class ReceptionAppearance {
     bool? hidesTitle,
     bool? hidesWelcomeTitle,
     bool? hidesWelcomeText,
+    bool? hidesPushStatus,
   }) => ReceptionAppearance(
     accentColor: accentColor ?? this.accentColor,
     onAccentColor: onAccentColor ?? this.onAccentColor,
@@ -266,6 +272,7 @@ class ReceptionAppearance {
     hidesTitle: hidesTitle ?? this.hidesTitle,
     hidesWelcomeTitle: hidesWelcomeTitle ?? this.hidesWelcomeTitle,
     hidesWelcomeText: hidesWelcomeText ?? this.hidesWelcomeText,
+    hidesPushStatus: hidesPushStatus ?? this.hidesPushStatus,
   );
 
   /// The JSON object the native parser reads; unset fields are omitted.
@@ -294,6 +301,7 @@ class ReceptionAppearance {
     'hidesTitle': ?hidesTitle,
     'hidesWelcomeTitle': ?hidesWelcomeTitle,
     'hidesWelcomeText': ?hidesWelcomeText,
+    'hidesPushStatus': ?hidesPushStatus,
   };
 }
 
@@ -352,6 +360,7 @@ ReceptionAppearance appearanceFromJson(Map<String, Object?> json) {
     hidesTitle: value('hidesTitle'),
     hidesWelcomeTitle: value('hidesWelcomeTitle'),
     hidesWelcomeText: value('hidesWelcomeText'),
+    hidesPushStatus: value('hidesPushStatus'),
   );
 }
 

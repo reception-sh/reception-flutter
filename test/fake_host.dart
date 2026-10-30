@@ -31,6 +31,7 @@ const _methods = [
   'setLogLevel',
   'setPaywalls',
   'setPaywallHandler',
+  'setScreens',
   'setPaywallAvailability',
   'resolvePaywallAvailability',
   'refreshPaywalls',
@@ -96,7 +97,7 @@ class FakeHost {
   /// Replies by method; replace an entry to script a test.
   final Map<String, FutureOr<Object?> Function(List<Object?> args)> handlers = {
     for (final method in _methods) method: (_) => null,
-    'version': (_) => '1.6.0',
+    'version': (_) => '1.7.0',
     'connect': (_) => snapshot(),
     'configure': (_) => snapshot(revision: 2, isConfigured: true),
     'configureForTesting': (_) => snapshot(),

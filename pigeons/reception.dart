@@ -70,6 +70,13 @@ class SnapshotMessage {
   String logLevel;
 }
 
+/// A screen of the app that link cards can open; mirrors the public Dart type.
+class ScreenMessage {
+  ScreenMessage({required this.id, this.value});
+  String id;
+  String? value;
+}
+
 class ErrorMessage {
   ErrorMessage({required this.code, required this.status});
   String code;
@@ -125,6 +132,10 @@ abstract class ReceptionHostApi {
   SnapshotMessage setPaywalls(List<PaywallMessage> value, int revision);
 
   void setPaywallHandler(bool enabled);
+
+  /// Lists the screens link cards can open; the host reports their IDs and
+  /// calls [ReceptionFlutterApi.onScreen] when one is tapped.
+  void setScreens(List<ScreenMessage> screens);
   SnapshotMessage setPaywallAvailability(bool enabled, int generation);
 
   /// Answers a [ReceptionFlutterApi.requestPaywallAvailability] request.
@@ -138,6 +149,10 @@ abstract class ReceptionFlutterApi {
   void onState(SnapshotMessage state);
   void onEvent(EventMessage event);
   void onPaywall(String id);
+
+  /// A link card to screen [id] was tapped after the chat closed; [value] is
+  /// set for a screen that takes one.
+  void onScreen(String id, String? value);
 
   /// Asks whether paywall [id] can be offered. Dart answers with
   /// [ReceptionHostApi.resolvePaywallAvailability]; the host fails closed after

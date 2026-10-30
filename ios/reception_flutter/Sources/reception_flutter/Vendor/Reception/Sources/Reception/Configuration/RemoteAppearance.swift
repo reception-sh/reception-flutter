@@ -4,6 +4,8 @@ internal struct AppearanceEnvelope: Codable {
     let schemaVersion: Int
     let revision: Int
     let appearance: RemoteAppearance
+    /// Absent from older services and older cached envelopes.
+    let pushPrompt: String?
 }
 
 internal struct RemoteAppearance: Codable {
@@ -31,7 +33,7 @@ internal struct RemoteAppearance: Codable {
         var offset: RemoteOffset?
     }
     struct RemoteOffset: Codable { var x: Double; var y: Double }
-    struct RemoteCards: Codable { var review: RemoteCard?; var offer: RemoteCard? }
+    struct RemoteCards: Codable { var review: RemoteCard?; var offer: RemoteCard?; var link: RemoteCard? }
     struct RemoteCard: Codable {
         var icon: String?
         var iconImage: String?
@@ -91,6 +93,7 @@ internal struct RemoteAppearance: Codable {
         result.hidesTitle = isHidden("title") ?? local.hidesTitle
         result.hidesWelcomeTitle = isHidden("welcomeTitle") ?? local.hidesWelcomeTitle
         result.hidesWelcomeText = isHidden("welcomeText") ?? local.hidesWelcomeText
+        result.hidesPushStatus = isHidden("pushStatus") ?? local.hidesPushStatus
         let hidesWelcomeIcon = isHidden("welcomeIcon")
         let localIcon = hidesWelcomeIcon == false && local.welcomeIcon?.icon.isHidden == true ? nil : local.welcomeIcon
         result.welcomeIcon = Self.icon(symbol: welcomeIcon?.symbol, image: welcomeIcon?.image, hidden: hidesWelcomeIcon)
@@ -108,6 +111,8 @@ internal struct RemoteAppearance: Codable {
             hidesIcon: isHidden("reviewIcon"), hidesAccessory: isHidden("reviewAccessory"))
         result.offerCard = (cards?.offer ?? RemoteCard()).style(accent: accent, onAccent: onAccent,
             hidesIcon: isHidden("offerIcon"), hidesAccessory: isHidden("offerAccessory"))
+        result.linkCard = (cards?.link ?? RemoteCard()).style(accent: accent, onAccent: onAccent,
+            hidesIcon: isHidden("linkIcon"), hidesAccessory: isHidden("linkAccessory"))
         return result
     }
 

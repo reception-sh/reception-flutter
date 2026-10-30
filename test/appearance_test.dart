@@ -36,6 +36,7 @@ void main() {
     hidesTitle: true,
     hidesWelcomeTitle: false,
     hidesWelcomeText: true,
+    hidesPushStatus: false,
   );
   const allJson = {
     'accentColor': '#ff8800',
@@ -61,13 +62,14 @@ void main() {
     'hidesTitle': true,
     'hidesWelcomeTitle': false,
     'hidesWelcomeText': true,
+    'hidesPushStatus': false,
   };
 
   late List<String> logs;
   setUp(() => logs = captureLogs());
 
-  test('all 23 options produce the native JSON shape and round trip', () {
-    expect(allJson, hasLength(23));
+  test('all 24 options produce the native JSON shape and round trip', () {
+    expect(allJson, hasLength(24));
     expect(all.toJson(), allJson);
     expect(validateAppearance(all.toJson(), {}), allJson);
     expect(appearanceFromJson(allJson).toJson(), allJson);

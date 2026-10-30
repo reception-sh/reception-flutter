@@ -6,9 +6,10 @@
 /// ReceptionCloseIcon, ReceptionColor, ReceptionColorScheme,
 /// ReceptionDataDeleted, ReceptionError, ReceptionEvent, ReceptionFontDesign,
 /// ReceptionIdentity, ReceptionIdentityRejected, ReceptionImageSent,
-/// ReceptionLogLevel, ReceptionMessageSent, ReceptionPaywall,
-/// ReceptionPaywallOpened, ReceptionPaywallProduct, ReceptionPushEnvironment,
-/// ReceptionReviewOpened, ReceptionWelcomeIcon.
+/// ReceptionLinkOpened, ReceptionLogLevel, ReceptionMessageSent,
+/// ReceptionPaywall, ReceptionPaywallOpened, ReceptionPaywallProduct,
+/// ReceptionPushEnvironment, ReceptionReviewOpened, ReceptionScreen,
+/// ReceptionWelcomeIcon.
 library;
 
 export 'src/appearance.dart'
@@ -30,10 +31,12 @@ export 'src/types.dart'
         ReceptionIdentity,
         ReceptionIdentityRejected,
         ReceptionImageSent,
+        ReceptionLinkOpened,
         ReceptionLogLevel,
         ReceptionMessageSent,
         ReceptionPaywall,
         ReceptionPaywallOpened,
         ReceptionPaywallProduct,
         ReceptionPushEnvironment,
-        ReceptionReviewOpened;
+        ReceptionReviewOpened,
+        ReceptionScreen;

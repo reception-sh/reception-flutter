@@ -20,6 +20,7 @@ abstract final class Reception {
   static Future<void>? _connection;
   static void Function(ReceptionEvent event)? _onEvent;
   static void Function(String id)? _onPaywall;
+  static List<ReceptionScreen> _screens = const [];
   static FutureOr<bool> Function(String id)? _availability;
   static var _generation = 0;
 
@@ -314,6 +315,33 @@ abstract final class Reception {
     );
   }
 
+  /// Places in your app that link cards can open, such as tabs, screens or
+  /// the paywall. The plugin reports their IDs, so the dashboard offers them
+  /// by name and sends a screen link only to app versions that list it. A
+  /// screen's callback runs after the chat closes. Invalid entries are logged
+  /// and the list is ignored. A hot restart clears it, so assign it in
+  /// `main()`.
+  static List<ReceptionScreen> get screens => _screens;
+
+  static set screens(List<ReceptionScreen> value) {
+    if (!checkSupported()) return;
+    if (!value.every((screen) => screen.isValid)) {
+      warnInvalid('screens');
+      return;
+    }
+    final seen = <String>{};
+    _screens = List.unmodifiable(value.where((screen) => seen.add(screen.id)));
+    final messages = [
+      for (final screen in _screens)
+        ScreenMessage(id: screen.id, value: screen.valueName),
+    ];
+    unawaited(
+      _host()
+          .then((host) => host.setScreens(messages))
+          .catchError((Object _) => bridgeFailure()),
+    );
+  }
+
   /// Decides whether a registered paywall can be offered now. Without it all
   /// registered paywalls are available. Failures, timeouts and hot restarts
   /// make pending offers unavailable. Null removes the callback.
@@ -350,6 +378,7 @@ void resetReception() {
   Reception._connection = null;
   Reception._onEvent = null;
   Reception._onPaywall = null;
+  Reception._screens = const [];
   Reception._availability = null;
   Reception._generation = 0;
 }
@@ -376,6 +405,24 @@ class _FlutterApi implements ReceptionFlutterApi {
       Reception._onPaywall?.call(id);
     } catch (error, stack) {
       reportCallbackError(error, stack, 'while opening paywall "$id"');
+    }
+  }
+
+  @override
+  void onScreen(String id, String? value) {
+    // The first screen of an ID wins, as in the Swift SDK.
+    final screen = Reception._screens
+        .where((item) => item.id == id)
+        .firstOrNull;
+    if (screen == null) return;
+    try {
+      if (screen.onOpenWithValue case final open?) {
+        if (value != null) open(value);
+      } else {
+        screen.onOpen?.call();
+      }
+    } catch (error, stack) {
+      reportCallbackError(error, stack, 'while opening screen "$id"');
     }
   }
 

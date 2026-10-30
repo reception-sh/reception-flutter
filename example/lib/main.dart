@@ -54,12 +54,28 @@ Future<void> main() async {
     ReceptionImageSent() => 'imageSent',
     ReceptionReviewOpened() => 'reviewOpened',
     ReceptionPaywallOpened() => 'paywallOpened',
+    ReceptionLinkOpened() => 'linkOpened',
     ReceptionDataDeleted() => 'dataDeleted',
     ReceptionIdentityRejected(:final error) => 'identityRejected:${error.code}',
   });
   Reception.onPaywall = (id) =>
       record('onPaywall:$id, chat:${Reception.isChatOpen.value}');
   Reception.paywallAvailability = plansOnly;
+  // Screens that link cards sent from the dashboard can open; they report
+  // which screen ran and with which value.
+  Reception.screens = [
+    ReceptionScreen(
+      'settings',
+      onOpen: () =>
+          record('screen:settings, chat:${Reception.isChatOpen.value}'),
+    ),
+    ReceptionScreen.withValue(
+      'order',
+      value: 'Order number',
+      onOpenWithValue: (number) =>
+          record('screen:order $number, chat:${Reception.isChatOpen.value}'),
+    ),
+  ];
   // Console trace for `flutter run`, for example to watch a hot restart
   // re-read native state.
   Reception.unreadCount.addListener(

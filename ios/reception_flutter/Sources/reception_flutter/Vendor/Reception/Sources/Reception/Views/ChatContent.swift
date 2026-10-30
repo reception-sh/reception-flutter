@@ -3,8 +3,9 @@ import SwiftUI
 @MainActor
 internal struct ChatContent: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.isPresented) private var isPresented
     @State private var model = Reception.shared.chatModel()
+    /// The close button belongs to a chat sheet; a pushed chat uses the host's Back button.
+    let showsSheetControls: Bool
 
     var body: some View {
         ChatHistory(model: model)
@@ -20,7 +21,7 @@ internal struct ChatContent: View {
                 } else {
                     ToolbarItem(placement: .principal) { ChatTitle() }
                 }
-            if isPresented && Reception.resolvedAppearance.showsCloseButton {
+            if showsSheetControls && Reception.resolvedAppearance.showsCloseButton {
                 if #available(iOS 26, *) {
                     ToolbarItem(placement: .topBarTrailing) {
                         DismissButton { dismiss() }
@@ -46,6 +47,11 @@ internal struct ChatContent: View {
             await model.load(recheckLimits: true)
             guard !Task.isCancelled else { return }
             model.startPolling()
+        }
+        .task(id: Reception.shared.applicationActive) {
+            // Separate from loading, so a slow request never delays the notification card or status line.
+            guard Reception.shared.applicationActive else { return }
+            await model.refreshNotificationAuthorization()
         }
         .onDisappear {
             model.stopPolling()

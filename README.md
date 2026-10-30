@@ -50,6 +50,18 @@ await Reception.openChat();
 Report app events for automations set up in the dashboard with
 `await Reception.track('paywall_declined', opensChat: true)`.
 
+Link cards sent from the dashboard open websites, other apps, the App Store,
+Mail and the phone without code. To let them open screens of your app, list
+the screens once in `main()`:
+
+```dart
+Reception.screens = [
+  ReceptionScreen('settings', onOpen: () => router.push('/settings')),
+  ReceptionScreen.withValue('order', value: 'Order number',
+      onOpenWithValue: (number) => router.push('/orders/$number')),
+];
+```
+
 Follow the [Flutter guide](https://reception.sh/docs/flutter) to match your app's
 theme, add unread badges, identify customers, and connect paywalls or embedded chat.
 
@@ -59,7 +71,9 @@ Add the Push Notifications capability to the Runner target and your Apple push
 credentials in the dashboard. The plugin then registers the APNs token, shows
 Reception banners while chat is closed, and opens chat on taps, including cold
 starts. It never requests permission: after your own permission request, call
-`await Reception.registerForPushIfAuthorized()`. Notifications from Firebase and
+`await Reception.registerForPushIfAuthorized()`, or turn on **Ask for push
+notifications** in the dashboard and the chat asks with a card after the
+person's first message. Notifications from Firebase and
 other services keep reaching their handlers; see the
 [push setup](https://reception.sh/docs/flutter#push).
 
