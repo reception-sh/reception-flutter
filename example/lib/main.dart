@@ -46,6 +46,19 @@ void record(String event) {
 
 const _notifications = MethodChannel('reception_example/notifications');
 
+/// Lets screen callbacks navigate outside the widget tree.
+final navigator = GlobalKey<NavigatorState>();
+
+/// Shows a placeholder page for a screen opened by a link card.
+void showScreen(String title, String text) => navigator.currentState?.push(
+  MaterialPageRoute<void>(
+    builder: (_) => Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Text(text)),
+    ),
+  ),
+);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Callbacks are cleared by a hot restart, so main() assigns them every time.
@@ -67,14 +80,18 @@ Future<void> main() async {
   Reception.screens = [
     ReceptionScreen(
       'settings',
-      onOpen: () =>
-          record('screen:settings, chat:${Reception.isChatOpen.value}'),
+      onOpen: () {
+        record('screen:settings, chat:${Reception.isChatOpen.value}');
+        showScreen('Settings', 'Opened from a link card.');
+      },
     ),
     ReceptionScreen.withValue(
       'order',
       value: 'Order number',
-      onOpenWithValue: (number) =>
-          record('screen:order $number, chat:${Reception.isChatOpen.value}'),
+      onOpenWithValue: (number) {
+        record('screen:order $number, chat:${Reception.isChatOpen.value}');
+        showScreen('Order $number', 'Opened from a link card with a value.');
+      },
     ),
   ];
   // Console trace for `flutter run`, for example to watch a hot restart
@@ -162,6 +179,7 @@ class ExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
+    navigatorKey: navigator,
     title: 'Reception Flutter',
     theme: ThemeData(colorSchemeSeed: const Color(0xFF8A2BE2)),
     darkTheme: ThemeData(
