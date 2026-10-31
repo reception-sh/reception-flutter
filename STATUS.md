@@ -148,6 +148,8 @@ Known limitations:
 
 Other changes after review: `welcomeIconOffset` components outside -1000…1000 are ignored (the SDK's appearance
 report traps on huge values); calls to Dart queued for an earlier connection are skipped by a connection token;
+a screen opened from a link card sends `onState`, then rechecks that token, the current connection and
+cancellation before `onScreen`, so a reconnect during that await never lets a stale task navigate;
 `example/ios/RunnerTests` imports the plugin module and tests `PushToken` and `NotificationRouting`
 (`build-for-testing` succeeds; it needs any Flutter build of the example first to generate the SwiftPM package).
 The connection-token check is one comparison inside `ReceptionHost`, which depends on Flutter and the SDK, so it has
