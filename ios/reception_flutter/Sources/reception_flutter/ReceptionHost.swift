@@ -269,10 +269,14 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
 
   /// The chat has closed; Dart gets that state before the screen's callback, so `isChatOpen` already reads false there.
   private func openScreen(_ id: String, value: String?) {
+    guard isCurrent else { return }
     let state = snapshot()
-    send {
-      try await $0.onState(state: state)
-      try await $0.onScreen(id: id, value: value)
+    let token = connection
+    send { [weak self] api in
+      try await api.onState(state: state)
+      // A reconnect during the await must not let this stale task navigate the new connection's app.
+      guard let self, self.isCurrent, self.connection == token, !Task.isCancelled else { return }
+      try await api.onScreen(id: id, value: value)
     }
   }
 
