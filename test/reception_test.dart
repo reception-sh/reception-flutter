@@ -241,6 +241,7 @@ void main() {
         'imageSent',
         'reviewOpened',
         'paywallOpened',
+        'linkOpened',
         'dataDeleted',
         'identityRejected',
         'unknown',
@@ -259,12 +260,13 @@ void main() {
         ReceptionImageSent,
         ReceptionReviewOpened,
         ReceptionPaywallOpened,
+        ReceptionLinkOpened,
         ReceptionDataDeleted,
       ]);
       Reception.onEvent = null;
       expect(Reception.onEvent, isNull);
       await host.send('onEvent', [EventMessage(type: 'messageSent')]);
-      expect(next, hasLength(7));
+      expect(next, hasLength(8));
     },
   );
 

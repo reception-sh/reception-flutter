@@ -330,10 +330,15 @@ abstract final class Reception {
 
   /// Places in your app that link cards can open, such as tabs, screens or
   /// the paywall. The plugin reports their IDs, so the dashboard offers them
-  /// by name and sends a screen link only to app versions that list it. A
-  /// screen's callback runs after the chat closes. Invalid entries are logged
-  /// and the list is ignored. A hot restart clears it, so assign it in
-  /// `main()`.
+  /// by name and sends a screen link only to app versions that list it.
+  /// Invalid entries are logged and the list is ignored. A repeated ID keeps
+  /// its first screen, and only the first 50 screens are kept, as the SDK
+  /// reports and opens no more; extra screens are logged.
+  ///
+  /// A screen's callback runs after the SDK-presented chat sheet has closed,
+  /// so [isChatOpen] reads false there. An embedded [ReceptionChatView] stays
+  /// visible and [isChatOpen] may read true; your screen owns its dismissal.
+  /// A hot restart clears the list, so assign it in `main()`.
   static List<ReceptionScreen> get screens => _screens;
 
   static set screens(List<ReceptionScreen> value) {
@@ -343,7 +348,14 @@ abstract final class Reception {
       return;
     }
     final seen = <String>{};
-    _screens = List.unmodifiable(value.where((screen) => seen.add(screen.id)));
+    final unique = value.where((screen) => seen.add(screen.id)).toList();
+    if (unique.length > _maxScreens) {
+      debugPrint(
+        '[Reception] Only the first $_maxScreens screens are kept; '
+        '${unique.length - _maxScreens} more ignored.',
+      );
+    }
+    _screens = List.unmodifiable(unique.take(_maxScreens));
     final messages = [
       for (final screen in _screens)
         ScreenMessage(id: screen.id, value: screen.valueName),
@@ -354,6 +366,9 @@ abstract final class Reception {
           .catchError((Object _) => bridgeFailure()),
     );
   }
+
+  /// Screens the SDK reports and opens at most.
+  static const _maxScreens = 50;
 
   /// Decides whether a registered paywall can be offered now. Without it all
   /// registered paywalls are available. Failures, timeouts and hot restarts

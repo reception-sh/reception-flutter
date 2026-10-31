@@ -173,6 +173,10 @@ class ReceptionIdentity {
 /// A place in your app that link cards can open: a tab, a screen, a sheet, the
 /// paywall. List them in [Reception.screens]; the dashboard offers them by
 /// name, and only app versions that list a screen get links to it.
+///
+/// The callback runs after the SDK-presented chat sheet has closed. An
+/// embedded `ReceptionChatView` stays visible, and `Reception.isChatOpen` may
+/// read true; your screen owns its dismissal.
 @immutable
 class ReceptionScreen {
   /// A screen that opens the same way every time. [id] uses letters, digits,

@@ -107,4 +107,39 @@ void main() {
     expect(Reception.screens, isEmpty);
     expect(host.calls, isEmpty);
   });
+
+  test('only the first 50 unique screens are kept, with one warning', () async {
+    Reception.screens = [
+      plain('s0'),
+      plain('s0'),
+      for (var i = 1; i < 52; i++) plain('s$i'),
+    ];
+    await pumpEventQueue();
+    expect(Reception.screens, hasLength(50));
+    expect(Reception.screens.last.id, 's49');
+    final sent = host.callsTo('setScreens').single.single! as List<Object?>;
+    expect(sent, hasLength(50));
+    expect(logs, [
+      '[Reception] Only the first 50 screens are kept; 2 more ignored.',
+    ]);
+    Reception.screens = [for (var i = 0; i < 50; i++) plain('s$i')];
+    expect(logs, hasLength(1), reason: 'exactly 50 is fine');
+  });
+
+  test('screens open while an embedded chat keeps isChatOpen true', () async {
+    final chatOpen = <bool>[];
+    Reception.screens = [
+      ReceptionScreen(
+        'settings',
+        onOpen: () => chatOpen.add(Reception.isChatOpen.value),
+      ),
+    ];
+    await host.send('onState', [
+      snapshot(revision: 5, isChatOpen: true, unreadCount: 2),
+    ]);
+    await host.send('onScreen', ['settings', null]);
+    expect(chatOpen, [true]);
+    expect(Reception.isChatOpen.value, isTrue);
+    expect(Reception.unreadCount.value, 2);
+  });
 }
