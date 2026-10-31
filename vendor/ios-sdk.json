@@ -1,8 +1,8 @@
 {
   "sdkVersion": "1.7.0",
-  "releaseTag": null,
-  "basedOnTag": "1.6.0",
-  "commit": "94822d77296522586b4d9bfc8d2eadfbfc810bbc",
+  "releaseTag": "1.7.0",
+  "basedOnTag": "1.7.0",
+  "commit": "46217f39814f2c1e536c6037eeb73110cf9c23b7",
   "files": {
     "LICENSE": "1c287eec2cb254623843cc5f2506683d333c5ab6199f3bb463f0b7d58ac923de",
     "Sources/Reception/Appearance.swift": "f7d27bf22f556e3a985df1d7dd5fde2cf89405ad356db575e7992ccd359e7761",
