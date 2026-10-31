@@ -70,3 +70,22 @@ Extended round, part 2 with Xcode 27.1 (see commands.txt "EXTENDED ROUND, PART 2
 /Users/andi/Code/support/reception-flutter/verification/68-fln-reception-banner.png — FLN app: Reception banner, chat closed.
 /Users/andi/Code/support/reception-flutter/verification/69-fln-chat-open-no-banner.png — FLN app: chat open, no banner.
 /Users/andi/Code/support/reception-flutter/verification/70-fln-background-tap.png — FLN app: background tap opened the chat.
+SDK 1.7 round, 2026-10-31 (see commands.txt "SDK 1.7 ROUND"):
+/Users/andi/Code/support/reception-flutter/verification/71-website-inapp.png — Website link card: Safari sheet over the chat.
+/Users/andi/Code/support/reception-flutter/verification/72-website-safari.png — opensWebLinksInApp off: the Safari app opened.
+/Users/andi/Code/support/reception-flutter/verification/73-link-email-us.png — mailto card tapped: nothing opens on the simulator (receipt failed).
+/Users/andi/Code/support/reception-flutter/verification/74-link-open-app-store-page.png — App Store link: Safari reports the address as invalid on the simulator.
+/Users/andi/Code/support/reception-flutter/verification/75-link-open-ios-settings.png — app-settings: link opened the Settings app.
+/Users/andi/Code/support/reception-flutter/verification/76-dashboard-receipts.png — Dashboard receipts: tapped, and "could not be opened" for Email and Call.
+/Users/andi/Code/support/reception-flutter/verification/77-screens-tab.png — Add a link → Screen in your app lists Order (needs order number) and Settings.
+/Users/andi/Code/support/reception-flutter/verification/78-screen-settings.png — Settings screen link: chat closed, example pushed its Settings page.
+/Users/andi/Code/support/reception-flutter/verification/79-screen-order.png — Order 123 screen link: example pushed its Order 123 page.
+/Users/andi/Code/support/reception-flutter/verification/80-ask-push-dialog.png — Dashboard: Ask for push notifications → Replies only.
+/Users/andi/Code/support/reception-flutter/verification/81-push-card.png — Push card under the person's message (temporary build with remote appearance on).
+/Users/andi/Code/support/reception-flutter/verification/82-push-status.png — After Continue + Allow: "You'll get a notification when we reply."
+/Users/andi/Code/support/reception-flutter/verification/83-push-status-hidden.png — hidesPushStatus: true: status line hidden.
+/Users/andi/Code/support/reception-flutter/verification/84-push-no-thanks.png — No thanks: card gone.
+/Users/andi/Code/support/reception-flutter/verification/85-push-after-logout.png — After logout and a new message: no card.
+/Users/andi/Code/support/reception-flutter/verification/86-reg-foreground.png — Regression: foreground banner.
+/Users/andi/Code/support/reception-flutter/verification/87-reg-background-tap.png — Regression: background tap opened the chat.
+/Users/andi/Code/support/reception-flutter/verification/88-reg-cold-tap.png — Regression: cold-start tap opened the chat.

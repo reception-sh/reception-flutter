@@ -1,0 +1,459 @@
+
+== clean working tree
+
+== flutter pub get
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 110.0.0 (111.0.0 available)
+  analyzer 14.6.0 (14.7.0 available)
+  built_collection 5.1.2 (6.0.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  pigeon 29.0.11 (29.1.0 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+6 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Resolving dependencies in `./example`...
+Downloading packages...
+Got dependencies in `./example`.
+
+== flutter analyze
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 110.0.0 (111.0.0 available)
+  analyzer 14.6.0 (14.7.0 available)
+  built_collection 5.1.2 (6.0.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  pigeon 29.0.11 (29.1.0 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+6 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Resolving dependencies in `./example`...
+Downloading packages...
+Got dependencies in `./example`.
+Analyzing reception-flutter...                                  
+No issues found! (ran in 3.2s)
+
+== example: flutter pub get && flutter analyze
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+2 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+2 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing example...                                            
+No issues found! (ran in 2.1s)
+
+== dart format --set-exit-if-changed .
+Formatted 25 files (0 changed) in 0.08 seconds.
+
+== flutter test
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 110.0.0 (111.0.0 available)
+  analyzer 14.6.0 (14.7.0 available)
+  built_collection 5.1.2 (6.0.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  pigeon 29.0.11 (29.1.0 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+6 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Resolving dependencies in `./example`...
+Downloading packages...
+Got dependencies in `./example`.
+00:00 +0: loading /Users/andi/Code/support/reception-flutter/test/exports_test.dart
+00:00 +0: /Users/andi/Code/support/reception-flutter/test/appearance_test.dart: all 24 options produce the native JSON shape and round trip
+00:00 +1: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +2: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +3: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +4: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +5: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +6: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +7: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +8: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +9: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +10: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +11: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +12: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +13: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +14: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +15: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +16: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +17: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +18: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +19: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +20: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +21: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +22: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +23: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +24: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +25: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +26: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +27: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +28: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +29: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +30: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +31: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +32: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +33: /Users/andi/Code/support/reception-flutter/test/availability_timeout_test.dart: a paywall availability callback that never completes resolves false after 5 s
+00:00 +34: /Users/andi/Code/support/reception-flutter/test/screens_test.dart: isValid follows the SDK ID rule and needs a non-blank value name
+00:00 +35: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: TargetPlatform.android never touches the host, throws, or changes default state
+00:00 +36: /Users/andi/Code/support/reception-flutter/test/screens_test.dart: one invalid entry ignores the whole list
+00:00 +37: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: TargetPlatform.macOS never touches the host, throws, or changes default state
+00:00 +38: /Users/andi/Code/support/reception-flutter/test/screens_test.dart: the list and its payload are captured at assignment
+00:00 +39: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +40: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +41: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +42: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +43: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +44: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +45: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +46: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +47: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView renders nothing off iOS
+00:00 +48: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: identity variants, metadata and push forward only valid inputs
+00:00 +49: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView hosts the native chat on iOS
+00:00 +50: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView hosts the native chat on iOS
+00:00 +51: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView hosts the native chat on iOS
+00:00 +52: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView hosts the native chat on iOS
+00:00 +53: /Users/andi/Code/support/reception-flutter/test/platforms_test.dart: ReceptionChatView hosts the native chat on iOS
+00:00 +54: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: available paywalls notify only when their content changes
+00:00 +55: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: events map every type, preserve typed identity rejection and handler replacement
+00:00 +56: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: paywall availability round trip, failure, replacement and stale generations fail closed
+00:00 +57: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: availability is resolved even when the host rejects the answer
+00:00 +58: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: paywall callbacks and registrations forward without closing chat
+00:00 +59: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: screens are validated, reported by ID and value, and opened
+00:00 +60: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: paywall details pass through to the host
+00:00 +61: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: a hot restart reconnects and stops answering for the old callbacks
+00:00 +62: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: a failed connect is retried by the next call
+00:00 +63: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: concurrent first calls share one connect and keep their order
+00:00 +64: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: setting payloads are captured at assignment, before the connection resolves
+00:00 +65: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: throwing app callbacks are reported and never reach the host as errors
+00:00 +66: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: paywalls are frozen at assignment
+00:00 +67: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: metadata and push payloads are read at call time
+00:00 +68: /Users/andi/Code/support/reception-flutter/test/reception_test.dart: a paywall keeps its products when the passed list changes later
+00:00 +69: All tests passed!
+
+== dart run tool/sync_ios_sdk.dart --check
+116 pinned SDK files match (SDK 1.7.0).
+
+== generated Pigeon code is current
+
+== tool/test_native.sh
+NotificationRouting: receipts, taps, repeats, eviction at 64 keys and pending tap passed
+PushToken: valid, odd length, non-hex and oversized tokens passed
+OnceCompletion: exactly once, fallback with report, custom timeout and late completion passed
+PaywallRequests: answer, duplicate, unknown, concurrency, cancellation, reconnect, timeout and late answer checks passed
+ReceptionColor: hex, alpha, dynamic light/dark pairs and malformed input passed
+
+== tool/pod_lint.sh
+== pod lib lint --use-modular-headers
+passed with --allow-warnings; warnings:
+    - WARN  | [iOS] keys: Missing primary key for `source` attribute. The acceptable ones are: `git, hg, http, svn`.
+== pod lib lint --use-libraries
+passed with --allow-warnings; warnings:
+    - WARN  | [iOS] keys: Missing primary key for `source` attribute. The acceptable ones are: `git, hg, http, svn`.
+
+== example: flutter build ios --simulator --debug
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+2 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Building sh.reception.receptionFlutterExample for simulator (ios)...
+Adding Swift Package Manager integration...                        941ms
+Running Xcode build...                                          
+Xcode build done.                                           15.1s
+✓ Built build/ios/iphonesimulator/Runner.app
+
+== flutter pub publish --dry-run
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 110.0.0 (111.0.0 available)
+  analyzer 14.6.0 (14.7.0 available)
+  built_collection 5.1.2 (6.0.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  pigeon 29.0.11 (29.1.0 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+6 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Publishing reception_flutter 1.1.0 to https://pub.dev:
+├── CHANGELOG.md (1 KB)
+├── CONTRIBUTING.md (4 KB)
+├── LICENSE (1 KB)
+├── README.md (3 KB)
+├── analysis_options.yaml (<1 KB)
+├── example
+│   ├── README.md (3 KB)
+│   ├── analysis_options.yaml (1 KB)
+│   ├── integration_test
+│   │   ├── app_test.dart (5 KB)
+│   │   └── extended_test.dart (3 KB)
+│   ├── ios
+│   │   ├── Flutter
+│   │   │   ├── AppFrameworkInfo.plist (<1 KB)
+│   │   │   ├── Debug.xcconfig (<1 KB)
+│   │   │   └── Release.xcconfig (<1 KB)
+│   │   ├── Runner
+│   │   │   ├── AppDelegate.swift (1 KB)
+│   │   │   ├── Assets.xcassets
+│   │   │   │   ├── AppIcon.appiconset
+│   │   │   │   │   ├── Contents.json (2 KB)
+│   │   │   │   │   ├── Icon-App-1024x1024@1x.png (10 KB)
+│   │   │   │   │   ├── Icon-App-20x20@1x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-20x20@2x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-20x20@3x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-29x29@1x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-29x29@2x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-29x29@3x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-40x40@1x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-40x40@2x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-40x40@3x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-60x60@2x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-60x60@3x.png (1 KB)
+│   │   │   │   │   ├── Icon-App-76x76@1x.png (<1 KB)
+│   │   │   │   │   ├── Icon-App-76x76@2x.png (1 KB)
+│   │   │   │   │   └── Icon-App-83.5x83.5@2x.png (1 KB)
+│   │   │   │   └── LaunchImage.imageset
+│   │   │   │       ├── Contents.json (<1 KB)
+│   │   │   │       ├── LaunchImage.png (<1 KB)
+│   │   │   │       ├── LaunchImage@2x.png (<1 KB)
+│   │   │   │       ├── LaunchImage@3x.png (<1 KB)
+│   │   │   │       └── README.md (<1 KB)
+│   │   │   ├── Base.lproj
+│   │   │   │   ├── LaunchScreen.storyboard (2 KB)
+│   │   │   │   └── Main.storyboard (1 KB)
+│   │   │   ├── Info.plist (2 KB)
+│   │   │   ├── Runner-Bridging-Header.h (<1 KB)
+│   │   │   ├── Runner.entitlements (<1 KB)
+│   │   │   └── SceneDelegate.swift (<1 KB)
+│   │   ├── Runner.xcodeproj
+│   │   │   ├── project.pbxproj (25 KB)
+│   │   │   ├── project.xcworkspace
+│   │   │   │   ├── contents.xcworkspacedata (<1 KB)
+│   │   │   │   └── xcshareddata
+│   │   │   │       ├── IDEWorkspaceChecks.plist (<1 KB)
+│   │   │   │       ├── WorkspaceSettings.xcsettings (<1 KB)
+│   │   │   │       └── swiftpm
+│   │   │   │           └── configuration
+│   │   │   └── xcshareddata
+│   │   │       └── xcschemes
+│   │   │           └── Runner.xcscheme (4 KB)
+│   │   ├── Runner.xcworkspace
+│   │   │   ├── contents.xcworkspacedata (<1 KB)
+│   │   │   └── xcshareddata
+│   │   │       ├── IDEWorkspaceChecks.plist (<1 KB)
+│   │   │       ├── WorkspaceSettings.xcsettings (<1 KB)
+│   │   │       └── swiftpm
+│   │   │           └── configuration
+│   │   └── RunnerTests
+│   │       └── RunnerTests.swift (<1 KB)
+│   ├── lib
+│   │   └── main.dart (13 KB)
+│   ├── pubspec.yaml (<1 KB)
+│   └── reception-push.apns (<1 KB)
+├── ios
+│   ├── reception_flutter
+│   │   ├── Package.swift (<1 KB)
+│   │   └── Sources
+│   │       └── reception_flutter
+│   │           ├── Messages.g.swift (48 KB)
+│   │           ├── NotificationRouting.swift (2 KB)
+│   │           ├── OnceCompletion.swift (1 KB)
+│   │           ├── PaywallRequests.swift (1 KB)
+│   │           ├── PaywallValues.swift (<1 KB)
+│   │           ├── PushToken.swift (<1 KB)
+│   │           ├── ReceptionAppearance.swift (4 KB)
+│   │           ├── ReceptionChatPlatformView.swift (1 KB)
+│   │           ├── ReceptionColor.swift (<1 KB)
+│   │           ├── ReceptionFlutterPlugin.swift (2 KB)
+│   │           ├── ReceptionHost.swift (11 KB)
+│   │           ├── ReceptionNotifications.swift (8 KB)
+│   │           └── Vendor
+│   │               └── Reception
+│   │                   ├── LICENSE (1 KB)
+│   │                   └── Sources
+│   │                       └── Reception
+│   │                           ├── Appearance.swift (5 KB)
+│   │                           ├── Client
+│   │                           │   ├── ActionClickDelivery.swift (2 KB)
+│   │                           │   ├── AppBadge.swift (1 KB)
+│   │                           │   ├── AppearanceRequest.swift (2 KB)
+│   │                           │   ├── ApplicationLifecycle.swift (1 KB)
+│   │                           │   ├── AttachmentImageLoader.swift (4 KB)
+│   │                           │   ├── AttachmentImages.swift (<1 KB)
+│   │                           │   ├── Automations.swift (9 KB)
+│   │                           │   ├── Backoff.swift (2 KB)
+│   │                           │   ├── ChatCache.swift (6 KB)
+│   │                           │   ├── ChatPreview.swift (2 KB)
+│   │                           │   ├── DeviceInfo.swift (2 KB)
+│   │                           │   ├── DeviceInputValidation.swift (1 KB)
+│   │                           │   ├── DeviceSession.swift (10 KB)
+│   │                           │   ├── DeviceStore.swift (8 KB)
+│   │                           │   ├── IdentityToken.swift (2 KB)
+│   │                           │   ├── ImageUploader.swift (4 KB)
+│   │                           │   ├── KeychainStore.swift (2 KB)
+│   │                           │   ├── LinkPolicy.swift (2 KB)
+│   │                           │   ├── LogoutRevocations.swift (4 KB)
+│   │                           │   ├── PaidAccess.swift (2 KB)
+│   │                           │   ├── PushEnvironment.swift (1 KB)
+│   │                           │   ├── ReceptionAPI.swift (9 KB)
+│   │                           │   ├── ReceptionAPIError.swift (4 KB)
+│   │                           │   ├── RetryScope.swift (1 KB)
+│   │                           │   ├── ServerCooldowns.swift (5 KB)
+│   │                           │   ├── SessionAuthorization.swift (7 KB)
+│   │                           │   ├── SessionCooldowns.swift (1 KB)
+│   │                           │   ├── SessionCredentials.swift (<1 KB)
+│   │                           │   ├── SessionIdentity.swift (1 KB)
+│   │                           │   ├── SessionRequests.swift (1 KB)
+│   │                           │   ├── SetupCheck.swift (2 KB)
+│   │                           │   ├── StoreSubscriptions.swift (3 KB)
+│   │                           │   ├── TeamProfileCache.swift (3 KB)
+│   │                           │   ├── TeamProfiles.swift (3 KB)
+│   │                           │   ├── UnreadMonitor.swift (3 KB)
+│   │                           │   ├── UnreadSchedule.swift (<1 KB)
+│   │                           │   ├── UploadProgress.swift (<1 KB)
+│   │                           │   └── UserIdentity.swift (<1 KB)
+│   │                           ├── CloseIcon.swift (<1 KB)
+│   │                           ├── Configuration
+│   │                           │   ├── AdaptiveAppearanceColor.swift (<1 KB)
+│   │                           │   ├── AppearanceCache.swift (<1 KB)
+│   │                           │   ├── AppearanceConfiguration.swift (3 KB)
+│   │                           │   ├── AppearanceIcon.swift (1 KB)
+│   │                           │   ├── HostAppearanceReport.swift (4 KB)
+│   │                           │   └── RemoteAppearance.swift (7 KB)
+│   │                           ├── Localization.swift (3 KB)
+│   │                           ├── Log.swift (2 KB)
+│   │                           ├── Models
+│   │                           │   ├── Attachment.swift (<1 KB)
+│   │                           │   ├── Conversation.swift (1 KB)
+│   │                           │   ├── Message.swift (3 KB)
+│   │                           │   └── MessageStatus.swift (<1 KB)
+│   │                           ├── Reception.swift (20 KB)
+│   │                           ├── ReceptionAutomations.swift (1 KB)
+│   │                           ├── ReceptionError.swift (<1 KB)
+│   │                           ├── ReceptionIdentity.swift (4 KB)
+│   │                           ├── ReceptionPaywall.swift (5 KB)
+│   │                           ├── ReceptionPush.swift (2 KB)
+│   │                           ├── ReceptionResources.swift (<1 KB)
+│   │                           ├── ReceptionScreen.swift (3 KB)
+│   │                           ├── Resources
+│   │                           │   ├── Localizable.xcstrings (372 KB)
+│   │                           │   └── PrivacyInfo.xcprivacy (4 KB)
+│   │                           ├── Theme+Fonts.swift (1 KB)
+│   │                           ├── Theme.swift (9 KB)
+│   │                           ├── Version.swift (<1 KB)
+│   │                           ├── ViewModel
+│   │                           │   ├── ChatConnection.swift (7 KB)
+│   │                           │   ├── ChatCooldowns.swift (5 KB)
+│   │                           │   ├── ChatDelivery.swift (8 KB)
+│   │                           │   ├── ChatLimitRelease.swift (1 KB)
+│   │                           │   ├── ChatLoading.swift (3 KB)
+│   │                           │   ├── ChatModel+Links.swift (3 KB)
+│   │                           │   ├── ChatModel.swift (13 KB)
+│   │                           │   ├── ChatPending.swift (<1 KB)
+│   │                           │   ├── ChatPushPrompt.swift (1 KB)
+│   │                           │   ├── ChatRead.swift (3 KB)
+│   │                           │   ├── ChatRecovery.swift (1 KB)
+│   │                           │   ├── ChatScrollState.swift (3 KB)
+│   │                           │   ├── ChatSendingPermission.swift (1 KB)
+│   │                           │   ├── ChatStream.swift (4 KB)
+│   │                           │   ├── ChatTyping.swift (1 KB)
+│   │                           │   ├── ComposerModel.swift (2 KB)
+│   │                           │   ├── CooldownText.swift (1 KB)
+│   │                           │   ├── MessageLayout.swift (2 KB)
+│   │                           │   └── PushPromptDecision.swift (1 KB)
+│   │                           ├── Views
+│   │                           │   ├── ActionCard.swift (2 KB)
+│   │                           │   ├── BubbleShape.swift (<1 KB)
+│   │                           │   ├── ChatContent.swift (2 KB)
+│   │                           │   ├── ChatHistory.swift (11 KB)
+│   │                           │   ├── ChatPresenter.swift (9 KB)
+│   │                           │   ├── ChatTitle.swift (<1 KB)
+│   │                           │   ├── Composer.swift (7 KB)
+│   │                           │   ├── ComposerDimensions.swift (2 KB)
+│   │                           │   ├── ComposerSurface.swift (1 KB)
+│   │                           │   ├── ConnectionBanner.swift (1 KB)
+│   │                           │   ├── ConnectionDots.swift (<1 KB)
+│   │                           │   ├── CooldownNotice.swift (<1 KB)
+│   │                           │   ├── DismissButton.swift (1 KB)
+│   │                           │   ├── EmptyState.swift (1 KB)
+│   │                           │   ├── ImageLightbox.swift (1 KB)
+│   │                           │   ├── JumpToLatestButton.swift (2 KB)
+│   │                           │   ├── LinkCard.swift (<1 KB)
+│   │                           │   ├── LinkedText.swift (1 KB)
+│   │                           │   ├── MessageBubble.swift (7 KB)
+│   │                           │   ├── MessageImage.swift (1 KB)
+│   │                           │   ├── MessageRow.swift (2 KB)
+│   │                           │   ├── PaywallCard.swift (<1 KB)
+│   │                           │   ├── PushPromptSlotView.swift (2 KB)
+│   │                           │   ├── ReceptionChatView.swift (2 KB)
+│   │                           │   ├── RemoteAttachmentImage.swift (1 KB)
+│   │                           │   ├── ReviewCard.swift (<1 KB)
+│   │                           │   ├── SendingDisabledNotice.swift (<1 KB)
+│   │                           │   ├── SendingStatus.swift (1 KB)
+│   │                           │   ├── TeamAvatar.swift (<1 KB)
+│   │                           │   └── TypingIndicator.swift (1 KB)
+│   │                           └── WelcomeIcon.swift (<1 KB)
+│   └── reception_flutter.podspec (1 KB)
+├── lib
+│   ├── reception_flutter.dart (1 KB)
+│   ├── src
+│   │   ├── appearance.dart (13 KB)
+│   │   ├── chat_view.dart (<1 KB)
+│   │   ├── errors.dart (1 KB)
+│   │   ├── messages.g.dart (41 KB)
+│   │   ├── platform.dart (1 KB)
+│   │   ├── reception.dart (15 KB)
+│   │   ├── sdk_version.dart (<1 KB)
+│   │   ├── state.dart (3 KB)
+│   │   └── types.dart (8 KB)
+│   └── testing.dart (<1 KB)
+├── pigeons
+│   └── reception.dart (4 KB)
+├── pubspec.yaml (<1 KB)
+├── test
+│   ├── appearance_test.dart (9 KB)
+│   ├── availability_timeout_test.dart (<1 KB)
+│   ├── exports_test.dart (2 KB)
+│   ├── fake_host.dart (5 KB)
+│   ├── platforms_test.dart (4 KB)
+│   ├── reception_test.dart (20 KB)
+│   ├── screens_test.dart (3 KB)
+│   ├── settings_test.dart (8 KB)
+│   └── testing_test.dart (1 KB)
+└── vendor
+    └── ios-sdk.json (13 KB)
+
+Total compressed archive size: 237 KB.
+Validating package...
+The server may enforce additional checks.
+
+Package has 0 warnings.
+
+== Summary
+  ok    clean working tree
+  ok    flutter pub get
+  ok    flutter analyze
+  ok    example: flutter pub get && flutter analyze
+  ok    dart format --set-exit-if-changed .
+  ok    flutter test
+  ok    dart run tool/sync_ios_sdk.dart --check
+  ok    generated Pigeon code is current
+  ok    tool/test_native.sh
+  ok    tool/pod_lint.sh
+  ok    example: flutter build ios --simulator --debug
+  ok    flutter pub publish --dry-run
+All checks passed.

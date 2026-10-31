@@ -314,3 +314,62 @@ changes, no pod lint. Item 7 (archive) was handled by the coordinator. Screensho
     Foreground FLN show() → banner "Local reminder" presented (67), delivered after 288 ms (FLN's own completion, no
     fallback); Reception push with the chat closed → banner (68); chat open → no banner (69); background → tap →
     "Chat presented" (70) (extended/xcode27-coexist-fln.log).
+
+SDK 1.7 ROUND — 2026-10-31, 13:04–13:45 CET, on main at 0456cc3 (reception_flutter 1.1.0: published 1.0.0 with Reception
+iOS SDK 1.7.0 and screens, plus Reception.opensWebLinksInApp). Xcode 27.1, Flutter 3.47.8, iPhone 17 Pro simulator D
+(iOS 26.5). Screenshots 71–88, logs in verification/v17/.
+
+Backend: the local dev server had run since 2026-10-28 on an older build and the database lacked the migrations
+20261028120000_ai_incidents … 20261030120000_device_capabilities_action_outcome. As authorised: `npx prisma migrate
+deploy` (6 migrations applied to postgres://localhost:5432/support), `npx prisma generate`, and the dev server
+restarted on :3123 (`npx next dev -p 3123`, log /tmp/reception-dev-3123.log; previous log kept as .prev).
+Example change committed with this round: screen callbacks now push a placeholder page (navigator key), so a screen
+link visibly navigates; the log line keeps the chat state.
+
+ 1. Link cards — PASS
+    Sent from the inbox's "Send link" dialog (custom links) and tapped in the open chat:
+      https://example.com ("Open website") → Safari sheet over the chat (71), event linkOpened, receipt "opened".
+      Same card with "Open web links in app" off (Reception.opensWebLinksInApp = false) → handed to the Safari app
+        (status bar "◀ Reception Flutter") (72), linkOpened.
+      mailto:… ("Email us") → nothing opens on the simulator (no Mail app); linkOpened; receipt "failed" (73).
+      tel:… ("Call us") → nothing opens on the simulator (no phone); linkOpened; receipt "failed".
+      https://apps.apple.com/app/id… ("Open App Store page") → handed to the system; on the simulator Safari shows
+        "Safari cannot open the page because the address is invalid" (no App Store app) (74); receipt "opened".
+      app-settings: ("Open iOS Settings") → the Settings app opens (75); receipt "opened".
+    Dashboard conversation shows "User tapped …" and, for Email and Call, "…but the link could not be opened" (76);
+    server Message.actionOutcome: opened / failed as listed.
+ 2. Screens — PASS
+    Settings → Flutter Example → Links → Add a link → "Screen in your app" lists Order ("order · needs order number")
+    and Settings ("settings") from this device's report (77); Device.screens = [{"id":"settings"},{"id":"order",
+    "value":"Order number"}], capabilities {linkCards,screens}. Saved links "Settings screen" and "Order 123 screen"
+    (value 123) created there and sent from the inbox.
+    Tap "Open settings" → "Chat dismissed", then "event linkOpened", "event screen:settings, chat:false", the example
+    pushes its Settings page (78); receipt "handled".
+    Tap "Open order 123" → "event screen:order 123, chat:false", Order 123 page (79); receipt "handled".
+    Hot restart under flutter run (R → "Restarted application in 263ms"): main() sets the screens again; a newly sent
+    settings card tapped afterwards → "event screen:settings, chat:false", receipt "handled"; Device.screens unchanged
+    (v17/hot-restart*.log). (Two extra settings cards in the conversation stay unclicked: my driver first tapped the
+    oldest matching card; a tap-the-newest action fixed that.)
+ 3. Push card in the chat — PASS with a finding
+    Local setup: Settings → Push → "Ask for push notifications" requires APNs credentials ("Connect APNs first"); a
+    throwaway EC P-256 .p8 (not registered with Apple) was connected through the dashboard (key ID LOCALTEST1, team
+    HQ6MG8UKPR, bundle sh.reception.receptionFlutterExample) and "Replies only" saved (80). Afterwards the key file was
+    deleted and the project's APNs fields and push prompt reset to their previous empty/OFF state.
+    Finding: with the committed example (usesRemoteAppearance = false) no card appears: the SDK takes the prompt only
+    from remote appearance (ChatPushPrompt.swift: `prompt: reception.usesRemoteAppearance ? … : nil`), see STATUS.md.
+    With a temporary build that sets usesRemoteAppearance = true (scratch copy, not committed):
+      fresh install, message "Push card check" → card under it: "Get a notification when we reply.", No thanks /
+        Continue (81); Continue → system prompt → Allow → "Push token staged, 160 hex chars, sandbox", server
+        pushToken set (SANDBOX), status line "You'll get a notification when we reply." (82);
+      same with appearance hidesPushStatus: true → status line hidden (83);
+      another fresh install → card → "No thanks" → card gone (84); Logout, new message → no card (85).
+ 4. Regression — PASS
+    Committed example build, fresh install: Enable notifications + Allow; foreground push with chat closed → banner (86);
+    background (Settings) push, banner tapped → "Chat presented" (87); terminated app, push, tap → new process
+    "Configured" 13:29:18.5, "Chat presented" 13:29:20.0 (88) (v17/push.log).
+    flutter test integration_test/app_test.dart -d D $DEFINES --dart-define=RECEPTION_AUTOSTART=false → PASS, 1 test.
+ 5. tool/release_check.sh (clean tree) — PASS
+    All 12 steps "ok": clean working tree, flutter pub get, flutter analyze, example pub get + analyze, dart format,
+    flutter test (69 tests), sync_ios_sdk --check, generated Pigeon code current, tool/test_native.sh, tool/pod_lint.sh,
+    example flutter build ios --simulator --debug, flutter pub publish --dry-run (237 KB, 0 warnings) — "All checks
+    passed." (v17/release-check.log)

@@ -1,0 +1,39 @@
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+2 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Launching lib/main.dart on iPhone 17 Pro in debug mode...
+Adding Swift Package Manager integration...                      1,372ms
+Running Xcode build...                                          
+Xcode build done.                                           17.9s
+[IMPORTANT:flutter/shell/platform/darwin/graphics/FlutterDarwinContextMetalImpeller.mm(45)] Using the Impeller rendering backend (Metal).
+Syncing files to device iPhone 17 Pro...                        
+flutter: [example] started: configured true, unread 0
+Syncing files to device iPhone 17 Pro...                           157ms
+
+Flutter run key commands.
+r Hot reload. 🔥🔥🔥
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on iPhone 17 Pro is available at: http://127.0.0.1:<port>/<redacted>/
+The Flutter DevTools debugger and profiler on iPhone 17 Pro is available at: http://127.0.0.1:<port>/<redacted>/devtools/?uri=ws://127.0.0.1:<port>/<redacted>/ws
+flutter: [example] available (plans)
+
+Performing hot restart...                                       
+Restarted application in 263ms.
+flutter: [example] started: configured true, unread 0
+flutter: [example] available (plans)
+Running tests...
+flutter: [example] event chatOpened
+Running tests...
+flutter: [example] event linkOpened
+flutter: [example] event screen:settings, chat:false
+
+Application finished.

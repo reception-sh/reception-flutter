@@ -1,0 +1,8 @@
+2026-10-31 13:28:26.726 Db Runner[26525:375542] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvwdms9k002100tgows11nwo
+2026-10-31 13:28:50.415 Db Runner[26525:375542] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvwdms9k002100tgows11nwo
+2026-10-31 13:28:50.415 Db Runner[26525:375542] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-31 13:28:51.454 Db Runner[26525:375542] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented
+2026-10-31 13:29:18.543 I  Runner[26954:3761be] [com.reception.sdk:Reception] [Reception] INFO Configured, SDK 1.7.0
+2026-10-31 13:29:19.059 Db Runner[26954:3761be] [com.reception.sdk:Reception] [Reception] DEBUG Push payload recognized, conversation cmvwdms9k002100tgows11nwo
+2026-10-31 13:29:19.059 Db Runner[26954:3761be] [com.reception.sdk:Reception] [Reception] DEBUG Chat presentation requested
+2026-10-31 13:29:19.999 Db Runner[26954:3761be] [com.reception.sdk:Reception] [Reception] DEBUG Chat presented

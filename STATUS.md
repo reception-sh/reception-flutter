@@ -259,6 +259,17 @@ limit (Send disabled with a notice), the embedded chat with the software keyboar
 with the chat closed, no banner with the chat open, background tap opens the chat, FCM payloads still reach
 `FirebaseMessaging.onMessage`, and FLN's foreground local notification still presents.
 
+SDK 1.7 round (2026-10-31, reception_flutter 1.1.0 on main 0456cc3, Xcode 27.1; `verification/commands.txt` "SDK 1.7
+ROUND", screenshots 71–88, `verification/v17/`): link cards (website in the Safari sheet over the chat and, with
+`opensWebLinksInApp = false`, in the Safari app; App Store page and iOS Settings opened; mailto/tel fail on the
+simulator and the dashboard shows "could not be opened"), screens (`settings`, `order` with value 123: the dashboard
+lists them from the device report, the chat closes, the callbacks run with `isChatOpen` false and the example
+navigates; still working after a hot restart), the in-chat push card (Continue → Allow registers the token and shows
+the status line; `hidesPushStatus` hides it; No thanks removes the card and it stays gone after logout) with
+remote appearance on, the push regression set, the integration test and `tool/release_check.sh` (all 12 steps, 69 Dart
+tests) pass. Local backend: migrations applied and the dev server restarted on the 1.7 code; the push card needed
+APNs credentials, so a throwaway key was connected for the test and removed afterwards.
+
 ### Bugs found during verification
 
 1. `ios/reception_flutter/Sources/reception_flutter/ReceptionHost.swift:131` (`configure`): a malformed App ID
@@ -269,6 +280,17 @@ with the chat closed, no banner with the chat open, background tap opens the cha
    configuration unchanged is intended; only the diagnostic is missing. **Fixed** the same day: `configure` now
    calls `Reception.configure` first (the SDK logs the refusal) and only then applies notification ownership for
    accepted IDs.
+
+2. Push card and local-only styling (vendored SDK 1.7.0, upstream):
+   `Vendor/Reception/Sources/Reception/ViewModel/ChatPushPrompt.swift` resolves the card's prompt as
+   `reception.usesRemoteAppearance ? reception.appearanceConfiguration.activePushPrompt : nil`. Expected: with
+   **Ask for push notifications** on, the card appears after the person's message, "with no code in your app"
+   (docs/flutter.md, Push; CHANGELOG 1.0.0). Actual: an app that sets `Reception.usesRemoteAppearance = false` (the
+   documented way to keep local-only styling, as the example does) never shows the card; the status line still
+   appears once push is authorized. Reproduce: dashboard push prompt "Replies only" (needs APNs credentials), fresh
+   install of the example, send a message → no card; the same build with `usesRemoteAppearance = true` shows it
+   (`verification/81-push-card.png`). The dashboard setting is not an appearance option, so either the SDK should
+   read it regardless of `usesRemoteAppearance`, or the docs must say the card needs remote appearance.
 
 Earlier rounds: the two found in the first round (`meta` missing from `dependencies`; `tool/pod_lint.sh` failing
 without a UTF-8 locale) were fixed in 8b37473 and re-verified: the publish dry-run reports 0 warnings and pod
