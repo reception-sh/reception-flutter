@@ -38,6 +38,8 @@ instead (and to try the calls before configure).
   after 150 ms. The hanging switch installs a callback that never completes; native
   fails it closed after five seconds. Refresh paywalls re-evaluates with
   `invalidate: true`. The paywall callback only records the ID and chat visibility.
+- **Web links:** the Open web links in app switch sets `Reception.opensWebLinksInApp`;
+  off hands link cards' websites to Safari.
 - **Push:** Enable notifications asks for permission through the example's own
   method channel in `ios/Runner/AppDelegate.swift` (the plugin never prompts, and
   `xcrun simctl privacy` has no notifications service), then calls

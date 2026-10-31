@@ -36,6 +36,7 @@ final status = ValueNotifier('Ready');
 final events = ValueNotifier<List<String>>(const []);
 final configured = ValueNotifier(false);
 final hangingAvailability = ValueNotifier(false);
+final webLinksInApp = ValueNotifier(true);
 
 void record(String event) {
   debugPrint('[example] event $event');
@@ -272,6 +273,17 @@ class HomePage extends StatelessWidget {
                 : null;
             status.value = 'Language: ${Reception.languageOverride ?? 'app'}';
           }),
+          ValueListenableBuilder(
+            valueListenable: webLinksInApp,
+            builder: (context, inApp, _) => SwitchListTile(
+              title: const Text('Open web links in app'),
+              value: inApp,
+              onChanged: (value) {
+                webLinksInApp.value = value;
+                Reception.opensWebLinksInApp = value;
+              },
+            ),
+          ),
           ValueListenableBuilder(
             valueListenable: hangingAvailability,
             builder: (context, hanging, _) => SwitchListTile(
