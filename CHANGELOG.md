@@ -1,6 +1,8 @@
 ## 1.1.0
 
 - Adds `Reception.opensWebLinksInApp` (default `true`): set it to `false` to hand websites from link cards and message text to Safari or the app that claims them instead of opening them in an in-app sheet over the chat.
+- Limits `Reception.screens` to the 50 screens the SDK reports; extra screens are logged.
+- Fixes a stale screen callback after a hot restart during the chat-closing animation.
 
 ## 1.0.0 — 2026-10-31
 

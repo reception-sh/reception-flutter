@@ -70,11 +70,12 @@ theme, add unread badges, identify customers, and connect paywalls or embedded c
 Add the Push Notifications capability to the Runner target and your Apple push
 credentials in the dashboard. The plugin then registers the APNs token, shows
 Reception banners while chat is closed, and opens chat on taps, including cold
-starts. It never requests permission: after your own permission request, call
-`await Reception.registerForPushIfAuthorized()`, or turn on **Ask for push
-notifications** in the dashboard and the chat asks with a card after the
-person's first message. Notifications from Firebase and
-other services keep reaching their handlers; see the
+starts. The plugin never prompts for permission itself; when **Ask for push
+notifications** is on in the dashboard, the chat asks with a card after the
+person's message and the plugin registers the token it gets. After your own
+permission request, call `await Reception.registerForPushIfAuthorized()`.
+Notifications from Firebase and other services keep reaching their handlers;
+see the
 [push setup](https://reception.sh/docs/flutter#push).
 
 ## Compatibility
