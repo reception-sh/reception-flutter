@@ -27,6 +27,7 @@ const _methods = [
   'setAppearance',
   'setUpdatesAppBadge',
   'setUsesRemoteAppearance',
+  'setOpensWebLinksInApp',
   'setLanguageOverride',
   'setLogLevel',
   'setPaywalls',
@@ -49,6 +50,7 @@ SnapshotMessage snapshot({
   String appearanceJson = '{}',
   bool updatesAppBadge = true,
   bool usesRemoteAppearance = true,
+  bool opensWebLinksInApp = true,
   String? languageOverride,
   String logLevel = 'info',
 }) => SnapshotMessage(
@@ -62,6 +64,7 @@ SnapshotMessage snapshot({
   appearanceJson: appearanceJson,
   updatesAppBadge: updatesAppBadge,
   usesRemoteAppearance: usesRemoteAppearance,
+  opensWebLinksInApp: opensWebLinksInApp,
   languageOverride: languageOverride,
   logLevel: logLevel,
 );
@@ -108,6 +111,8 @@ class FakeHost {
     'setUpdatesAppBadge': (args) => snapshot(updatesAppBadge: args[0]! as bool),
     'setUsesRemoteAppearance': (args) =>
         snapshot(usesRemoteAppearance: args[0]! as bool),
+    'setOpensWebLinksInApp': (args) =>
+        snapshot(opensWebLinksInApp: args[0]! as bool),
     'setLanguageOverride': (args) =>
         snapshot(languageOverride: args[0] as String?),
     'setLogLevel': (args) => snapshot(logLevel: args[0]! as String),

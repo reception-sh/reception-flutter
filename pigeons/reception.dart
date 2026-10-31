@@ -53,6 +53,7 @@ class SnapshotMessage {
     required this.appearanceJson,
     required this.updatesAppBadge,
     required this.usesRemoteAppearance,
+    required this.opensWebLinksInApp,
     this.languageOverride,
     required this.logLevel,
   });
@@ -66,6 +67,7 @@ class SnapshotMessage {
   String appearanceJson;
   bool updatesAppBadge;
   bool usesRemoteAppearance;
+  bool opensWebLinksInApp;
   String? languageOverride;
   String logLevel;
 }
@@ -127,6 +129,7 @@ abstract class ReceptionHostApi {
   SnapshotMessage setAppearance(String json, int revision);
   SnapshotMessage setUpdatesAppBadge(bool value, int revision);
   SnapshotMessage setUsesRemoteAppearance(bool value, int revision);
+  SnapshotMessage setOpensWebLinksInApp(bool value, int revision);
   SnapshotMessage setLanguageOverride(String? value, int revision);
   SnapshotMessage setLogLevel(String value, int revision);
   SnapshotMessage setPaywalls(List<PaywallMessage> value, int revision);

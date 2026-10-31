@@ -40,6 +40,7 @@ void main() {
         );
         Reception.updatesAppBadge = false;
         Reception.usesRemoteAppearance = false;
+        Reception.opensWebLinksInApp = false;
         Reception.languageOverride = 'de';
         Reception.logLevel = ReceptionLogLevel.off;
         Reception.paywalls = [ReceptionPaywall(id: 'plans', title: 'Plans')];
@@ -54,6 +55,7 @@ void main() {
         expect(Reception.appearance.toJson(), isEmpty);
         expect(Reception.updatesAppBadge, isTrue);
         expect(Reception.usesRemoteAppearance, isTrue);
+        expect(Reception.opensWebLinksInApp, isTrue);
         expect(Reception.languageOverride, isNull);
         expect(Reception.logLevel, ReceptionLogLevel.info);
         expect(Reception.paywalls, isEmpty);

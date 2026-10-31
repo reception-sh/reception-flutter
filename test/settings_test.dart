@@ -35,6 +35,7 @@ void main() {
       'setLogLevel',
       'setPaywalls',
       'setUsesRemoteAppearance',
+      'setOpensWebLinksInApp',
     ]) {
       host.handlers[method] = (_) => Completer<SnapshotMessage>().future;
     }
@@ -46,12 +47,14 @@ void main() {
     Reception.logLevel = ReceptionLogLevel.debug;
     Reception.paywalls = [ReceptionPaywall(id: 'plans', title: 'Plans')];
     Reception.usesRemoteAppearance = false;
+    Reception.opensWebLinksInApp = false;
     expect(Reception.appearance.toJson(), {'accentColor': '#112233'});
     expect(Reception.languageOverride, 'de');
     expect(Reception.updatesAppBadge, isFalse);
     expect(Reception.logLevel, ReceptionLogLevel.debug);
     expect(Reception.paywalls, [ReceptionPaywall(id: 'plans', title: 'Plans')]);
     expect(Reception.usesRemoteAppearance, isFalse);
+    expect(Reception.opensWebLinksInApp, isFalse);
   });
 
   test(
@@ -204,6 +207,34 @@ void main() {
       expect(jsonDecode(host.callsTo('setAppearance').last[0]! as String), {
         'accentColor': '#112233',
       });
+    },
+  );
+
+  test(
+    'opensWebLinksInApp is optimistic, reconciles by revision and rolls back',
+    () async {
+      expect(Reception.opensWebLinksInApp, isTrue);
+      final first = Completer<SnapshotMessage>();
+      final second = Completer<SnapshotMessage>();
+      reply('setOpensWebLinksInApp', [first, second]);
+      Reception.opensWebLinksInApp = false;
+      expect(Reception.opensWebLinksInApp, isFalse);
+      await pumpEventQueue();
+      expect(host.callsTo('setOpensWebLinksInApp').single, [false, 1]);
+      first.complete(
+        snapshot(
+          revision: 5,
+          settingRevisions: {'opensWebLinksInApp': 1},
+          opensWebLinksInApp: false,
+        ),
+      );
+      await pumpEventQueue();
+      expect(Reception.opensWebLinksInApp, isFalse);
+      Reception.opensWebLinksInApp = true;
+      second.completeError(Exception('private native diagnostic'));
+      await pumpEventQueue();
+      expect(Reception.opensWebLinksInApp, isFalse);
+      expect(logs, ['[Reception] Native bridge call failed.']);
     },
   );
 }

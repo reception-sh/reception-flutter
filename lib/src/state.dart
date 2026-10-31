@@ -29,6 +29,7 @@ class ReceptionState {
     'appearance': ReceptionAppearance(),
     'updatesAppBadge': true,
     'usesRemoteAppearance': true,
+    'opensWebLinksInApp': true,
     'languageOverride': null,
     'logLevel': ReceptionLogLevel.info,
     'paywalls': <ReceptionPaywall>[],
@@ -53,6 +54,7 @@ class ReceptionState {
       },
       'updatesAppBadge': snapshot.updatesAppBadge,
       'usesRemoteAppearance': snapshot.usesRemoteAppearance,
+      'opensWebLinksInApp': snapshot.opensWebLinksInApp,
       'languageOverride': snapshot.languageOverride,
       'logLevel':
           ReceptionLogLevel.values.asNameMap()[snapshot.logLevel] ??

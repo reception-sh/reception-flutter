@@ -56,6 +56,7 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
       availablePaywalls: sdk.availablePaywalls.map(PaywallValues.message),
       paywalls: sdk.paywalls.map(PaywallValues.message), appearanceJson: appearance ?? "{}",
       updatesAppBadge: sdk.updatesAppBadge, usesRemoteAppearance: sdk.usesRemoteAppearance,
+      opensWebLinksInApp: sdk.opensWebLinksInApp,
       languageOverride: sdk.languageOverride, logLevel: ["off", "error", "info", "debug"][Reception.logLevel.rawValue])
   }
 
@@ -227,6 +228,10 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
 
   func setUsesRemoteAppearance(value: Bool, revision: Int64) throws -> SnapshotMessage {
     applySetting("usesRemoteAppearance", revision: revision) { Reception.shared.usesRemoteAppearance = value }
+  }
+
+  func setOpensWebLinksInApp(value: Bool, revision: Int64) throws -> SnapshotMessage {
+    applySetting("opensWebLinksInApp", revision: revision) { Reception.shared.opensWebLinksInApp = value }
   }
 
   func setLanguageOverride(value: String?, revision: Int64) throws -> SnapshotMessage {

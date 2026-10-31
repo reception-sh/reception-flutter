@@ -234,6 +234,19 @@ abstract final class Reception {
     (host, revision) => host.setUsesRemoteAppearance(value, revision),
   );
 
+  /// Whether link cards open websites inside the app (default true) instead
+  /// of in the browser.
+  static bool get opensWebLinksInApp {
+    checkSupported();
+    return _state.setting('opensWebLinksInApp');
+  }
+
+  static set opensWebLinksInApp(bool value) => _assign(
+    'opensWebLinksInApp',
+    value,
+    (host, revision) => host.setOpensWebLinksInApp(value, revision),
+  );
+
   /// BCP 47 language tag for an in-app language picker; null (default)
   /// follows the app's iOS localization.
   static String? get languageOverride {
