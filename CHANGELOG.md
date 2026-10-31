@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Adds `Reception.opensWebLinksInApp` (default `true`): set it to `false` to hand websites from link cards and message text to Safari or the app that claims them instead of opening them in an in-app sheet over the chat.
+
 ## 1.0.0 — 2026-10-31
 
 - Initial release: native Reception support chat for Flutter on iOS, bundling Reception iOS SDK 1.7.0. Device registration reports the original transaction IDs of App Store purchases, so App Store notifications connected in the dashboard reach the person. While typing, the chat sheet closes by dragging its grabber or title bar; a drag over the messages puts the keyboard away.
