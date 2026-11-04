@@ -1,5 +1,6 @@
 package sh.reception.flutter
 
+import android.util.Log
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -35,7 +36,12 @@ internal class ConfigureRequest(
         // 10.0.2.2 is the development machine's loopback as seen from the Android emulator.
         private val loopbackHosts = setOf("localhost", "127.0.0.1", "::1", "[::1]", "10.0.2.2")
 
-        /** A testing service must be an http(s) URL on a loopback host, and only debuggable apps may use one. */
+        private const val TAG = "ReceptionFlutter"
+
+        /**
+         * A testing service must be an http(s) URL on a loopback host, and only debuggable apps may use one. The port
+         * follows OkHttp's `HttpUrl` (the SDK's parser, not on this module's compile classpath): omitted or 1..65535.
+         */
         fun acceptsTestingService(serviceUrl: String, debuggable: Boolean): Boolean {
             if (!debuggable) return false
             val uri = try {
@@ -43,7 +49,10 @@ internal class ConfigureRequest(
             } catch (_: URISyntaxException) {
                 return false
             }
-            return uri.scheme in setOf("http", "https") && uri.host in loopbackHosts && uri.port in -1..65535
+            // OkHttp lowercases scheme and host.
+            return uri.scheme?.lowercase() in setOf("http", "https") &&
+                uri.host?.lowercase() in loopbackHosts &&
+                (uri.port == -1 || uri.port in 1..65535)
         }
     }
 
@@ -53,7 +62,10 @@ internal class ConfigureRequest(
             steps.refused(appId)
             return false
         }
-        if (serviceUrl != null && !acceptsTestingService(serviceUrl, debuggable)) return false
+        if (serviceUrl != null && !acceptsTestingService(serviceUrl, debuggable)) {
+            Log.d(TAG, "configureForTesting refused the service URL")
+            return false
+        }
         steps.prepare(handlesNotifications, notificationSmallIcon)
         steps.configure(appId, serviceUrl)
         steps.configured(handlesNotifications)

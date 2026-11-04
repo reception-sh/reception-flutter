@@ -44,6 +44,8 @@ class ConfigureRequestTest {
             ConfigureRequest(appId, "http://example.com:3123", false, null) to true,
             ConfigureRequest(appId, "ftp://localhost:3123", false, null) to true,
             ConfigureRequest(appId, "not a url", false, null) to true,
+            // java.net.URI accepts port 0; OkHttp, the SDK's parser, does not.
+            ConfigureRequest(appId, "http://10.0.2.2:0", false, null) to true,
             ConfigureRequest(appId, serviceUrl, false, null) to false,
         )
         for ((request, debuggable) in refused) assertFalse(request.run(steps, debuggable))
@@ -66,9 +68,10 @@ class ConfigureRequestTest {
     fun testingServiceRule() {
         for (url in listOf(
             "http://localhost:3123", "https://127.0.0.1", "http://[::1]:3123/", "http://10.0.2.2:3123/api",
+            "http://localhost:1", "http://localhost:65535", "HTTP://LocalHost:3123",
         )) assertTrue(url, ConfigureRequest.acceptsTestingService(url, debuggable = true))
         for (url in listOf(
-            "http://localhost:99999", "http://reception.sh", "localhost:3123", "http://LOCAL HOST", "",
+            "http://localhost:99999", "http://localhost:0", "http://localhost:65536", "http://reception.sh", "localhost:3123", "http://LOCAL HOST", "",
         )) assertFalse(url, ConfigureRequest.acceptsTestingService(url, debuggable = true))
         assertFalse(ConfigureRequest.acceptsTestingService("http://localhost:3123", debuggable = false))
     }
