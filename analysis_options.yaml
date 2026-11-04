@@ -5,6 +5,7 @@ analyzer:
     - build/**
     - ios/**
     - example/**
+    - android/**
   language:
     strict-casts: true
     strict-inference: true

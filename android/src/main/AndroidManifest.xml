@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- Receives every FCM message beside Firebase's own receivers (and firebase_messaging's), so Reception replies
+             are shown natively whether or not the app's Dart code runs. Other messages are left alone. -->
+        <receiver
+            android:name="sh.reception.flutter.ReceptionPushReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
