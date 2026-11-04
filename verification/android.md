@@ -168,3 +168,42 @@ $ flutter pub publish --dry-run                     Package has 0 warnings.
 
 The plugin's Kotlin compiles without warnings (`compileDebugKotlin --rerun-tasks`; the only `w:` lines are Flutter's
 own Gradle sources).
+
+## Fix round 2 (audit FL2-1 … FL2-3)
+
+Run 2026-11-04 on `main` (commits e1f47fc, 7a550b0, 79aac12). Emulator `emulator-5556` (`reception_pixel8_rn`,
+Android 16), Flutter 3.47.8, JDK 17, the same SDK 1.0.0 from `mavenLocal`, backend and test app as fix round 1. Debug
+builds with the `flutter run` defines above, installed with `adb install -r`. Screenshots `android/fix2-*.png`.
+
+| Item | Step | Observed | Shot |
+| --- | --- | --- | --- |
+| FL2-1 | `MainActivity`, "Embedded chat in a list", "Chat drags: on" (the default), drag down on the chat | the chat scrolled to older messages; the amber block stayed at the top | fix2-01 |
+| FL2-1 | "Chat drags: off" (`gestureRecognizers: {}`, same element, same native view), drag up on the chat | the list scrolled past the chat to the teal block | fix2-02 |
+| FL2-1 | list back to the top (drag on the teal block), "Chat drags: on", drag up on the chat | the chat scrolled to the latest replies; the list stayed put | fix2-03 |
+| FL2-2 | before the fix (10dbddd's `CachedEngineActivities.kt`): `CachedEngineFragmentActivity`, Embedded chat, Add photos (picker on top, task t40), Home, `adb shell am kill` (process gone), Recents, tap the task | `FATAL EXCEPTION … Unable to start activity …CachedEngineFragmentActivity: IllegalStateException: The requested cached FlutterEngine did not exist in the FlutterEngineCache: 'fragmentActivity'` from `FlutterFragment.onAttach` during `dispatchCreate`; "Reception Flutter keeps stopping" | fix2-04 |
+| FL2-2 | with the fix, same steps (task t41) | no crash: the new process (pid 22418) restored the activity under the picker; Dart started fresh on the home page and configured (`Configured, SDK 1.0.0`) | fix2-05 |
+| FL2-2 | pick the photo, Done | the restored activity resumed, the process stayed up; the photo did not arrive anywhere: the new engine starts on the home route, so no embedded chat (and no launcher of it) exists to take the result. system_server logged its own `Unable to check Uri permission because caller is holding WM lock` while finishing the result | fix2-06 |
+
+FL2-3 is covered by `ConfigureRequestTest` (a valid testing configure, then refused ones: malformed and `ids_` App
+IDs, non-loopback, non-http and malformed URLs, a non-debuggable app; none reaches routing, the stored opt-out or
+the SDK's configure) and was not exercised live: the example's buttons only send its valid App ID.
+
+Checks:
+
+```
+$ flutter analyze                                   No issues found!
+$ (cd example && flutter analyze)                   No issues found!
+$ dart format --set-exit-if-changed .               0 changed
+$ flutter test                                      +82: All tests passed!
+$ (cd example/android && ./gradlew :reception_flutter:testDebugUnitTest :reception_flutter:lintDebug --rerun-tasks)
+                                                    15 tests (PaywallRequests 4, ReceptionAssets 3, ReceptionColor 3,
+                                                    ConfigureRequest 3, PushToken 1, ReceptionPushReceiver 1),
+                                                    0 failures; lint: No issues found.
+$ (cd example && flutter build apk --release)       ✓ Built build/app/outputs/flutter-apk/app-release.apk (48.0MB)
+$ flutter pub publish --dry-run                     Package has 0 warnings.
+```
+
+The new widget test (`ReceptionChatView applies changed gestureRecognizers on Android without recreating the native
+view`) fails on e1f47fc^ (`Expected: a value greater than <0>, Actual: <0.0>`) and passes after it. The plugin's and
+example's Kotlin compile without warnings (`compileDebugKotlin --rerun-tasks`; only Flutter's own Gradle sources and
+the AGP 9 plugin-usage notice warn).
