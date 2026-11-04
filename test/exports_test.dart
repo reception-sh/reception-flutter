@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:reception_flutter/reception_flutter.dart'
     show
         Reception,
+        ReceptionAndroidOptions,
         ReceptionAppearance,
         ReceptionChatOpened,
         ReceptionChatView,
@@ -34,6 +35,7 @@ void main() {
   test('the public library exports exactly the Reception-prefixed names', () {
     const exported = <Type>[
       Reception,
+      ReceptionAndroidOptions,
       ReceptionAppearance,
       ReceptionChatOpened,
       ReceptionChatView,
@@ -58,7 +60,7 @@ void main() {
       ReceptionScreen,
       ReceptionWelcomeIcon,
     ];
-    expect(exported.toSet(), hasLength(24));
+    expect(exported.toSet(), hasLength(25));
     expect(
       exported.map((type) => '$type'),
       everyElement(startsWith('Reception')),

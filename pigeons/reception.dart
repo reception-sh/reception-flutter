@@ -110,13 +110,20 @@ abstract class ReceptionHostApi {
   /// Replaces any previous Dart connection (hot restart) and returns the current state.
   SnapshotMessage connect();
 
-  SnapshotMessage configure(String appId, bool handlesNotifications);
+  /// [notificationSmallIcon] is an Android drawable name (validated in Dart);
+  /// null keeps the SDK's built-in glyph. iOS ignores it.
+  SnapshotMessage configure(
+    String appId,
+    bool handlesNotifications,
+    String? notificationSmallIcon,
+  );
 
   /// Debug simulator builds only: configure against a localhost service. No-op in release builds.
   SnapshotMessage configureForTesting(
     String appId,
     String serviceUrl,
     bool handlesNotifications,
+    String? notificationSmallIcon,
   );
 
   void identify(String? userId, String? name, String? email);

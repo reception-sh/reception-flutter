@@ -2,6 +2,7 @@
 library;
 
 import 'src/reception.dart' as reception;
+import 'src/types.dart' show ReceptionAndroidOptions;
 
 /// Configures Reception with [appId] against a local [serviceUrl], for example
 /// `http://localhost:3000`, instead of the production service.
@@ -10,14 +11,16 @@ import 'src/reception.dart' as reception;
 /// Android in debuggable builds with a loopback [serviceUrl] (`10.0.2.2` is
 /// the development machine from the emulator); the native side enforces this
 /// and leaves release builds unchanged. Like `Reception.configure`, it
-/// completes immediately off iOS and Android. [handlesNotifications] works as
-/// in `Reception.configure`.
+/// completes immediately off iOS and Android. [handlesNotifications]
+/// and [android] work as in `Reception.configure`.
 Future<void> configureReceptionForTesting({
   required String appId,
   required Uri serviceUrl,
   bool handlesNotifications = true,
+  ReceptionAndroidOptions? android,
 }) => reception.configureForTesting(
   appId,
   serviceUrl.toString(),
   handlesNotifications,
+  android,
 );

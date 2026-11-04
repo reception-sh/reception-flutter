@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'errors.dart';
 import 'messages.g.dart';
+import 'platform.dart';
 
 /// A product a paywall sells, shown to your team in the dashboard.
 @immutable
@@ -115,6 +116,39 @@ ReceptionPaywall paywallFromMessage(PaywallMessage message) => ReceptionPaywall(
   ],
   presentable: message.presentable,
 );
+
+/// Android-only settings for `Reception.configure`; iOS ignores them.
+@immutable
+class ReceptionAndroidOptions {
+  /// Creates Android options.
+  const ReceptionAndroidOptions({this.notificationSmallIcon});
+
+  /// The app's drawable resource for Reception's reply notifications, such as
+  /// `ic_notification` for `res/drawable/ic_notification.xml`: lowercase
+  /// letters, digits and underscores, starting with a letter, at most 64
+  /// characters. An invalid name is logged and ignored; a name the app does
+  /// not contain logs a warning. Both keep the SDK's built-in glyph.
+  final String? notificationSmallIcon;
+
+  static final _drawable = RegExp(r'^[a-z][a-z0-9_]{0,63}$');
+
+  /// [notificationSmallIcon] when it is a valid drawable name; null (the SDK
+  /// default) otherwise, with a warning for an invalid one.
+  String? get validNotificationSmallIcon {
+    final name = notificationSmallIcon;
+    if (name == null || _drawable.hasMatch(name)) return name;
+    warnInvalid('android.notificationSmallIcon');
+    return null;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is ReceptionAndroidOptions &&
+      other.notificationSmallIcon == notificationSmallIcon;
+
+  @override
+  int get hashCode => notificationSmallIcon.hashCode;
+}
 
 /// APNs environment of a push token.
 enum ReceptionPushEnvironment {

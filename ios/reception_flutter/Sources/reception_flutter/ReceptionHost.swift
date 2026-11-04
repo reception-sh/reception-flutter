@@ -130,7 +130,10 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     return snapshot()
   }
 
-  func configure(appId: String, handlesNotifications: Bool) throws -> SnapshotMessage {
+  /// `notificationSmallIcon` is Android-only and ignored here.
+  func configure(appId: String, handlesNotifications: Bool, notificationSmallIcon: String?) throws
+    -> SnapshotMessage
+  {
     // The SDK logs why it refuses a malformed App ID; a refused one leaves any earlier configuration,
     // and its push ownership, unchanged.
     Reception.configure(appId: appId)
@@ -139,8 +142,9 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     return snapshot()
   }
 
-  func configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Bool) throws
-    -> SnapshotMessage
+  func configureForTesting(
+    appId: String, serviceUrl: String, handlesNotifications: Bool, notificationSmallIcon: String?
+  ) throws -> SnapshotMessage
   {
     #if DEBUG && targetEnvironment(simulator)
       if let url = URL(string: serviceUrl), let host = url.host, let scheme = url.scheme,

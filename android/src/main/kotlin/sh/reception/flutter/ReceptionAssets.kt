@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.VectorDrawable
+import android.util.Log
 import android.util.TypedValue
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -21,6 +22,8 @@ import java.io.IOException
 
 /** Fonts and images of the host app, named in Dart's appearance. */
 internal object ReceptionAssets {
+    private const val TAG = "ReceptionFlutter"
+
     /** A font of the app's `pubspec.yaml` with its declared weights and styles. */
     data class FontAsset(val path: String, val weight: Int, val italic: Boolean)
 
@@ -81,6 +84,18 @@ internal object ReceptionAssets {
         } catch (_: Resources.NotFoundException) {
             null
         }
+    }
+
+    /**
+     * The resource ID of the app's notification small icon [name] (validated in Dart); null keeps the SDK's built-in
+     * glyph, with a warning when the app has no such drawable.
+     */
+    @SuppressLint("DiscouragedApi") // Dart passes the name; there is no generated R field to reference.
+    fun notificationIcon(context: Context, name: String?): Int? {
+        if (name.isNullOrEmpty()) return null
+        val id = context.resources.getIdentifier(name, "drawable", context.packageName).takeIf { it != 0 }
+        if (id == null) Log.w(TAG, "Missing notification small icon ignored")
+        return id
     }
 
     /** `painterResource` parses every XML file as a vector and decodes every other file as a bitmap. */

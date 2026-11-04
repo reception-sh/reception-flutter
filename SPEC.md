@@ -18,7 +18,7 @@ Swift 6 tools / language mode 5 / strict concurrency complete. Do not add depend
 
 ```dart
 abstract final class Reception {   // static-only facade, like RN's `Reception` object
-  static Future<void> configure({required String appId, bool handlesNotifications = true});
+  static Future<void> configure({required String appId, bool handlesNotifications = true, ReceptionAndroidOptions? android});
   static bool get isConfigured;                 // from the last native snapshot
   static String get version;                    // bundled iOS SDK version (lib/src/sdk_version.dart)
   static ValueListenable<int> get unreadCount;  // ValueNotifier mirrors of snapshot fields
@@ -49,14 +49,16 @@ abstract final class Reception {   // static-only facade, like RN's `Reception` 
 }
 class ReceptionChatView extends StatelessWidget {}  // UiKitView(viewType: 'reception_flutter/chat'); SizedBox.shrink() elsewhere
 // package:reception_flutter/testing.dart
-Future<void> configureReceptionForTesting({required String appId, required Uri serviceUrl});
+Future<void> configureReceptionForTesting({required String appId, required Uri serviceUrl, bool handlesNotifications = true, ReceptionAndroidOptions? android});
 ```
 Every exported type carries the `Reception` prefix (generic names such as `LogLevel` clash with other plugins,
 for example `purchases_flutter`). Types: `ReceptionAppearance` (immutable, all fields nullable, `copyWith`, `toJson`
 producing the RN JSON shape; fields and validation ranges exactly as RN `types.ts`/`validation.ts`; invalid fields
 keep their previous value and warn), `ReceptionColor` (`ReceptionColor.hex('#RRGGBB'|'#RRGGBBAA')` or
 `ReceptionColor.adaptive(light:, dark:)`, validated hex), `ReceptionWelcomeIcon` (symbol | image | hidden),
-`ReceptionCloseIcon`, `ReceptionFontDesign`, `ReceptionColorScheme`, `ReceptionPaywall`, `ReceptionPaywallProduct`,
+`ReceptionCloseIcon`, `ReceptionFontDesign`, `ReceptionColorScheme`, `ReceptionAndroidOptions`
+(`notificationSmallIcon`: a `res/drawable` name matching `^[a-z][a-z0-9_]*$`, at most 64 characters; an invalid name
+warns and passes null, the SDK default; iOS ignores it), `ReceptionPaywall`, `ReceptionPaywallProduct`,
 `ReceptionEvent` (sealed: `ReceptionChatOpened`, `ReceptionMessageSent`, `ReceptionImageSent`,
 `ReceptionReviewOpened`, `ReceptionPaywallOpened`, `ReceptionLinkOpened`, `ReceptionDataDeleted`, `ReceptionIdentityRejected(error)`), `ReceptionScreen` (`ReceptionScreen(id, onOpen:)` | `ReceptionScreen.withValue(id, value:, onOpenWithValue:)`, `isValid` mirrors the SDK's ID rule),
 `ReceptionError(code, status)` (implements Exception; `bridge_error`/0 for unknown), `ReceptionPushEnvironment`,
@@ -131,6 +133,7 @@ Compose compiler (the plugin only calls SDK APIs). Same Pigeon contract; the Dar
 | --- | --- | --- |
 | Registration, lifecycle | `ReceptionFlutterPlugin.swift`: app and scene delegate (token, launch and scene taps, foreground re-registration) | `ReceptionFlutterPlugin.kt`: `FlutterPlugin` + `ActivityAware`; on every activity attach `Reception.noteCurrentActivity` (`@ReceptionInternalApi`), activity held weakly |
 | Host API | `ReceptionHost.swift` | `ReceptionHost.kt`: same connect/invalidate, revisions, `isCurrent` guards; state from `unreadCount`/`isChatOpen` flows and `snapshotFlow { availablePaywalls }` (`SnapshotNotifications.kt` sends Compose apply notifications while no Compose UI runs); calls to Dart run in a per-connection coroutine scope cancelled by `invalidate` |
+| Notification small icon | `notificationSmallIcon` ignored | `configure`/`configureForTesting` set `Reception.notificationSmallIcon` before the SDK's `configure` (only for an accepted App ID) from `ReceptionAssets.notificationIcon`: `getIdentifier(name, "drawable", packageName)`; null or an unknown name (warning) keeps the SDK's glyph |
 | `configureForTesting` | DEBUG simulator builds, `localhost`/`127.0.0.1`/`::1`; `handlesNotifications` as in `configure` | debuggable apps, those hosts plus `10.0.2.2` (the emulator's host loopback); the SDK checks debuggability again; `handlesNotifications` as in `configure` |
 | Paywall availability | `PaywallRequests.swift` | `PaywallRequests.kt`: same rules (5 s fail-closed, SDK cancellation, `cancelAll`; late, duplicate, unknown answers ignored) |
 | Paywall values | `PaywallValues.swift` | `PaywallValues.kt` |

@@ -628,9 +628,11 @@ protocol ReceptionHostApi {
   func version() throws -> String
   /// Replaces any previous Dart connection (hot restart) and returns the current state.
   func connect() throws -> SnapshotMessage
-  func configure(appId: String, handlesNotifications: Bool) throws -> SnapshotMessage
+  /// [notificationSmallIcon] is an Android drawable name (validated in Dart);
+  /// null keeps the SDK's built-in glyph. iOS ignores it.
+  func configure(appId: String, handlesNotifications: Bool, notificationSmallIcon: String?) throws -> SnapshotMessage
   /// Debug simulator builds only: configure against a localhost service. No-op in release builds.
-  func configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Bool) throws -> SnapshotMessage
+  func configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Bool, notificationSmallIcon: String?) throws -> SnapshotMessage
   func identify(userId: String?, name: String?, email: String?) throws
   func identifyToken(token: String) throws
   func setMetadata(metadata: [String: String]) throws
@@ -692,14 +694,17 @@ class ReceptionHostApiSetup {
     } else {
       connectChannel.setMessageHandler(nil)
     }
+    /// [notificationSmallIcon] is an Android drawable name (validated in Dart);
+    /// null keeps the SDK's built-in glyph. iOS ignores it.
     let configureChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.reception_flutter.ReceptionHostApi.configure\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       configureChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let appIdArg = args[0] as! String
         let handlesNotificationsArg = args[1] as! Bool
+        let notificationSmallIconArg: String? = nilOrValue(args[2])
         do {
-          let result = try api.configure(appId: appIdArg, handlesNotifications: handlesNotificationsArg)
+          let result = try api.configure(appId: appIdArg, handlesNotifications: handlesNotificationsArg, notificationSmallIcon: notificationSmallIconArg)
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))
@@ -716,8 +721,9 @@ class ReceptionHostApiSetup {
         let appIdArg = args[0] as! String
         let serviceUrlArg = args[1] as! String
         let handlesNotificationsArg = args[2] as! Bool
+        let notificationSmallIconArg: String? = nilOrValue(args[3])
         do {
-          let result = try api.configureForTesting(appId: appIdArg, serviceUrl: serviceUrlArg, handlesNotifications: handlesNotificationsArg)
+          let result = try api.configureForTesting(appId: appIdArg, serviceUrl: serviceUrlArg, handlesNotifications: handlesNotificationsArg, notificationSmallIcon: notificationSmallIconArg)
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))

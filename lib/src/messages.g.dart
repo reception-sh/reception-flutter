@@ -643,9 +643,12 @@ class ReceptionHostApi {
     return pigeonVar_replyValue! as SnapshotMessage;
   }
 
+  /// [notificationSmallIcon] is an Android drawable name (validated in Dart);
+  /// null keeps the SDK's built-in glyph. iOS ignores it.
   Future<SnapshotMessage> configure(
     String appId,
     bool handlesNotifications,
+    String? notificationSmallIcon,
   ) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.configure$pigeonVar_messageChannelSuffix';
@@ -655,7 +658,7 @@ class ReceptionHostApi {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[appId, handlesNotifications],
+      <Object?>[appId, handlesNotifications, notificationSmallIcon],
     );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
@@ -672,6 +675,7 @@ class ReceptionHostApi {
     String appId,
     String serviceUrl,
     bool handlesNotifications,
+    String? notificationSmallIcon,
   ) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.configureForTesting$pigeonVar_messageChannelSuffix';
@@ -681,7 +685,7 @@ class ReceptionHostApi {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[appId, serviceUrl, handlesNotifications],
+      <Object?>[appId, serviceUrl, handlesNotifications, notificationSmallIcon],
     );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 

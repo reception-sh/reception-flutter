@@ -44,13 +44,13 @@ void main() {
       await Reception.configure(appId: 'app_example');
       expect(Reception.isConfigured, isTrue);
       expect(host.callsTo('configure'), [
-        ['app_example', true],
+        ['app_example', true, null],
       ]);
       await Reception.configure(
         appId: 'app_example',
         handlesNotifications: false,
       );
-      expect(host.callsTo('configure').last, ['app_example', false]);
+      expect(host.callsTo('configure').last, ['app_example', false, null]);
       host.handlers['openChat'] = (_) =>
           throw PlatformException(code: 'error', message: 'private diagnostic');
       await expectLater(

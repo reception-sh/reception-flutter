@@ -33,6 +33,7 @@ void main() {
       'app_example',
       'http://localhost:3000',
       true,
+      null,
     ]);
   });
 
@@ -47,6 +48,25 @@ void main() {
       'app_example',
       'http://10.0.2.2:3000',
       false,
+      null,
+    ]);
+  });
+
+  test('passes the Android options through, validated', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    await configureReceptionForTesting(
+      appId: 'app_example',
+      serviceUrl: Uri.parse('http://10.0.2.2:3000'),
+      android: const ReceptionAndroidOptions(notificationSmallIcon: 'ic_bell'),
+    );
+    await configureReceptionForTesting(
+      appId: 'app_example',
+      serviceUrl: Uri.parse('http://10.0.2.2:3000'),
+      android: const ReceptionAndroidOptions(notificationSmallIcon: 'Bell'),
+    );
+    expect(host.callsTo('configureForTesting'), [
+      ['app_example', 'http://10.0.2.2:3000', true, 'ic_bell'],
+      ['app_example', 'http://10.0.2.2:3000', true, null],
     ]);
   });
 

@@ -140,9 +140,10 @@ internal class ReceptionHost(private val context: Context, private val flutterAp
     }
 
     @OptIn(ReceptionInternalApi::class)
-    override fun configure(appId: String, handlesNotifications: Boolean): SnapshotMessage {
+    override fun configure(appId: String, handlesNotifications: Boolean, notificationSmallIcon: String?): SnapshotMessage {
         // The SDK logs why it refuses a malformed App ID; a refused one leaves any earlier configuration unchanged.
         val accepted = appIdPattern.matches(appId)
+        if (accepted) Reception.notificationSmallIcon = ReceptionAssets.notificationIcon(context, notificationSmallIcon)
         // Before configure: a tap that arrived before Dart ran waits as the SDK's pending tap, and the app that owns
         // its notifications must not see the chat open for it.
         if (accepted) Reception.setNotificationRoutingEnabled(handlesNotifications)
@@ -152,11 +153,14 @@ internal class ReceptionHost(private val context: Context, private val flutterAp
     }
 
     @OptIn(ReceptionInternalApi::class)
-    override fun configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Boolean): SnapshotMessage {
+    override fun configureForTesting(
+        appId: String, serviceUrl: String, handlesNotifications: Boolean, notificationSmallIcon: String?,
+    ): SnapshotMessage {
         val uri = serviceUrl.toUri()
         val debuggable = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
         // 10.0.2.2 is the development machine's loopback as seen from the Android emulator.
         if (debuggable && uri.scheme in setOf("http", "https") && uri.host in loopbackHosts) {
+            Reception.notificationSmallIcon = ReceptionAssets.notificationIcon(context, notificationSmallIcon)
             Reception.setNotificationRoutingEnabled(handlesNotifications)
             Reception.configureForTesting(context, appId, serviceUrl)
             ReceptionNotifications.configured(context, handlesNotifications)

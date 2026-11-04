@@ -113,6 +113,24 @@ tap on a notification it showed earlier only brings the app forward; show your
 own notification and call `Reception.handlePushNotification(message.data)` on
 its tap.
 
+### Android notification icon
+
+Reception's reply notifications use a built-in glyph. To use your app's own
+monochrome icon, name a drawable in `android/app/src/main/res/drawable`:
+
+```dart
+await Reception.configure(
+  appId: 'app_YOUR_APP_ID',
+  android: const ReceptionAndroidOptions(notificationSmallIcon: 'ic_notification'),
+);
+```
+
+The name uses lowercase letters, digits and underscores, starts with a letter
+and has at most 64 characters. An invalid name, or one the app does not
+contain, logs a warning and keeps the built-in glyph. List the drawable in a
+`tools:keep` resource file so release builds do not strip it. iOS ignores
+`android`.
+
 ## Compatibility
 
 Web and desktop have no Reception native code. Calls complete immediately, log

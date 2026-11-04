@@ -59,14 +59,20 @@ abstract final class Reception {
   /// (Settings → your app → General). Call once at startup before identity or
   /// chat. With [handlesNotifications] (default), the plugin routes Reception
   /// notifications natively and forwards all others to the existing
-  /// notification delegate.
+  /// notification delegate. [android] holds Android-only settings, such as
+  /// the notification small icon; iOS ignores it.
   static Future<void> configure({
     required String appId,
     bool handlesNotifications = true,
-  }) => _call(
-    (host) async =>
-        _state.update(await host.configure(appId, handlesNotifications)),
-  );
+    ReceptionAndroidOptions? android,
+  }) {
+    final icon = android?.validNotificationSmallIcon;
+    return _call(
+      (host) async => _state.update(
+        await host.configure(appId, handlesNotifications, icon),
+      ),
+    );
+  }
 
   /// Whether native accepted the configuration (not whether it is online).
   static bool get isConfigured {
@@ -413,11 +419,20 @@ Future<void> configureForTesting(
   String appId,
   String serviceUrl,
   bool handlesNotifications,
-) => Reception._call(
-  (host) async => Reception._state.update(
-    await host.configureForTesting(appId, serviceUrl, handlesNotifications),
-  ),
-);
+  ReceptionAndroidOptions? android,
+) {
+  final icon = android?.validNotificationSmallIcon;
+  return Reception._call(
+    (host) async => Reception._state.update(
+      await host.configureForTesting(
+        appId,
+        serviceUrl,
+        handlesNotifications,
+        icon,
+      ),
+    ),
+  );
+}
 
 /// Restores the initial Dart state, as after a hot restart.
 @visibleForTesting

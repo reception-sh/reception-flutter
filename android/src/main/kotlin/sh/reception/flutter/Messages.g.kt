@@ -649,9 +649,13 @@ interface ReceptionHostApi {
   fun version(): String
   /** Replaces any previous Dart connection (hot restart) and returns the current state. */
   fun connect(): SnapshotMessage
-  fun configure(appId: String, handlesNotifications: Boolean): SnapshotMessage
+  /**
+   * [notificationSmallIcon] is an Android drawable name (validated in Dart);
+   * null keeps the SDK's built-in glyph. iOS ignores it.
+   */
+  fun configure(appId: String, handlesNotifications: Boolean, notificationSmallIcon: String?): SnapshotMessage
   /** Debug simulator builds only: configure against a localhost service. No-op in release builds. */
-  fun configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Boolean): SnapshotMessage
+  fun configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Boolean, notificationSmallIcon: String?): SnapshotMessage
   fun identify(userId: String?, name: String?, email: String?)
   fun identifyToken(token: String)
   fun setMetadata(metadata: Map<String, String>)
@@ -727,8 +731,9 @@ interface ReceptionHostApi {
             val args = message as List<Any?>
             val appIdArg = args[0] as String
             val handlesNotificationsArg = args[1] as Boolean
+            val notificationSmallIconArg = args[2] as String?
             val wrapped: List<Any?> = try {
-              listOf(api.configure(appIdArg, handlesNotificationsArg))
+              listOf(api.configure(appIdArg, handlesNotificationsArg, notificationSmallIconArg))
             } catch (exception: Throwable) {
               MessagesPigeonUtils.wrapError(exception)
             }
@@ -746,8 +751,9 @@ interface ReceptionHostApi {
             val appIdArg = args[0] as String
             val serviceUrlArg = args[1] as String
             val handlesNotificationsArg = args[2] as Boolean
+            val notificationSmallIconArg = args[3] as String?
             val wrapped: List<Any?> = try {
-              listOf(api.configureForTesting(appIdArg, serviceUrlArg, handlesNotificationsArg))
+              listOf(api.configureForTesting(appIdArg, serviceUrlArg, handlesNotificationsArg, notificationSmallIconArg))
             } catch (exception: Throwable) {
               MessagesPigeonUtils.wrapError(exception)
             }
