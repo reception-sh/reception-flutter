@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -135,6 +136,57 @@ void main() {
         containsPair('hybrid', true),
       ),
     ]);
+    await tester.pumpWidget(const SizedBox());
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  testWidgets('ReceptionChatView claims vertical drags by default', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform_views,
+      (call) async => null,
+    );
+    Set<Factory<OneSequenceGestureRecognizer>> recognizers() => tester
+        .widget<AndroidViewSurface>(find.byType(AndroidViewSurface))
+        .gestureRecognizers;
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: ListView(
+          children: const [SizedBox(height: 400, child: ReceptionChatView())],
+        ),
+      ),
+    );
+    await tester.pump();
+    final defaults = recognizers();
+    expect(defaults, ReceptionChatView.defaultGestureRecognizers);
+    expect(defaults.map((factory) => factory.constructor()), [
+      isA<VerticalDragGestureRecognizer>(),
+    ]);
+
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: ReceptionChatView(gestureRecognizers: {}),
+      ),
+    );
+    await tester.pump();
+    expect(recognizers(), isEmpty);
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: ReceptionChatView(),
+      ),
+    );
+    expect(
+      tester.widget<UiKitView>(find.byType(UiKitView)).gestureRecognizers,
+      ReceptionChatView.defaultGestureRecognizers,
+    );
     await tester.pumpWidget(const SizedBox());
     debugDefaultTargetPlatformOverride = null;
   });

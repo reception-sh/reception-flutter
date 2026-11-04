@@ -256,6 +256,14 @@ class HomePage extends StatelessWidget {
               MaterialPageRoute<void>(builder: (_) => const EmbeddedChatPage()),
             ),
           ),
+          button(
+            'Embedded chat in a list',
+            () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const EmbeddedChatInListPage(),
+              ),
+            ),
+          ),
           button('Open then close after 3s', () {
             run(() async {
               await Reception.openChat();
@@ -381,5 +389,24 @@ class EmbeddedChatPage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Embedded chat')),
     body: const Column(children: [Expanded(child: ReceptionChatView())]),
+  );
+}
+
+/// The chat inside a scrolling Flutter list: vertical drags on the chat
+/// scroll the chat, drags on the colored blocks scroll the list.
+class EmbeddedChatInListPage extends StatelessWidget {
+  const EmbeddedChatInListPage({super.key});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Chat in a list')),
+    body: ListView(
+      key: const Key('chatList'),
+      children: [
+        Container(height: 240, color: Colors.amber, child: const Text('Above')),
+        const SizedBox(height: 480, child: ReceptionChatView()),
+        Container(height: 600, color: Colors.teal, child: const Text('Below')),
+      ],
+    ),
   );
 }

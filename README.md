@@ -78,7 +78,9 @@ sharp at any size; other drawables are rasterized at their intrinsic size;
 Flutter assets are not supported); list those in a `tools:keep` resource file
 so release builds do not strip them. The embedded `ReceptionChatView` works in
 `FlutterActivity` and `FlutterFragmentActivity`, photos and the notification
-card included.
+card included, also with a cached engine whose activity is recreated.
+`ReceptionChatView` claims vertical drags, so it scrolls inside a `ListView`;
+pass `gestureRecognizers: {}` to leave them to the list.
 
 ## Push
 
