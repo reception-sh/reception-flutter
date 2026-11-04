@@ -207,3 +207,47 @@ The new widget test (`ReceptionChatView applies changed gestureRecognizers on An
 view`) fails on e1f47fc^ (`Expected: a value greater than <0>, Actual: <0.0>`) and passes after it. The plugin's and
 example's Kotlin compile without warnings (`compileDebugKotlin --rerun-tasks`; only Flutter's own Gradle sources and
 the AGP 9 plugin-usage notice warn).
+
+## Final check (SDK 728a9ce)
+
+Run 2026-11-05 on `main` at df33462, against Reception Android SDK 1.0.0 from `publishToMavenLocal` of a copy of
+`reception-android` HEAD 728a9ce (the final state before publishing). The only public API change since the SDK used
+by fix round 2 is the removal of `ReceptionPaywall.LIMIT` and `PRODUCT_BUDGET`, which the plugin never used; no
+plugin code changed. Emulator `emulator-5556` (`reception_pixel8_rn`, Android 16), Gboard for the keyboard step,
+Flutter 3.47.8, JDK 17, local backend `http://localhost:3123` (main 450ced06), test app "Flutter Example". Debug build
+with the `flutter run` defines above, installed with `adb install -r`. Screenshots `android/final-*.png`.
+
+| Step | Observed | Shot |
+| --- | --- | --- |
+| Launch | `Configured · SDK 1.0.0`, `Available: plans` | — |
+| Open chat, type, Send | "Sent"; Dart `chatOpened`, `messageSent` | final-01 |
+| Embedded chat, tap the composer, type (Gboard) | keyboard up, composer right above it, history above | final-02 |
+| Send in the embedded chat | sent; Dart `messageSent` | — |
+| Enable notifications (already granted), Home, team reply via `agent-reply.mts` (FCM v1) | `Push payload recognized`, `Notification shown` (channel `reception_replies`, tag `reception:<id>`, color `0xff8a2be2`), unread 1 | — |
+| Tap it in the shade | `Chat presented` with the reply | final-03 |
+| Close, Logout | `Logged out, session revocation queued`, `Session revocation completed`, token staged again for the new device; `Available: plans` | — |
+
+Checks:
+
+```
+$ flutter analyze                                   No issues found!
+$ (cd example && flutter analyze)                   No issues found!
+$ dart format --set-exit-if-changed .               Formatted 27 files (0 changed)
+$ flutter test                                      +82: All tests passed!
+$ (cd example/android && ./gradlew --refresh-dependencies :reception_flutter:testDebugUnitTest :reception_flutter:lintDebug)
+                                                    15 tests (ConfigureRequest 3, PaywallRequests 4, ReceptionPushReceiver 1,
+                                                    PushToken 1, ReceptionColor 3, ReceptionAssets 3), 0 failures;
+                                                    lint: No issues found.
+$ (cd example && flutter build apk --release)       ✓ Built build/app/outputs/flutter-apk/app-release.apk (48.0MB)
+$ flutter pub publish --dry-run                     Package has 0 warnings.
+```
+
+The Gradle run used `--no-daemon`: the running daemons referenced a transform in `~/.gradle/caches/9.3.1/transforms`
+that had been removed (`Daemon compilation failed: null`, `FileNotFoundException … gradle-api-9_3_1_jar-snapshot.bin`);
+a fresh process rebuilt it. Not a plugin issue.
+
+Found afterwards in the React Native final check (same SDK, same emulator): when a message fails ("Not delivered"),
+the SDK's `DeliveryStatus` calls the Compose 1.7 `FlowRow(…, FlowRowOverflow, …)` overload, which Compose 1.8+ no
+longer has (`NoSuchMethodError` at `SendingStatus.kt:44`). This example resolves foundation-layout 1.7.6 and is not
+affected; a Flutter app whose other dependencies pull Compose 1.8+ would crash on every chat open while such a message
+exists. SDK defect, to be fixed in reception-android before release.
