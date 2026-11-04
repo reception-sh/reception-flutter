@@ -1,5 +1,6 @@
 package sh.reception.flutter
 
+import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
@@ -15,6 +16,9 @@ internal object ReceptionAppearance {
     /** The appearance JSON last accepted from Dart, returned in snapshots. */
     var values: JSONObject = JSONObject()
         private set
+    private var json: String? = null
+    private var systemDark: Boolean? = null
+    private var observing = false
 
     fun apply(context: Context, json: String) {
         val values = try {
@@ -22,14 +26,19 @@ internal object ReceptionAppearance {
         } catch (_: JSONException) {
             return
         }
+        observeNightMode(context.applicationContext)
+        this.json = json
         val accepted = JSONObject(json)
         val style = Reception.Appearance()
+        val system = isNight(context.resources.configuration)
+        systemDark = system
         val dark = when (values.opt("preferredColorScheme") as? String) {
             "light" -> false
             "dark" -> true
-            else -> context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+            else -> system
         }
-        // The SDK takes one color per property; a light/dark pair resolves for the scheme in effect now.
+        // The SDK takes one color per property, so a light/dark pair resolves for the scheme in effect now and again
+        // when the system switches between light and dark (observeNightMode).
         fun color(key: String): Color? = ReceptionColor.decode(plain(values.opt(key)))?.let { Color(if (dark) it.dark else it.light) }
         fun text(key: String): String? = values.opt(key) as? String
         fun flag(key: String): Boolean? = values.opt(key) as? Boolean
@@ -111,6 +120,24 @@ internal object ReceptionAppearance {
         }
         this.values = accepted
         Reception.appearance = style
+    }
+
+    private fun isNight(configuration: Configuration): Boolean =
+        configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+
+    /** Applies the last appearance again when the system switches between light and dark, also under an open chat. */
+    private fun observeNightMode(application: Context) {
+        if (observing) return
+        observing = true
+        application.registerComponentCallbacks(object : ComponentCallbacks {
+            override fun onConfigurationChanged(configuration: Configuration) {
+                val json = json ?: return
+                if (isNight(configuration) != systemDark) apply(application, json)
+            }
+
+            @Deprecated("Deprecated in Java")
+            override fun onLowMemory() = Unit
+        })
     }
 
     private fun closeIconName(icon: Reception.CloseIcon): String = when (icon) {
