@@ -32,6 +32,11 @@ const identityToken = String.fromEnvironment(
   defaultValue: 'invalid.test.token',
 );
 
+/// Optional font family for the chat, for example a family from this app's
+/// `pubspec.yaml` fonts on Android or a font registered with iOS:
+/// `--dart-define=RECEPTION_FONT_FAMILY=MaterialIcons`.
+const fontFamily = String.fromEnvironment('RECEPTION_FONT_FAMILY');
+
 final status = ValueNotifier('Ready');
 final events = ValueNotifier<List<String>>(const []);
 final configured = ValueNotifier(false);
@@ -133,7 +138,7 @@ Future<void> configure() async {
   configured.value = Reception.isConfigured;
   status.value = Reception.isConfigured ? 'Configured' : 'Configured: false';
   Reception.logLevel = ReceptionLogLevel.debug;
-  Reception.appearance = const ReceptionAppearance(
+  Reception.appearance = ReceptionAppearance(
     accentColor: ReceptionColor.adaptive(light: '#8A2BE2', dark: '#C89FFF'),
     chatBackground: ReceptionColor.adaptive(light: '#F5F1FA', dark: '#191024'),
     incomingBackground: ReceptionColor.adaptive(
@@ -146,6 +151,7 @@ Future<void> configure() async {
     ),
     onAccentColor: ReceptionColor.adaptive(light: '#FFFFFF', dark: '#22112F'),
     showsCloseButton: true,
+    fontFamily: fontFamily.isEmpty ? null : fontFamily,
   );
   Reception.usesRemoteAppearance = false;
   Reception.paywalls = [
