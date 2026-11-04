@@ -1,4 +1,6 @@
-# Push design for reception_flutter (iOS)
+# Push design for reception_flutter
+
+iOS first; the Android design is the last section, "Android".
 
 Verified facts (Flutter engine source, FlutterFire source, Flutter UIScene migration page, 2026-10-27):
 
@@ -136,3 +138,70 @@ notifications (equivalent to completing with `[]`).
 - flutter_local_notifications: keep its documented AppDelegate setup; Reception wraps whatever delegate exists at configure.
 - Minimum Flutter 3.44: SwiftPM plugins need the `FlutterFramework` package that Flutter creates from 3.44 (verified
   on 3.44.0 and 3.47.8); the scene delegate API exists since 3.38.
+
+---
+
+## Android (2026-11-04, plugin 1.2.0 with Reception Android SDK 1.0.0)
+
+Everything above is iOS. On Android the SDK owns presentation and tap routing; the plugin only gets Reception
+messages to the SDK and keeps the push token across logout and deletion.
+
+### Verified facts (SDK SPEC.md "Push notifications", firebase_messaging 17.0.1 sources)
+
+- FCM delivers every message as the ordered broadcast `com.google.android.c2dm.intent.RECEIVE`, sent by Google Play
+  services to the app's package; receivers declare `android:permission="com.google.android.c2dm.permission.SEND"`.
+  firebase-messaging's own receiver turns it into a `FirebaseMessagingService.onMessageReceived` call (intent filter
+  `com.google.firebase.MESSAGING_EVENT`; only one service of an app gets it).
+- firebase_messaging declares `FlutterFirebaseMessagingService` (its `onMessageReceived` is empty) and
+  `FlutterFirebaseMessagingReceiver` on the same RECEIVE broadcast. That receiver forwards every message to Dart:
+  `FirebaseMessaging.onMessage` in the foreground, otherwise the background isolate when the app set
+  `onBackgroundMessage`. So with FlutterFire present the app cannot also enable the SDK's `ReceptionMessagingService`,
+  and Reception's Dart code may not run at all for a background message (nothing calls `configure` in the background
+  isolate).
+- Reception sends data-only, high-priority messages `{reception: <conversationId>, title, body, badge?, sound?}`.
+  `Reception.handlePushMessage(context, data)` recognizes them synchronously, works before `configure` (FCM can start
+  the process for the message) and posts the SDK's notification unless the chat is open.
+- The SDK's notification taps open its `ReceptionNotificationActivity` trampoline, which routes through the SDK's
+  `NotificationRouting` (the same rules as the plugin's iOS routing: 64 keys, pending tap before configure, drained
+  500 ms after configure). The SDK registers the FCM token itself (`registerForPushIfAuthorized`: at configure, every
+  foreground, after logout and deletion) when notifications are allowed and Firebase is initialized.
+- Flutter configures from Dart after `FlutterActivity` resumed, so the SDK's activity tracking would see no activity
+  until the next resume; `Reception.noteCurrentActivity(activity)` (`@ReceptionInternalApi`) hands it over.
+
+### Decisions
+
+- **Receipt: `ReceptionPushReceiver` in the plugin manifest.** An exported receiver with the c2dm `SEND` permission
+  and the `RECEIVE` filter, merged into every app. For a message with a `reception` field it calls
+  `Reception.handlePushMessage(context, data)` with the message's string extras; everything else it ignores. It
+  never aborts the broadcast or sets a result, so Firebase's receiver, firebase_messaging's receiver and any native
+  service still see every message. One code path whether or not the app uses firebase_messaging, and it works in a
+  process FCM started for the message, before any Dart code ran.
+- **Rejected:** aborting the ordered broadcast at a higher priority so FlutterFire never sees Reception messages (it
+  would also starve Firebase's own receiver, which acknowledges delivery; not worth the risk for hiding a data
+  message); handling from Dart `onMessage`/`onBackgroundMessage` (needs firebase_messaging, app code, and a
+  background isolate that has not configured Reception and has no way to post the SDK's notification); the SDK's
+  `ReceptionMessagingService` for apps without FlutterFire (a second path that would show every reply twice next to
+  the receiver).
+- **Consequence for apps with firebase_messaging:** Reception messages also reach `FirebaseMessaging.onMessage` and
+  `onBackgroundMessage` as data-only messages with `data['reception']`; skip them there (the plugin already shows
+  them). They have no `notification` block, so the common "show `message.notification`" handlers show nothing.
+- **Apps without firebase_messaging** add Firebase on the Gradle side only (google-services plugin,
+  `google-services.json`, `com.google.firebase:firebase-messaging`). No manifest edits and no Dart code: the SDK
+  fetches the token, the receiver shows replies. They must not enable `ReceptionMessagingService`.
+- **Token:** the SDK fetches it; Dart `setPushToken` accepts an FCM registration token (`^[A-Za-z0-9_:-]{1,4096}$`,
+  the environment is ignored) for apps that want to pass it themselves. The plugin caches it and re-applies it after
+  every accepted configure, `logout()` and successful `deleteData()`, like the APNs cache on iOS.
+- **Taps:** no plugin code. The SDK's trampoline routes them; the plugin calls `noteCurrentActivity` when it is
+  attached to the Flutter activity (also after configuration changes), so the drained cold-start tap and `openChat()`
+  find an activity. There is no Android `NotificationRouting` in the plugin and therefore no plugin unit test for it;
+  the SDK tests its port.
+- **`handlesNotifications: false`:** stored in the plugin's SharedPreferences (`sh.reception.flutter`) at every
+  configure the SDK accepts, because the receiver runs before Dart in a process started for a message. With false the
+  receiver ignores Reception messages; the app shows its own notification and calls
+  `Reception.handlePushNotification(message.data, openChat:)`, which routes without posting. Before the first
+  configure the default (true) applies.
+- **Presentation** is the SDK's: a notification while the chat is closed, none while it is open (iOS `willPresent`
+  policy), badge number from the payload with `updatesAppBadge`.
+- **Hot restart:** all push state is native and survives; nothing is replayed to Dart.
+- Android delivers no FCM message to a force-stopped app until the person opens it again; a process the system killed
+  receives messages and starts for them.
