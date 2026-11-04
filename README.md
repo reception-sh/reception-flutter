@@ -73,7 +73,9 @@ theme, add unread badges, identify customers, and connect paywalls or embedded c
 On Android, `ReceptionAppearance.fontFamily` names a family from the `fonts:`
 section of your `pubspec.yaml`, and `closeImage` and
 `ReceptionWelcomeIcon.image` name drawable resources in
-`android/app/src/main/res/drawable`; list those in a `tools:keep` resource file
+`android/app/src/main/res/drawable` (vector or bitmap drawables are drawn
+sharp at any size; other drawables are rasterized at their intrinsic size;
+Flutter assets are not supported); list those in a `tools:keep` resource file
 so release builds do not strip them. The embedded `ReceptionChatView` works in
 `FlutterActivity` and `FlutterFragmentActivity`, photos and the notification
 card included.
@@ -104,9 +106,10 @@ the SDK's `ReceptionMessagingService` to your manifest; the plugin already
 receives Reception messages beside `firebase_messaging`. With
 `firebase_messaging`, Reception messages also arrive in `onMessage` and
 `onBackgroundMessage` as data-only messages with a `reception` field: skip them
-there. With `configure(handlesNotifications: false)` the plugin shows nothing;
-show your own notification and call
-`Reception.handlePushNotification(message.data)` on its tap.
+there. With `configure(handlesNotifications: false)` the plugin shows nothing and a
+tap on a notification it showed earlier only brings the app forward; show your
+own notification and call `Reception.handlePushNotification(message.data)` on
+its tap.
 
 ## Compatibility
 

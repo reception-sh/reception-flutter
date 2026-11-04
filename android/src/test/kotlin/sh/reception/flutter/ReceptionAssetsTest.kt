@@ -33,4 +33,12 @@ class ReceptionAssetsTest {
         assertEquals(emptyList<ReceptionAssets.FontAsset>(), ReceptionAssets.fontAssets(manifest, "Missing"))
         assertEquals(emptyList<ReceptionAssets.FontAsset>(), ReceptionAssets.fontAssets("{", "Inter"))
     }
+
+    @Test
+    fun onlyVectorAndBitmapFilesGoToTheSdkAsResources() {
+        assertEquals(true, ReceptionAssets.drawsAsResource("res/drawable/close.xml", isVector = true))
+        assertEquals(true, ReceptionAssets.drawsAsResource("res/drawable-xxhdpi-v4/logo.png", isVector = false))
+        assertEquals(false, ReceptionAssets.drawsAsResource("res/drawable/shape.xml", isVector = false))
+        assertEquals(false, ReceptionAssets.drawsAsResource("", isVector = false))
+    }
 }

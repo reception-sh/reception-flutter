@@ -2,6 +2,9 @@ package sh.reception.flutter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
+import android.graphics.drawable.VectorDrawable
+import android.util.TypedValue
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -52,16 +55,35 @@ internal object ReceptionAssets {
         emptyList()
     }
 
-    /** A drawable resource of the app by name, drawn at its intrinsic size; null when missing. */
+    /** A drawable of the app, named in Dart's appearance (`res/drawable`, never a Flutter asset). */
+    sealed interface Image {
+        /** A vector or bitmap file the SDK draws itself with `painterResource`, at any density. */
+        data class Resource(val id: Int) : Image
+
+        /** Any other drawable (shape, layer list, `<bitmap>` XML, …), which `painterResource` cannot draw: rendered once
+         *  at its intrinsic size. */
+        class Rasterized(val painter: Painter) : Image
+    }
+
+    /** A drawable resource of the app by name; null when missing or without an intrinsic size (a plain color). */
     @SuppressLint("DiscouragedApi") // Dart passes the name; there is no generated R field to reference.
-    fun image(context: Context, name: String): Painter? {
-        val id = context.resources.getIdentifier(name, "drawable", context.packageName).takeIf { it != 0 } ?: return null
+    fun image(context: Context, name: String): Image? {
+        val resources = context.resources
+        val id = resources.getIdentifier(name, "drawable", context.packageName).takeIf { it != 0 } ?: return null
         return try {
-            val drawable = ResourcesCompat.getDrawable(context.resources, id, context.theme) ?: return null
-            BitmapPainter(drawable.toBitmap().asImageBitmap())
+            val drawable = ResourcesCompat.getDrawable(resources, id, context.theme) ?: return null
+            val file = TypedValue().also { resources.getValue(id, it, true) }.string?.toString().orEmpty()
+            if (drawsAsResource(file, drawable is VectorDrawable)) return Image.Resource(id)
+            Image.Rasterized(BitmapPainter(drawable.toBitmap().asImageBitmap()))
         } catch (_: IllegalArgumentException) {
             // A drawable without an intrinsic size, such as a plain color.
             null
+        } catch (_: Resources.NotFoundException) {
+            null
         }
     }
+
+    /** `painterResource` parses every XML file as a vector and decodes every other file as a bitmap. */
+    fun drawsAsResource(file: String, isVector: Boolean): Boolean =
+        if (file.endsWith(".xml")) isVector else file.isNotEmpty()
 }

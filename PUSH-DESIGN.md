@@ -196,8 +196,11 @@ messages to the SDK and keeps the push token across logout and deletion.
   find an activity. There is no Android `NotificationRouting` in the plugin and therefore no plugin unit test for it;
   the SDK tests its port.
 - **`handlesNotifications: false`:** stored in the plugin's SharedPreferences (`sh.reception.flutter`) at every
-  configure the SDK accepts, because the receiver runs before Dart in a process started for a message. With false the
-  receiver ignores Reception messages; the app shows its own notification and calls
+  configure the SDK accepts, because the receiver runs before Dart in a process started for a message. Every accepted
+  configure first calls `Reception.setNotificationRoutingEnabled(handlesNotifications)` (`@ReceptionInternalApi`;
+  the flag lives in memory, so it is set before the SDK's `configure` on every launch): with false the SDK discards
+  a tap that arrived before configure and later taps on notifications it posted earlier only bring the app forward.
+  With false the receiver ignores Reception messages; the app shows its own notification and calls
   `Reception.handlePushNotification(message.data, openChat:)`, which routes without posting. Before the first
   configure the default (true) applies.
 - **Presentation** is the SDK's: a notification while the chat is closed, none while it is open (iOS `willPresent`

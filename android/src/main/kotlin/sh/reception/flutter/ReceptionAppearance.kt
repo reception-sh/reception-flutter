@@ -1,10 +1,7 @@
 package sh.reception.flutter
 
-import android.content.ComponentCallbacks
 import android.content.Context
-import android.content.res.Configuration
 import android.util.Log
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.json.JSONException
@@ -16,9 +13,6 @@ internal object ReceptionAppearance {
     /** The appearance JSON last accepted from Dart, returned in snapshots. */
     var values: JSONObject = JSONObject()
         private set
-    private var json: String? = null
-    private var systemDark: Boolean? = null
-    private var observing = false
 
     fun apply(context: Context, json: String) {
         val values = try {
@@ -26,20 +20,10 @@ internal object ReceptionAppearance {
         } catch (_: JSONException) {
             return
         }
-        observeNightMode(context.applicationContext)
-        this.json = json
         val accepted = JSONObject(json)
         val style = Reception.Appearance()
-        val system = isNight(context.resources.configuration)
-        systemDark = system
-        val dark = when (values.opt("preferredColorScheme") as? String) {
-            "light" -> false
-            "dark" -> true
-            else -> system
-        }
-        // The SDK takes one color per property, so a light/dark pair resolves for the scheme in effect now and again
-        // when the system switches between light and dark (observeNightMode).
-        fun color(key: String): Color? = ReceptionColor.decode(plain(values.opt(key)))?.let { Color(if (dark) it.dark else it.light) }
+        // A light/dark pair goes to the SDK as one, which picks the variant of the mode the chat draws in.
+        fun color(key: String): sh.reception.ReceptionColor? = ReceptionColor.decode(plain(values.opt(key)))?.sdk
         fun text(key: String): String? = values.opt(key) as? String
         fun flag(key: String): Boolean? = values.opt(key) as? Boolean
         fun number(key: String, range: ClosedFloatingPointRange<Double>): Double? =
@@ -97,12 +81,14 @@ internal object ReceptionAppearance {
             }
         }
         text("closeImage")?.let { name ->
-            val image = ReceptionAssets.image(context, name)
-            if (image != null) {
-                style.closeImage = image
-            } else {
-                keepPrevious("closeImage", "Missing close image ignored")
-                style.closeImage = Reception.appearance.closeImage
+            when (val image = ReceptionAssets.image(context, name)) {
+                is ReceptionAssets.Image.Resource -> style.closeImageResource = image.id
+                is ReceptionAssets.Image.Rasterized -> style.closeImage = image.painter
+                null -> {
+                    keepPrevious("closeImage", "Missing close image ignored")
+                    Reception.appearance.closeImageResource?.let { style.closeImageResource = it }
+                        ?: run { style.closeImage = Reception.appearance.closeImage }
+                }
             }
         }
         (values.opt("welcomeIcon") as? JSONObject)?.let { icon ->
@@ -111,7 +97,8 @@ internal object ReceptionAppearance {
             when {
                 icon.opt("hidden") == true -> style.welcomeIcon = Reception.WelcomeIcon.hidden
                 symbol != null -> style.welcomeIcon = Reception.WelcomeIcon.symbol(symbol)
-                image != null -> style.welcomeIcon = Reception.WelcomeIcon.image(image)
+                image is ReceptionAssets.Image.Resource -> style.welcomeIcon = Reception.WelcomeIcon.resource(image.id)
+                image is ReceptionAssets.Image.Rasterized -> style.welcomeIcon = Reception.WelcomeIcon.image(image.painter)
                 else -> {
                     keepPrevious("welcomeIcon", "Missing welcome icon ignored")
                     style.welcomeIcon = Reception.appearance.welcomeIcon
@@ -120,24 +107,6 @@ internal object ReceptionAppearance {
         }
         this.values = accepted
         Reception.appearance = style
-    }
-
-    private fun isNight(configuration: Configuration): Boolean =
-        configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-
-    /** Applies the last appearance again when the system switches between light and dark, also under an open chat. */
-    private fun observeNightMode(application: Context) {
-        if (observing) return
-        observing = true
-        application.registerComponentCallbacks(object : ComponentCallbacks {
-            override fun onConfigurationChanged(configuration: Configuration) {
-                val json = json ?: return
-                if (isNight(configuration) != systemDark) apply(application, json)
-            }
-
-            @Deprecated("Deprecated in Java")
-            override fun onLowMemory() = Unit
-        })
     }
 
     private fun closeIconName(icon: Reception.CloseIcon): String = when (icon) {

@@ -2,6 +2,9 @@ package sh.reception.flutter
 
 /** A color from Dart's appearance JSON: one hex string, or a `{light, dark}` pair of them. */
 internal data class ReceptionColor(val light: Int, val dark: Int) {
+    /** The SDK color, which picks the variant of the mode the chat draws in. */
+    val sdk: sh.reception.ReceptionColor get() = sh.reception.ReceptionColor.argb(light, dark)
+
     companion object {
         private val hex = Regex("^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$")
 
