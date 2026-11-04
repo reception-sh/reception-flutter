@@ -651,7 +651,7 @@ interface ReceptionHostApi {
   fun connect(): SnapshotMessage
   fun configure(appId: String, handlesNotifications: Boolean): SnapshotMessage
   /** Debug simulator builds only: configure against a localhost service. No-op in release builds. */
-  fun configureForTesting(appId: String, serviceUrl: String): SnapshotMessage
+  fun configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Boolean): SnapshotMessage
   fun identify(userId: String?, name: String?, email: String?)
   fun identifyToken(token: String)
   fun setMetadata(metadata: Map<String, String>)
@@ -745,8 +745,9 @@ interface ReceptionHostApi {
             val args = message as List<Any?>
             val appIdArg = args[0] as String
             val serviceUrlArg = args[1] as String
+            val handlesNotificationsArg = args[2] as Boolean
             val wrapped: List<Any?> = try {
-              listOf(api.configureForTesting(appIdArg, serviceUrlArg))
+              listOf(api.configureForTesting(appIdArg, serviceUrlArg, handlesNotificationsArg))
             } catch (exception: Throwable) {
               MessagesPigeonUtils.wrapError(exception)
             }

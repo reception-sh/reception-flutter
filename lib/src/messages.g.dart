@@ -671,6 +671,7 @@ class ReceptionHostApi {
   Future<SnapshotMessage> configureForTesting(
     String appId,
     String serviceUrl,
+    bool handlesNotifications,
   ) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.reception_flutter.ReceptionHostApi.configureForTesting$pigeonVar_messageChannelSuffix';
@@ -680,7 +681,7 @@ class ReceptionHostApi {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[appId, serviceUrl],
+      <Object?>[appId, serviceUrl, handlesNotifications],
     );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 

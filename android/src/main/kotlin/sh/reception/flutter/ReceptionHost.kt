@@ -152,14 +152,14 @@ internal class ReceptionHost(private val context: Context, private val flutterAp
     }
 
     @OptIn(ReceptionInternalApi::class)
-    override fun configureForTesting(appId: String, serviceUrl: String): SnapshotMessage {
+    override fun configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Boolean): SnapshotMessage {
         val uri = serviceUrl.toUri()
         val debuggable = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
         // 10.0.2.2 is the development machine's loopback as seen from the Android emulator.
         if (debuggable && uri.scheme in setOf("http", "https") && uri.host in loopbackHosts) {
-            Reception.setNotificationRoutingEnabled(true)
+            Reception.setNotificationRoutingEnabled(handlesNotifications)
             Reception.configureForTesting(context, appId, serviceUrl)
-            ReceptionNotifications.configured(context, handlesNotifications = true)
+            ReceptionNotifications.configured(context, handlesNotifications)
         }
         return snapshot()
     }

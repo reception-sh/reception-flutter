@@ -113,7 +113,11 @@ abstract class ReceptionHostApi {
   SnapshotMessage configure(String appId, bool handlesNotifications);
 
   /// Debug simulator builds only: configure against a localhost service. No-op in release builds.
-  SnapshotMessage configureForTesting(String appId, String serviceUrl);
+  SnapshotMessage configureForTesting(
+    String appId,
+    String serviceUrl,
+    bool handlesNotifications,
+  );
 
   void identify(String? userId, String? name, String? email);
   void identifyToken(String token);

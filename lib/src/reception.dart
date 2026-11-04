@@ -409,12 +409,15 @@ abstract final class Reception {
 
 /// Configures against a localhost service through the same connection path as
 /// [Reception.configure]; see `package:reception_flutter/testing.dart`.
-Future<void> configureForTesting(String appId, String serviceUrl) =>
-    Reception._call(
-      (host) async => Reception._state.update(
-        await host.configureForTesting(appId, serviceUrl),
-      ),
-    );
+Future<void> configureForTesting(
+  String appId,
+  String serviceUrl,
+  bool handlesNotifications,
+) => Reception._call(
+  (host) async => Reception._state.update(
+    await host.configureForTesting(appId, serviceUrl, handlesNotifications),
+  ),
+);
 
 /// Restores the initial Dart state, as after a hot restart.
 @visibleForTesting

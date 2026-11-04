@@ -139,13 +139,15 @@ internal final class ReceptionHost: @preconcurrency ReceptionHostApi {
     return snapshot()
   }
 
-  func configureForTesting(appId: String, serviceUrl: String) throws -> SnapshotMessage {
+  func configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Bool) throws
+    -> SnapshotMessage
+  {
     #if DEBUG && targetEnvironment(simulator)
       if let url = URL(string: serviceUrl), let host = url.host, let scheme = url.scheme,
         ["localhost", "127.0.0.1", "::1"].contains(host), ["http", "https"].contains(scheme)
       {
         Reception.configure(appId: appId, serviceURL: url)
-        ReceptionNotifications.shared.configured(handlesNotifications: true)
+        ReceptionNotifications.shared.configured(handlesNotifications: handlesNotifications)
       }
     #endif
     return snapshot()

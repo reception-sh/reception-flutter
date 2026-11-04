@@ -32,6 +32,21 @@ void main() {
     expect(host.callsTo('configureForTesting').single, [
       'app_example',
       'http://localhost:3000',
+      true,
+    ]);
+  });
+
+  test('passes handlesNotifications through', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    await configureReceptionForTesting(
+      appId: 'app_example',
+      serviceUrl: Uri.parse('http://10.0.2.2:3000'),
+      handlesNotifications: false,
+    );
+    expect(host.callsTo('configureForTesting').single, [
+      'app_example',
+      'http://10.0.2.2:3000',
+      false,
     ]);
   });
 

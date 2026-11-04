@@ -630,7 +630,7 @@ protocol ReceptionHostApi {
   func connect() throws -> SnapshotMessage
   func configure(appId: String, handlesNotifications: Bool) throws -> SnapshotMessage
   /// Debug simulator builds only: configure against a localhost service. No-op in release builds.
-  func configureForTesting(appId: String, serviceUrl: String) throws -> SnapshotMessage
+  func configureForTesting(appId: String, serviceUrl: String, handlesNotifications: Bool) throws -> SnapshotMessage
   func identify(userId: String?, name: String?, email: String?) throws
   func identifyToken(token: String) throws
   func setMetadata(metadata: [String: String]) throws
@@ -715,8 +715,9 @@ class ReceptionHostApiSetup {
         let args = message as! [Any?]
         let appIdArg = args[0] as! String
         let serviceUrlArg = args[1] as! String
+        let handlesNotificationsArg = args[2] as! Bool
         do {
-          let result = try api.configureForTesting(appId: appIdArg, serviceUrl: serviceUrlArg)
+          let result = try api.configureForTesting(appId: appIdArg, serviceUrl: serviceUrlArg, handlesNotifications: handlesNotificationsArg)
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))

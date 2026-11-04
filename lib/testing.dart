@@ -10,8 +10,14 @@ import 'src/reception.dart' as reception;
 /// Android in debuggable builds with a loopback [serviceUrl] (`10.0.2.2` is
 /// the development machine from the emulator); the native side enforces this
 /// and leaves release builds unchanged. Like `Reception.configure`, it
-/// completes immediately off iOS and Android.
+/// completes immediately off iOS and Android. [handlesNotifications] works as
+/// in `Reception.configure`.
 Future<void> configureReceptionForTesting({
   required String appId,
   required Uri serviceUrl,
-}) => reception.configureForTesting(appId, serviceUrl.toString());
+  bool handlesNotifications = true,
+}) => reception.configureForTesting(
+  appId,
+  serviceUrl.toString(),
+  handlesNotifications,
+);

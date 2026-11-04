@@ -37,6 +37,13 @@ const identityToken = String.fromEnvironment(
 /// `--dart-define=RECEPTION_FONT_FAMILY=MaterialIcons`.
 const fontFamily = String.fromEnvironment('RECEPTION_FONT_FAMILY');
 
+/// `--dart-define=RECEPTION_HANDLES_NOTIFICATIONS=false` configures with
+/// `handlesNotifications: false` (the app owns its notifications).
+const handlesNotifications = bool.fromEnvironment(
+  'RECEPTION_HANDLES_NOTIFICATIONS',
+  defaultValue: true,
+);
+
 final status = ValueNotifier('Ready');
 final events = ValueNotifier<List<String>>(const []);
 final configured = ValueNotifier(false);
@@ -125,14 +132,15 @@ Future<bool> plansOnly(String id) async {
 }
 
 /// Configures Reception and reports the native result in the status line.
-Future<void> configure() async {
+Future<void> configure({bool handles = handlesNotifications}) async {
   if (serviceUrl.isEmpty) {
-    await Reception.configure(appId: appId);
+    await Reception.configure(appId: appId, handlesNotifications: handles);
   } else {
     // Debug simulator builds with a localhost URL only; a no-op otherwise.
     await configureReceptionForTesting(
       appId: appId,
       serviceUrl: Uri.parse(serviceUrl),
+      handlesNotifications: handles,
     );
   }
   configured.value = Reception.isConfigured;
@@ -238,6 +246,10 @@ class HomePage extends StatelessWidget {
             }, 'Preconfigure calls completed');
           }),
           button('Configure', () => run(configure, null)),
+          button(
+            'Configure, app owns notifications',
+            () => run(() => configure(handles: false), null),
+          ),
           ValueListenableBuilder(
             valueListenable: Reception.unreadCount,
             builder: (context, unread, _) => FilledButton.icon(
