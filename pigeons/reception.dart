@@ -1,4 +1,4 @@
-// Bridge contract between Dart and the iOS host. Regenerate with:
+// Bridge contract between Dart and the iOS and Android hosts. Regenerate with:
 //   dart run pigeon --input pigeons/reception.dart
 import 'package:pigeon/pigeon.dart';
 
@@ -8,6 +8,12 @@ import 'package:pigeon/pigeon.dart';
     swiftOut:
         'ios/reception_flutter/Sources/reception_flutter/Messages.g.swift',
     swiftOptions: SwiftOptions(errorClassName: 'ReceptionBridgeError'),
+    kotlinOut:
+        'android/src/main/kotlin/sh/reception/flutter/Messages.g.kt',
+    kotlinOptions: KotlinOptions(
+      package: 'sh.reception.flutter',
+      errorClassName: 'ReceptionBridgeError',
+    ),
     dartPackageName: 'reception_flutter',
   ),
 )
