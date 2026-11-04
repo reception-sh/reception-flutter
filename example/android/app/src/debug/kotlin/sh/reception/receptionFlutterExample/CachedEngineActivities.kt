@@ -1,6 +1,7 @@
 package sh.reception.receptionFlutterExample
 
 import android.content.Context
+import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -25,12 +26,20 @@ class CachedEngineActivity : FlutterActivity() {
 }
 
 class CachedEngineFragmentActivity : FlutterFragmentActivity() {
-    // A provided engine would be destroyed with the fragment (FlutterFragment.withNewEngine always asks for that), so
-    // the fragment gets the cached engine by its ID.
-    override fun getCachedEngineId(): String {
-        cachedEngine(this, "fragmentActivity")
-        return "fragmentActivity"
+    // Before super.onCreate: after the process died, it restores the FlutterFragment, which looks the engine up by
+    // its ID right away.
+    override fun onCreate(savedInstanceState: Bundle?) {
+        cachedEngine(this, ENGINE_ID)
+        super.onCreate(savedInstanceState)
     }
 
+    // A provided engine would be destroyed with the fragment (FlutterFragment.withNewEngine always asks for that), so
+    // the fragment gets the cached engine by its ID.
+    override fun getCachedEngineId(): String = ENGINE_ID
+
     override fun shouldDestroyEngineWithHost(): Boolean = false
+
+    private companion object {
+        const val ENGINE_ID = "fragmentActivity"
+    }
 }
