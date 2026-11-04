@@ -190,4 +190,57 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     debugDefaultTargetPlatformOverride = null;
   });
+
+  testWidgets('ReceptionChatView applies changed gestureRecognizers on Android '
+      'without recreating the native view', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    var creations = 0;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform_views,
+      (call) async {
+        if (call.method == 'create') creations += 1;
+        return null;
+      },
+    );
+    final scroll = ScrollController();
+    addTearDown(scroll.dispose);
+    Future<void> show(Set<Factory<OneSequenceGestureRecognizer>> recognizers) =>
+        tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: ListView(
+              controller: scroll,
+              children: [
+                SizedBox(
+                  height: 400,
+                  child: ReceptionChatView(gestureRecognizers: recognizers),
+                ),
+                const SizedBox(height: 2000),
+              ],
+            ),
+          ),
+        );
+    Future<void> dragChat() async {
+      scroll.jumpTo(0);
+      await tester.drag(find.byType(ReceptionChatView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+    }
+
+    await show(ReceptionChatView.defaultGestureRecognizers);
+    await tester.pump();
+    await dragChat();
+    expect(scroll.offset, 0, reason: 'the chat claims the drag');
+
+    await show(const {});
+    await dragChat();
+    expect(scroll.offset, greaterThan(0), reason: 'the list takes the drag');
+
+    await show(ReceptionChatView.defaultGestureRecognizers);
+    await dragChat();
+    expect(scroll.offset, 0, reason: 'the chat claims the drag again');
+
+    expect(creations, 1);
+    await tester.pumpWidget(const SizedBox());
+    debugDefaultTargetPlatformOverride = null;
+  });
 }

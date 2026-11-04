@@ -411,18 +411,43 @@ class EmbeddedChatPage extends StatelessWidget {
 }
 
 /// The chat inside a scrolling Flutter list: vertical drags on the chat
-/// scroll the chat, drags on the colored blocks scroll the list.
-class EmbeddedChatInListPage extends StatelessWidget {
+/// scroll the chat, drags on the colored blocks scroll the list. The app bar
+/// button switches the chat's gesture recognizers, so drags on the chat
+/// scroll the list instead (verification/android.md, fix round 2).
+class EmbeddedChatInListPage extends StatefulWidget {
   const EmbeddedChatInListPage({super.key});
 
   @override
+  State<EmbeddedChatInListPage> createState() => _EmbeddedChatInListPageState();
+}
+
+class _EmbeddedChatInListPageState extends State<EmbeddedChatInListPage> {
+  var _chatClaimsDrags = true;
+
+  @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Chat in a list')),
+    appBar: AppBar(
+      title: const Text('Chat in a list'),
+      actions: [
+        TextButton(
+          key: const Key('toggleRecognizers'),
+          onPressed: () => setState(() => _chatClaimsDrags = !_chatClaimsDrags),
+          child: Text(_chatClaimsDrags ? 'Chat drags: on' : 'Chat drags: off'),
+        ),
+      ],
+    ),
     body: ListView(
       key: const Key('chatList'),
       children: [
         Container(height: 240, color: Colors.amber, child: const Text('Above')),
-        const SizedBox(height: 480, child: ReceptionChatView()),
+        SizedBox(
+          height: 480,
+          child: ReceptionChatView(
+            gestureRecognizers: _chatClaimsDrags
+                ? ReceptionChatView.defaultGestureRecognizers
+                : const {},
+          ),
+        ),
         Container(height: 600, color: Colors.teal, child: const Text('Below')),
       ],
     ),
