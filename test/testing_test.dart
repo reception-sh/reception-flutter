@@ -35,8 +35,8 @@ void main() {
     ]);
   });
 
-  test('is a no-op off iOS', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+  test('is a no-op off iOS and Android', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
     await configureReceptionForTesting(
       appId: 'app_example',
       serviceUrl: Uri.parse('http://localhost:3000'),

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import 'android_sdk_version.dart';
 import 'appearance.dart';
 import 'errors.dart';
 import 'messages.g.dart';
@@ -11,9 +12,9 @@ import 'sdk_version.dart';
 import 'state.dart';
 import 'types.dart';
 
-/// Reception's native iOS support chat. On other platforms every call
-/// completes immediately, state keeps its defaults, and a notice is logged
-/// once.
+/// Reception's native support chat for iOS and Android. On other platforms
+/// every call completes immediately, state keeps its defaults, and a notice is
+/// logged once.
 abstract final class Reception {
   static final _api = ReceptionHostApi();
   static var _state = ReceptionState();
@@ -73,19 +74,21 @@ abstract final class Reception {
     return _state.isConfigured;
   }
 
-  /// Version of the bundled iOS SDK.
+  /// Version of the bundled iOS SDK, or on Android of the Reception Android
+  /// SDK the plugin uses.
   static String get version {
     checkSupported();
-    return sdkVersion;
+    return isAndroid ? androidSdkVersion : sdkVersion;
   }
 
-  /// Live unread message count; 0 off iOS.
+  /// Live unread message count; 0 off iOS and Android.
   static ValueListenable<int> get unreadCount {
     checkSupported();
     return _state.unreadCount;
   }
 
-  /// Whether the chat is actually visible, not just requested; false off iOS.
+  /// Whether the chat is actually visible, not just requested; false off iOS
+  /// and Android.
   static ValueListenable<bool> get isChatOpen {
     checkSupported();
     return _state.isChatOpen;
@@ -143,12 +146,22 @@ abstract final class Reception {
   static Future<void> track(String event, {bool opensChat = false}) =>
       _call((host) => host.track(event, opensChat));
 
-  /// Registers a raw APNs device token in hex (never an FCM token). Invalid
-  /// tokens are logged and ignored.
+  /// Registers a push token: on iOS a raw APNs device token in hex (never an
+  /// FCM token), on Android the FCM registration token ([environment] is
+  /// ignored there). Invalid tokens are logged and ignored. Usually not
+  /// needed: the plugin registers the token itself.
   static Future<void> setPushToken(
     String hexToken, {
     ReceptionPushEnvironment environment = ReceptionPushEnvironment.automatic,
   }) => _call((host) async {
+    if (isAndroid) {
+      if (!_fcmToken.hasMatch(hexToken)) {
+        warnInvalid('FCM token');
+        return;
+      }
+      await host.setPushToken(hexToken, environment.name);
+      return;
+    }
     if (hexToken.length > 512 || !_pushToken.hasMatch(hexToken)) {
       warnInvalid('APNs token or environment');
       return;
@@ -157,15 +170,18 @@ abstract final class Reception {
   });
 
   static final _pushToken = RegExp(r'^(?:[\da-f]{2})+$', caseSensitive: false);
+  static final _fcmToken = RegExp(r'^[\w:-]{1,4096}$');
 
-  /// Requests the APNs token again when notifications are already
-  /// authorized. Never prompts.
+  /// Requests the push token again (APNs on iOS, FCM on Android) when
+  /// notifications are already allowed. Never prompts.
   static Future<void> registerForPushIfAuthorized() =>
       _call((host) => host.registerForPushIfAuthorized());
 
-  /// Routes a raw APNs [payload] you received yourself. Returns true for a
+  /// Routes a push [payload] you received yourself: the raw APNs payload on
+  /// iOS, or the FCM message's `data` on Android. Returns true for a
   /// Reception notification and false for others. Pass [openChat] false for
-  /// foreground receipt and true (default) for taps.
+  /// foreground receipt and true (default) for taps. It never shows a
+  /// notification.
   static Future<bool> handlePushNotification(
     Map<String, Object?> payload, {
     bool openChat = true,
@@ -173,6 +189,7 @@ abstract final class Reception {
     // Only this routing field is consumed natively; read it before any await.
     final id = switch (payload['reception']) {
       {'conversationId': final String id} when id.isNotEmpty => id,
+      final String id when isAndroid && id.isNotEmpty => id,
       _ => null,
     };
     return await _call(
@@ -248,7 +265,7 @@ abstract final class Reception {
   );
 
   /// BCP 47 language tag for an in-app language picker; null (default)
-  /// follows the app's iOS localization.
+  /// follows the app's language.
   static String? get languageOverride {
     checkSupported();
     return _state.setting('languageOverride');

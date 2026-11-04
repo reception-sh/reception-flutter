@@ -2,13 +2,23 @@ import 'package:flutter/foundation.dart';
 
 bool _warned = false;
 
-/// Whether Reception runs on this platform (iOS). Elsewhere logs the
-/// iOS-only notice once per process and returns false.
+/// Whether this is Android, where the plugin wraps the Reception Android SDK.
+bool get isAndroid =>
+    !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+/// Whether Reception runs on this platform (iOS and Android). Elsewhere logs
+/// the notice once per process and returns false.
 bool checkSupported() {
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) return true;
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.android)) {
+    return true;
+  }
   if (!_warned) {
     _warned = true;
-    debugPrint('[Reception] Support chat is available on iOS only.');
+    debugPrint(
+      '[Reception] Support chat is available on iOS and Android only.',
+    );
   }
   return false;
 }

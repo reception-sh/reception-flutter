@@ -69,7 +69,7 @@ SnapshotMessage snapshot({
   logLevel: logLevel,
 );
 
-/// Mocks the iOS host on the Pigeon channels of the test binary messenger.
+/// Mocks the native host on the Pigeon channels of the test binary messenger.
 class FakeHost {
   FakeHost() {
     for (final method in _methods) {

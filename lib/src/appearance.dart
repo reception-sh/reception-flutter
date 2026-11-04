@@ -51,12 +51,14 @@ class ReceptionColor {
 /// The icon above the welcome heading in an empty chat.
 @immutable
 class ReceptionWelcomeIcon {
-  /// An SF Symbol, for example `star`.
+  /// An SF Symbol, for example `star`. Android draws the symbols the
+  /// dashboard offers and the built-in icon for other names.
   const ReceptionWelcomeIcon.symbol(String name)
     : _key = 'symbol',
       _value = name;
 
-  /// An image from the host app's iOS asset catalog (not a Flutter asset).
+  /// An image of the host app by name, not a Flutter asset: from the iOS
+  /// asset catalog, and on Android a drawable resource (`res/drawable`).
   const ReceptionWelcomeIcon.image(String name) : _key = 'image', _value = name;
 
   const ReceptionWelcomeIcon._hidden() : _key = 'hidden', _value = true;
@@ -179,14 +181,16 @@ class ReceptionAppearance {
   /// Close button symbol.
   final ReceptionCloseIcon? closeIcon;
 
-  /// Close button image: a name from the host app's iOS asset catalog.
+  /// Close button image by name: from the host app's iOS asset catalog, and
+  /// on Android a drawable resource (`res/drawable`).
   final String? closeImage;
 
   /// System font design.
   final ReceptionFontDesign? fontDesign;
 
-  /// Font family name registered with iOS (Flutter `pubspec.yaml` fonts are
-  /// not available to UIKit).
+  /// Font family name. On iOS a font registered with iOS (Flutter
+  /// `pubspec.yaml` fonts are not available to UIKit); on Android a family
+  /// declared under `fonts:` in the app's `pubspec.yaml`.
   final String? fontFamily;
 
   /// Whether older outgoing text bubbles use lighter fills.

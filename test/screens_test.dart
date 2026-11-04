@@ -100,13 +100,16 @@ void main() {
     expect(opened, isEmpty);
   });
 
-  test('off iOS the list stays empty and the host is untouched', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
-    Reception.screens = [plain('settings')];
-    await pumpEventQueue();
-    expect(Reception.screens, isEmpty);
-    expect(host.calls, isEmpty);
-  });
+  test(
+    'off iOS and Android the list stays empty and the host is untouched',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      Reception.screens = [plain('settings')];
+      await pumpEventQueue();
+      expect(Reception.screens, isEmpty);
+      expect(host.calls, isEmpty);
+    },
+  );
 
   test('only the first 50 unique screens are kept, with one warning', () async {
     Reception.screens = [

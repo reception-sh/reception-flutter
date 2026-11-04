@@ -1,15 +1,42 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'platform.dart';
 
+const _viewType = 'reception_flutter/chat';
+
 /// The native chat embedded in your screen. Give it a defined size; your
-/// screen owns dismissal. Renders nothing off iOS.
+/// screen owns dismissal. Renders nothing off iOS and Android.
 class ReceptionChatView extends StatelessWidget {
   /// Creates the embedded chat.
   const ReceptionChatView({super.key});
 
   @override
-  Widget build(BuildContext context) => checkSupported()
-      ? const UiKitView(viewType: 'reception_flutter/chat')
-      : const SizedBox.shrink();
+  Widget build(BuildContext context) {
+    if (!checkSupported()) return const SizedBox.shrink();
+    if (!isAndroid) return const UiKitView(viewType: _viewType);
+    // Hybrid composition: the chat is a real Android view in the window, so
+    // its text field and the keyboard behave as in a native screen.
+    return PlatformViewLink(
+      viewType: _viewType,
+      surfaceFactory: (context, controller) => AndroidViewSurface(
+        controller: controller as AndroidViewController,
+        gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+        hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+      ),
+      onCreatePlatformView: (params) =>
+          PlatformViewsService.initExpensiveAndroidView(
+              id: params.id,
+              viewType: _viewType,
+              layoutDirection:
+                  Directionality.maybeOf(context) ?? TextDirection.ltr,
+              onFocus: () => params.onFocusChanged(true),
+            )
+            ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+            ..create(),
+    );
+  }
 }

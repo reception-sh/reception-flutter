@@ -1,4 +1,4 @@
-/// Reception's native iOS support chat for Flutter apps.
+/// Reception's native support chat for Flutter apps on iOS and Android.
 ///
 /// Public names (every type is prefixed with `Reception` so it cannot clash
 /// with other packages; keep `test/exports_test.dart` in sync):

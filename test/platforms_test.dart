@@ -9,7 +9,7 @@ import 'fake_host.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  for (final platform in [TargetPlatform.android, TargetPlatform.macOS]) {
+  for (final platform in [TargetPlatform.macOS, TargetPlatform.linux]) {
     test(
       '$platform never touches the host, throws, or changes default state',
       () async {
@@ -67,18 +67,23 @@ void main() {
         // The notice is logged once per process, so only by the first platform.
         expect(
           logs,
-          platform == TargetPlatform.android
-              ? ['[Reception] Support chat is available on iOS only.']
+          platform == TargetPlatform.macOS
+              ? ['[Reception] Support chat is available on iOS and Android only.']
               : isEmpty,
         );
       },
     );
   }
 
-  testWidgets('ReceptionChatView renders nothing off iOS', (tester) async {
+  testWidgets('ReceptionChatView renders nothing off iOS and Android', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
     await tester.pumpWidget(const ReceptionChatView());
     expect(find.byType(SizedBox), findsOneWidget);
     expect(find.byType(UiKitView), findsNothing);
+    expect(find.byType(PlatformViewLink), findsNothing);
+    debugDefaultTargetPlatformOverride = null;
   });
 
   testWidgets('ReceptionChatView hosts the native chat on iOS', (tester) async {
@@ -99,6 +104,37 @@ void main() {
     );
     expect(find.byType(UiKitView), findsOneWidget);
     expect(created, [containsPair('viewType', 'reception_flutter/chat')]);
+    await tester.pumpWidget(const SizedBox());
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  testWidgets('ReceptionChatView hosts the native chat on Android with '
+      'hybrid composition', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    final created = <Map<Object?, Object?>>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform_views,
+      (call) async {
+        if (call.method == 'create') {
+          created.add(call.arguments as Map<Object?, Object?>);
+        }
+        return null;
+      },
+    );
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: ReceptionChatView(),
+      ),
+    );
+    await tester.pump();
+    expect(find.byType(PlatformViewLink), findsOneWidget);
+    expect(created, [
+      allOf(
+        containsPair('viewType', 'reception_flutter/chat'),
+        containsPair('hybrid', true),
+      ),
+    ]);
     await tester.pumpWidget(const SizedBox());
     debugDefaultTargetPlatformOverride = null;
   });
