@@ -7,5 +7,17 @@
     <!-- Debug builds talk to the local backend over plain HTTP (10.0.2.2 is the host machine from the emulator). -->
     <application
         android:usesCleartextTraffic="true"
-        tools:ignore="UnusedAttribute" />
+        tools:ignore="UnusedAttribute">
+        <!-- Cached-engine hosts that rotation recreates (verification/android.md "Fix round 1"). -->
+        <activity
+            android:name=".CachedEngineActivity"
+            android:exported="true"
+            android:theme="@style/LaunchTheme"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".CachedEngineFragmentActivity"
+            android:exported="true"
+            android:theme="@style/LaunchTheme"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
 </manifest>
