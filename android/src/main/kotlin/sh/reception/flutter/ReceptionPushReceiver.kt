@@ -23,8 +23,14 @@ public class ReceptionPushReceiver : BroadcastReceiver() {
         /** `brand.pushPayloadKey` of the service: the conversation id of a Reception reply. */
         const val PAYLOAD_KEY = "reception"
 
-        /** The message's string fields; FCM sends data fields as string extras. */
-        fun data(extras: Bundle): Map<String, String> =
-            extras.keySet().mapNotNull { key -> (@Suppress("DEPRECATION") extras.get(key) as? String)?.let { key to it } }.toMap()
+        /**
+         * The message's string fields; FCM sends data fields as string extras. It keeps `google.message_id`, by which
+         * the SDK drops a message delivered again (for example to the receiver and the app's Firebase service).
+         */
+        fun data(extras: Bundle): Map<String, String> = data(extras.keySet()) { key -> @Suppress("DEPRECATION") extras.get(key) }
+
+        /** [data] over the extras' [keys] and their values; non-string values (FCM's `google.sent_time`, …) are dropped. */
+        fun data(keys: Iterable<String>, value: (String) -> Any?): Map<String, String> =
+            keys.mapNotNull { key -> (value(key) as? String)?.let { key to it } }.toMap()
     }
 }
