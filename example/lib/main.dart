@@ -37,6 +37,12 @@ const identityToken = String.fromEnvironment(
 /// `--dart-define=RECEPTION_FONT_FAMILY=MaterialIcons`.
 const fontFamily = String.fromEnvironment('RECEPTION_FONT_FAMILY');
 
+/// `--dart-define=RECEPTION_REMOTE_APPEARANCE=true` applies the dashboard's
+/// published appearance over the example's own.
+const usesRemoteAppearance = bool.fromEnvironment(
+  'RECEPTION_REMOTE_APPEARANCE',
+);
+
 /// `--dart-define=RECEPTION_HANDLES_NOTIFICATIONS=false` configures with
 /// `handlesNotifications: false` (the app owns its notifications).
 const handlesNotifications = bool.fromEnvironment(
@@ -161,7 +167,7 @@ Future<void> configure({bool handles = handlesNotifications}) async {
     showsCloseButton: true,
     fontFamily: fontFamily.isEmpty ? null : fontFamily,
   );
-  Reception.usesRemoteAppearance = false;
+  Reception.usesRemoteAppearance = usesRemoteAppearance;
   Reception.paywalls = [
     ReceptionPaywall(id: 'plans', title: 'Plans'),
     ReceptionPaywall(id: 'hidden', title: 'Unavailable plan'),
