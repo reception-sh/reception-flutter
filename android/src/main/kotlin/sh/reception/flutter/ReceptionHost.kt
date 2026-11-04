@@ -3,7 +3,6 @@ package sh.reception.flutter
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import androidx.compose.runtime.snapshotFlow
-import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -28,8 +27,6 @@ internal class ReceptionHost(private val context: Context, private val flutterAp
     private companion object {
         var current: WeakReference<ReceptionHost>? = null
         var revision = 0L
-        val appIdPattern = Regex("^app_[A-Za-z0-9]{22}$")
-        val loopbackHosts = setOf("localhost", "127.0.0.1", "::1", "[::1]", "10.0.2.2")
         val logLevels = mapOf(
             "off" to Reception.LogLevel.OFF, "error" to Reception.LogLevel.ERROR,
             "info" to Reception.LogLevel.INFO, "debug" to Reception.LogLevel.DEBUG,
@@ -139,33 +136,40 @@ internal class ReceptionHost(private val context: Context, private val flutterAp
         return snapshot()
     }
 
-    @OptIn(ReceptionInternalApi::class)
     override fun configure(appId: String, handlesNotifications: Boolean, notificationSmallIcon: String?): SnapshotMessage {
-        // The SDK logs why it refuses a malformed App ID; a refused one leaves any earlier configuration unchanged.
-        val accepted = appIdPattern.matches(appId)
-        if (accepted) Reception.notificationSmallIcon = ReceptionAssets.notificationIcon(context, notificationSmallIcon)
-        // Before configure: a tap that arrived before Dart ran waits as the SDK's pending tap, and the app that owns
-        // its notifications must not see the chat open for it.
-        if (accepted) Reception.setNotificationRoutingEnabled(handlesNotifications)
-        Reception.configure(context, appId)
-        if (accepted) ReceptionNotifications.configured(context, handlesNotifications)
+        ConfigureRequest(appId, null, handlesNotifications, notificationSmallIcon).run(sdkSteps, debuggable)
         return snapshot()
     }
 
-    @OptIn(ReceptionInternalApi::class)
     override fun configureForTesting(
         appId: String, serviceUrl: String, handlesNotifications: Boolean, notificationSmallIcon: String?,
     ): SnapshotMessage {
-        val uri = serviceUrl.toUri()
-        val debuggable = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
-        // 10.0.2.2 is the development machine's loopback as seen from the Android emulator.
-        if (debuggable && uri.scheme in setOf("http", "https") && uri.host in loopbackHosts) {
-            Reception.notificationSmallIcon = ReceptionAssets.notificationIcon(context, notificationSmallIcon)
-            Reception.setNotificationRoutingEnabled(handlesNotifications)
-            Reception.configureForTesting(context, appId, serviceUrl)
-            ReceptionNotifications.configured(context, handlesNotifications)
-        }
+        ConfigureRequest(appId, serviceUrl, handlesNotifications, notificationSmallIcon).run(sdkSteps, debuggable)
         return snapshot()
+    }
+
+    private val debuggable: Boolean
+        get() = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+
+    private val sdkSteps = object : ConfigureSteps {
+        @OptIn(ReceptionInternalApi::class)
+        override fun prepare(handlesNotifications: Boolean, notificationSmallIcon: String?) {
+            Reception.notificationSmallIcon = ReceptionAssets.notificationIcon(context, notificationSmallIcon)
+            // Before configure: a tap that arrived before Dart ran waits as the SDK's pending tap, and the app that
+            // owns its notifications must not see the chat open for it.
+            Reception.setNotificationRoutingEnabled(handlesNotifications)
+        }
+
+        @OptIn(ReceptionInternalApi::class)
+        override fun configure(appId: String, serviceUrl: String?) {
+            if (serviceUrl == null) Reception.configure(context, appId) else Reception.configureForTesting(context, appId, serviceUrl)
+        }
+
+        override fun configured(handlesNotifications: Boolean) = ReceptionNotifications.configured(context, handlesNotifications)
+
+        // The SDK logs why it refuses a malformed App ID and changes nothing; configureForTesting would first switch
+        // its service URL, so even a refused testing configure goes through configure.
+        override fun refused(appId: String) = Reception.configure(context, appId)
     }
 
     override fun identify(userId: String?, name: String?, email: String?) = Reception.identify(userId, name, email)
