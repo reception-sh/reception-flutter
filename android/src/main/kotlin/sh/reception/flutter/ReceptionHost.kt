@@ -2,8 +2,8 @@ package sh.reception.flutter
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import android.net.Uri
 import androidx.compose.runtime.snapshotFlow
+import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -148,7 +148,7 @@ internal class ReceptionHost(private val context: Context, private val flutterAp
 
     @OptIn(ReceptionInternalApi::class)
     override fun configureForTesting(appId: String, serviceUrl: String): SnapshotMessage {
-        val uri = Uri.parse(serviceUrl)
+        val uri = serviceUrl.toUri()
         val debuggable = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
         // 10.0.2.2 is the development machine's loopback as seen from the Android emulator.
         if (debuggable && uri.scheme in setOf("http", "https") && uri.host in loopbackHosts) {

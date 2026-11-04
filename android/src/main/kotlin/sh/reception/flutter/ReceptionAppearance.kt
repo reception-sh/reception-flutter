@@ -24,7 +24,7 @@ internal object ReceptionAppearance {
         }
         val accepted = JSONObject(json)
         val style = Reception.Appearance()
-        val dark = when (values.opt("preferredColorScheme")) {
+        val dark = when (values.opt("preferredColorScheme") as? String) {
             "light" -> false
             "dark" -> true
             else -> context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES

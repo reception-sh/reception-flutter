@@ -51,6 +51,12 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+
+    lint {
+        warningsAsErrors = true
+        // Versions follow the Flutter template and the SDK's own dependencies on purpose.
+        disable += setOf("AndroidGradlePluginVersion", "GradleDependency", "NewerVersionAvailable")
+    }
 }
 
 kotlin {

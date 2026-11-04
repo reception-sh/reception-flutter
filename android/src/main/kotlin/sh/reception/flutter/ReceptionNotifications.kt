@@ -1,6 +1,7 @@
 package sh.reception.flutter
 
 import android.content.Context
+import androidx.core.content.edit
 import sh.reception.Reception
 
 /**
@@ -21,7 +22,7 @@ internal object ReceptionNotifications {
     /** Called after every configure from Dart that the SDK accepted. */
     fun configured(context: Context, handlesNotifications: Boolean) {
         if (!Reception.isConfigured) return
-        preferences(context).edit().putBoolean(HANDLES_NOTIFICATIONS, handlesNotifications).apply()
+        preferences(context).edit { putBoolean(HANDLES_NOTIFICATIONS, handlesNotifications) }
         applyToken()
     }
 
