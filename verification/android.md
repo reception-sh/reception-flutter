@@ -147,8 +147,9 @@ adb -s emulator-5556 shell settings put system user_rotation 1   # 0 = portrait
 
 Not verified live in this round: drawable names for `closeImage`/`welcomeIcon.image` (the example has none; the
 resource/rasterize split is unit-tested on its file-name rule), restoring a chat's launcher keys and the registry after
-the process died with the picker open (the picker sheet keeps the app visible, so `am kill` does not apply), iOS
-behaviour of the new `gestureRecognizers` default (iOS simulator build compiles; widget test covers both platforms).
+the process died with the picker open (the picker sheet keeps the app visible, so `am kill` does not apply). The iOS
+behaviour of the new `gestureRecognizers` default was checked afterwards on the iPhone simulator: chat drags scroll
+the chat, drags above it scroll the list, the full-screen embedded chat still scrolls (`ios-gestures.md`).
 
 Checks:
 
