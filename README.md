@@ -131,6 +131,14 @@ contain, logs a warning and keeps the built-in glyph. List the drawable in a
 `tools:keep` resource file so release builds do not strip it. iOS ignores
 `android`.
 
+## Known limits
+
+On Android with Impeller (Flutter's default renderer), a cached-engine activity
+recreated while a platform view is on screen can draw Flutter's own surface
+black on the emulator (`EGL_BAD_ACCESS`; untested on physical devices). It
+reproduces with a plain `View`, so it comes from Flutter's hybrid composition,
+not the plugin. Running with `--no-enable-impeller` avoids it.
+
 ## Compatibility
 
 Web and desktop have no Reception native code. Calls complete immediately, log

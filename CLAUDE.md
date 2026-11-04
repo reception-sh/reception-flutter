@@ -52,6 +52,13 @@ builds without push. Android unit tests: `cd example/android && ./gradlew :recep
   `UNUserNotificationCenterDelegate` selectors; only the proxy does. On Android the SDK owns notification taps.
 - Android: SDK calls only on the main thread (Pigeon calls there); Kotlin builds must be warning-free.
 
+## Known limits
+
+- Android: with Impeller (Flutter's default renderer), a cached-engine activity recreated while a platform view is
+  on screen can draw Flutter's own surface black on the Android emulator (`EGL_BAD_ACCESS`; untested on physical
+  devices). It reproduces with a plain `View`, so it comes from Flutter's hybrid composition, not the plugin.
+  `--no-enable-impeller` avoids it.
+
 ## Checks before a release
 
 `tool/release_check.sh` runs the automated checks in one command (clean tree required; see CONTRIBUTING.md). Individually:
