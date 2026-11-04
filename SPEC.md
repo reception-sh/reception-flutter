@@ -65,9 +65,9 @@ keep their previous value and warn), `ReceptionColor` (`ReceptionColor.hex('#RRG
 plus the generated `messages.g.dart` and `sdk_version.dart`.
 
 Behaviour (port of RN `methods.ts`, `Reception.ts`, `state.ts`, `callbacks.ts`):
-- Unsupported platform (`kIsWeb || defaultTargetPlatform != TargetPlatform.iOS`): every call completes immediately,
-  state stays at defaults, one `debugPrint('[Reception] Support chat is available on iOS only.')` per process; no
-  `dart:io`. Never touch the host before the first real call.
+- Unsupported platform (web, or neither iOS nor Android): every call completes immediately, state stays at defaults,
+  one `debugPrint('[Reception] Support chat is available on iOS and Android only.')` per process; no `dart:io`. Never
+  touch the host before the first real call.
 - First host use installs `ReceptionFlutterApi.setUp` and calls `connect()`, which hydrates state; concurrent callers
   share one attempt, a failed attempt is retried by the next call. Snapshots with a lower `revision` than the
   confirmed one are ignored. Settings use per-key assignment revisions exactly like RN `assignSetting`.
@@ -120,3 +120,22 @@ Build checks: `cd example && flutter build ios --simulator --debug` with SwiftPM
 `flutter config --no-enable-swift-package-manager` (CocoaPods), `tool/pod_lint.sh` (both CocoaPods modes), and
 `tool/test_native.sh` (swiftc unit tests: PushToken, NotificationRouting, OnceCompletion, PaywallRequests on macOS;
 ReceptionColor in a simulator).
+
+## Android host (android/src/main/kotlin/sh/reception/flutter/)
+
+Added in 1.2.0. Wraps the Reception Android SDK (`sh.reception:reception`, `../reception-android/SPEC.md`) from Maven
+Central; nothing is vendored. Kotlin, AGP and Kotlin versions from Flutter 3.47's plugin template, minSdk 24, no
+Compose compiler (the plugin only calls SDK APIs). Same Pigeon contract; the Dart API is unchanged.
+
+| Behaviour | iOS (Swift) | Android (Kotlin) |
+| --- | --- | --- |
+| Registration, lifecycle | `ReceptionFlutterPlugin.swift`: app and scene delegate (token, launch and scene taps, foreground re-registration) | `ReceptionFlutterPlugin.kt`: `FlutterPlugin` + `ActivityAware`; on every activity attach `Reception.noteCurrentActivity` (`@ReceptionInternalApi`), activity held weakly |
+| Host API | `ReceptionHost.swift` | `ReceptionHost.kt`: same connect/invalidate, revisions, `isCurrent` guards; state from `unreadCount`/`isChatOpen` flows and `snapshotFlow { availablePaywalls }` (`SnapshotNotifications.kt` sends Compose apply notifications while no Compose UI runs); calls to Dart run in a per-connection coroutine scope cancelled by `invalidate` |
+| `configureForTesting` | DEBUG simulator builds, `localhost`/`127.0.0.1`/`::1` | debuggable apps, those hosts plus `10.0.2.2` (the emulator's host loopback); the SDK checks debuggability again |
+| Paywall availability | `PaywallRequests.swift` | `PaywallRequests.kt`: same rules (5 s fail-closed, SDK cancellation, `cancelAll`; late, duplicate, unknown answers ignored) |
+| Paywall values | `PaywallValues.swift` | `PaywallValues.kt` |
+| Appearance | `ReceptionAppearance.swift`; colors `ReceptionColor.swift` (dynamic `UIColor`); `fontFamily` must be registered with iOS; images from the asset catalog; symbols checked with `UIImage(systemName:)` | `ReceptionAppearance.kt`; colors `ReceptionColor.kt` (pair of ARGB ints; until the SDK takes light/dark pairs, the pair resolves for the scheme in effect at assignment); `fontFamily` from Flutter's `FontManifest.json` built into a Compose `FontFamily` from the app's assets (`ReceptionAssets.kt`); images are drawable resources by name; symbol names pass through (the SDK draws the dashboard's symbols and its built-in icon for others). A missing font or image keeps the previous value, as on iOS |
+| Push token | `PushToken.swift` (APNs hex), cache in `ReceptionNotifications.swift` | `PushToken.kt` (FCM rule), cache in `ReceptionNotifications.kt`; the SDK fetches the token from Firebase itself |
+| Notifications | `ReceptionNotifications.swift` proxy delegate, `NotificationRouting.swift`, `OnceCompletion.swift` | `ReceptionPushReceiver.kt` (c2dm `RECEIVE` beside Firebase and firebase_messaging); taps and routing belong to the SDK's trampoline activity, so there is no plugin routing; `handlesNotifications` persisted for the receiver. See PUSH-DESIGN.md "Android" |
+| Embedded chat | `ReceptionChatPlatformView.swift` (`UiKitView`) | `ReceptionChatPlatformView.kt` (Dart: `PlatformViewLink` with `initExpensiveAndroidView`, hybrid composition): the SDK's `ReceptionChatView` on its own `Recomposer` with lifecycle and saved-state owners mirroring the activity; `OverlapInsets.kt` passes only the overlapping part of the window insets (keyboard avoidance as on iOS); `ActivityResults.kt` gives a plain `FlutterActivity` an `ActivityResultRegistry` (photo picker, notification permission) through the plugin binding's result listeners |
+| Native tests | `tool/native_tests` (swiftc) | `android/src/test` (JUnit): PaywallRequests, ReceptionColor, PushToken, FontManifest parsing; run from `example/android` with `./gradlew :reception_flutter:testDebugUnitTest` |

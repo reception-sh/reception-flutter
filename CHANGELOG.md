@@ -1,3 +1,9 @@
+## 1.2.0 (unreleased)
+
+- Android: the plugin now runs on Android 7.0+ with the Reception Android SDK 1.0.0 (`sh.reception:reception` from Maven Central). The Dart API is unchanged: the chat sheet, embedded `ReceptionChatView` (hybrid composition, keyboard-aware), identity, metadata, appearance, language, paywalls with `paywallAvailability`, screens, link handling, events and the unread and chat-open state work as on iOS. `Reception.version` reports the Android SDK's version there.
+- Android push through Firebase Cloud Messaging with no manifest edits: the plugin shows Reception's replies from every FCM message natively, with or without `firebase_messaging`, also when the app was not running, and the SDK opens the chat on taps, including cold starts. `Reception.setPushToken` takes an FCM registration token on Android and `handlePushNotification` reads FCM `data`.
+- On Android, `ReceptionAppearance.fontFamily` names a `pubspec.yaml` font family, and `closeImage` and `ReceptionWelcomeIcon.image` name drawable resources.
+
 ## 1.1.0
 
 - Adds `Reception.opensWebLinksInApp` (default `true`): set it to `false` to hand websites from link cards and message text to Safari or the app that claims them instead of opening them in an in-app sheet over the chat.
