@@ -8,8 +8,7 @@ import 'package:pigeon/pigeon.dart';
     swiftOut:
         'ios/reception_flutter/Sources/reception_flutter/Messages.g.swift',
     swiftOptions: SwiftOptions(errorClassName: 'ReceptionBridgeError'),
-    kotlinOut:
-        'android/src/main/kotlin/sh/reception/flutter/Messages.g.kt',
+    kotlinOut: 'android/src/main/kotlin/sh/reception/flutter/Messages.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'sh.reception.flutter',
       errorClassName: 'ReceptionBridgeError',
