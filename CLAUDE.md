@@ -27,17 +27,11 @@ are no-ops. Customers read https://reception.sh/docs/flutter; this file is for m
   commands and their evidence) are kept outside this repository, in `../reception-internal/flutter/`. Keep them
   current when behaviour changes.
 
-## Android SDK before it is on Maven Central
+## Android example
 
-Until `sh.reception:reception` is published, publish it locally and build the example (whose
-`android/build.gradle.kts`, not the plugin's, lists `mavenLocal()`). Never run Gradle in `../reception-android`
-while another agent builds there; use a copy of its HEAD:
-
-```sh
-git -C ../reception-android archive HEAD | tar -x -C /tmp/reception-android-src
-cp ../reception-android/local.properties /tmp/reception-android-src/
-(cd /tmp/reception-android-src && JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew :reception:publishToMavenLocal)
-```
+The plugin and the example resolve `sh.reception:reception` from Maven Central. To try an unreleased SDK, publish it to
+Maven Local from a copy of `../reception-android` and add `mavenLocal()` to the example's `android/build.gradle.kts`
+for that build only; never commit it and never add it to the plugin's own build file.
 
 The example's Firebase configuration (`example/android/app/google-services.json`, Firebase project
 `reception-android-test`, app `sh.reception.receptionFlutterExample`) is not committed; without it the example

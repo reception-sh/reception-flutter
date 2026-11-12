@@ -2,8 +2,7 @@
 # Runs every automated check that must pass before a release, in order, and stops at the first failure.
 # Run from the repository root on a clean working tree: tool/release_check.sh
 # Needs Flutter 3.44+, Xcode 26, CocoaPods and a booted iOS simulator (for tool/test_native.sh), plus JDK 17 and the
-# Android SDK (JAVA_HOME, ANDROID_HOME) for the Android steps. Until sh.reception:reception is on Maven Central, publish
-# it to Maven Local first (CLAUDE.md, "Android SDK before it is on Maven Central").
+# Android SDK (JAVA_HOME, ANDROID_HOME) for the Android steps.
 # Manual checks that this script does not cover are listed in CONTRIBUTING.md.
 set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)

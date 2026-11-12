@@ -2,9 +2,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        // The Reception Android SDK published by `./gradlew :reception:publishToMavenLocal` until it is on Maven
-        // Central (see CLAUDE.md). Only the example looks here; the plugin's own build file never does.
-        mavenLocal()
     }
 }
 
