@@ -119,14 +119,15 @@ internal class ReceptionChatPlatformView(flutterContext: Context, private val ch
     private val owner = ViewOwner(chats.add(this))
     private val scope = CoroutineScope(AndroidUiDispatcher.Main)
     private val recomposer = Recomposer(scope.coroutineContext)
-    private val container = OverlapInsets(context).apply {
+
+    // The window's insets reach the chat unchanged: the SDK pads it only for the part of each inset that overlaps it,
+    // also where Flutter already laid the view out above the keyboard or moves it without new insets.
+    private val chat = ReceptionChatView(context).apply {
         setViewTreeLifecycleOwner(owner)
         setViewTreeSavedStateRegistryOwner(owner)
-        addView(ReceptionChatView(context).also {
-            it.setParentCompositionContext(recomposer)
-            // Flutter moves the view to the new activity's window; the chat's state stays.
-            it.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnLifecycleDestroyed(owner))
-        })
+        setParentCompositionContext(recomposer)
+        // Flutter moves the view to the new activity's window; the chat's state stays.
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnLifecycleDestroyed(owner))
     }
 
     init {
@@ -147,11 +148,10 @@ internal class ReceptionChatPlatformView(flutterContext: Context, private val ch
 
     fun saveState(): Bundle = owner.save()
 
-    override fun getView() = container
+    override fun getView() = chat
 
     override fun dispose() {
         chats.remove(this)
-        container.removeAllViews()
         recomposer.cancel()
         scope.cancel()
         owner.destroy()

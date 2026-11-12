@@ -34,12 +34,7 @@ migrate_working_dir/
 /coverage/
 
 # Maintainer-only files are not part of the published package.
-/verification/
 /CLAUDE.md
-/PLAN.md
-/PUSH-DESIGN.md
-/SPEC.md
-/STATUS.md
 /tool/
 example/build/
 example/ios/Pods/

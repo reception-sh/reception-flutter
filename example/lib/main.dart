@@ -282,6 +282,14 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
+          button(
+            'Embedded chat in tabs',
+            () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const EmbeddedChatInTabsPage(),
+              ),
+            ),
+          ),
           button('Open then close after 3s', () {
             run(() async {
               await Reception.openChat();
@@ -413,7 +421,7 @@ class EmbeddedChatPage extends StatelessWidget {
 /// The chat inside a scrolling Flutter list: vertical drags on the chat
 /// scroll the chat, drags on the colored blocks scroll the list. The app bar
 /// button switches the chat's gesture recognizers, so drags on the chat
-/// scroll the list instead (verification/android.md, fix round 2).
+/// scroll the list instead.
 class EmbeddedChatInListPage extends StatefulWidget {
   const EmbeddedChatInListPage({super.key});
 
@@ -449,6 +457,72 @@ class _EmbeddedChatInListPageState extends State<EmbeddedChatInListPage> {
           ),
         ),
         Container(height: 600, color: Colors.teal, child: const Text('Below')),
+      ],
+    ),
+  );
+}
+
+/// The chat in one tab of a bottom navigation layout, as in a customer app.
+/// The app bar switches `Scaffold.resizeToAvoidBottomInset` (Flutter resizes
+/// the chat for the keyboard, or the keyboard covers it) and the bar's height
+/// (Flutter moves and resizes the chat without new window insets). In every
+/// state the composer sits on the keyboard and right above the bar.
+class EmbeddedChatInTabsPage extends StatefulWidget {
+  const EmbeddedChatInTabsPage({super.key});
+
+  @override
+  State<EmbeddedChatInTabsPage> createState() => _EmbeddedChatInTabsPageState();
+}
+
+class _EmbeddedChatInTabsPageState extends State<EmbeddedChatInTabsPage> {
+  var _tab = 0;
+  var _resizes = true;
+  var _tallBar = false;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    resizeToAvoidBottomInset: _resizes,
+    appBar: AppBar(
+      title: const Text('Chat in tabs'),
+      actions: [
+        TextButton(
+          key: const Key('toggleResize'),
+          onPressed: () => setState(() => _resizes = !_resizes),
+          child: Text(_resizes ? 'Resize: on' : 'Resize: off'),
+        ),
+        TextButton(
+          key: const Key('toggleBar'),
+          onPressed: () => setState(() => _tallBar = !_tallBar),
+          child: Text(_tallBar ? 'Bar: tall' : 'Bar: low'),
+        ),
+      ],
+    ),
+    body: IndexedStack(
+      index: _tab,
+      children: const [
+        ReceptionChatView(),
+        Center(child: Text('Other tab')),
+      ],
+    ),
+    bottomNavigationBar: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          height: _tallBar ? 120 : 0,
+          color: Colors.amber,
+        ),
+        NavigationBar(
+          selectedIndex: _tab,
+          onDestinationSelected: (index) => setState(() => _tab = index),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.support_agent),
+              label: 'Chat',
+            ),
+            NavigationDestination(icon: Icon(Icons.home), label: 'Other'),
+          ],
+        ),
       ],
     ),
   );

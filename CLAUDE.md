@@ -16,13 +16,16 @@ are no-ops. Customers read https://reception.sh/docs/flutter; this file is for m
   CocoaPods. Apps need no Podfile edits unless the Podfile pins an older `platform :ios` or forces
   `IPHONEOS_DEPLOYMENT_TARGET` in `post_install`; those must be 17.0 or higher.
 - `android/` – Kotlin host (package `sh.reception.flutter`), one file per Swift host file where the behaviour is the
-  same, plus `ReceptionPushReceiver` (Android push, PUSH-DESIGN.md "Android"), `OverlapInsets` and `ActivityResults`
-  (embedded chat). It depends on `sh.reception:reception:<version>` from Maven Central, which must equal
-  `lib/src/android_sdk_version.dart` (a Dart test checks it). Never add `mavenLocal()` to `android/build.gradle.kts`.
+  same, plus `ReceptionPushReceiver` (Android push) and `ActivityResults` (embedded chat).
+  The SDK pads an embedded chat only where the window's insets overlap it; never trim insets in the plugin. It
+  depends on `sh.reception:reception:<version>` from Maven Central, which must equal `lib/src/android_sdk_version.dart`
+  (a Dart test checks it). Never add `mavenLocal()` to `android/build.gradle.kts`.
 - `vendor/ios-sdk.json` – SDK version, commit and file hashes. `dart run tool/sync_ios_sdk.dart [rev]` re-vendors
   from `../reception-ios`; `--check` verifies (run before publishing).
-- `example/` – verification app against a local backend; `verification/` – evidence of the last verification round.
-- `PLAN.md`, `PUSH-DESIGN.md`, `SPEC.md` – design decisions and their review outcome. Keep them current when behaviour changes.
+- `example/` – verification app against a local backend.
+- The maintainers' notes (design decisions for the plugin and its push handling, the specification, the verification
+  commands and their evidence) are kept outside this repository, in `../reception-internal/flutter/`. Keep them
+  current when behaviour changes.
 
 ## Android SDK before it is on Maven Central
 
@@ -48,7 +51,7 @@ builds without push. Android unit tests: `cd example/android && ./gradlew :recep
 - Keep SDK access on the main actor. Strict concurrency is on; builds must be warning-free.
 - No CocoaPods Trunk: the SDK is vendored on purpose (Trunk is read-only from December 2026).
 - Never add the native `reception-ios` package to an app that uses this plugin (two SDK instances would share storage).
-- Push: see PUSH-DESIGN.md "Final decisions" (iOS) and "Android". The plugin class implements no
+- Push: the maintainers' push design notes hold the decisions for iOS and Android. The plugin class implements no
   `UNUserNotificationCenterDelegate` selectors; only the proxy does. On Android the SDK owns notification taps.
 - Android: SDK calls only on the main thread (Pigeon calls there); Kotlin builds must be warning-free.
 
@@ -67,5 +70,6 @@ simulator, or pass a device), `dart run tool/sync_ios_sdk.dart --check`, example
 `tool/pod_lint.sh`, RunnerTests compile (after any Flutter build of the example, e.g. `flutter build ios
 --config-only --simulator`): `xcodebuild -workspace example/ios/Runner.xcworkspace -scheme Runner -destination
 'platform=iOS Simulator,id=1B82EA4D-9E6C-401B-9BF1-DF6EEE286309' build-for-testing`,
-`flutter pub publish --dry-run`, simulator verification per `verification/commands.txt`. Android: `flutter build apk
---release` of the example (R8), the Android unit tests, emulator verification per `verification/android.md`.
+`flutter pub publish --dry-run`, simulator verification per the maintainers' notes (`commands.txt`). Android: `flutter
+build apk --release` of the example (R8), the Android unit tests, emulator verification per the maintainers' notes
+(`android.md`).

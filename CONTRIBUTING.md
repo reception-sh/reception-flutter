@@ -2,7 +2,7 @@
 
 This guide is for maintainers of the Flutter plugin. Customers add the plugin to their app and use the hosted Reception service and dashboard; their setup starts at [README.md](README.md) and the [Flutter guide](https://reception.sh/docs/flutter).
 
-Read [CLAUDE.md](CLAUDE.md) before changing the plugin. It describes the repository layout, which files are generated, and the rules the plugin follows. Design decisions live in `PLAN.md`, `PUSH-DESIGN.md` and `SPEC.md`; keep them current when behaviour changes.
+Read [CLAUDE.md](CLAUDE.md) before changing the plugin. It describes the repository layout, which files are generated, and the rules the plugin follows. Design decisions live in the maintainers' notes outside this repository (`../reception-internal/flutter/`); keep them current when behaviour changes.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ dart run tool/sync_ios_sdk.dart 1.6.0     # a released tag of ../reception-ios
 dart run tool/sync_ios_sdk.dart --check   # verify the files against vendor/ios-sdk.json
 ```
 
-The sync updates `vendor/ios-sdk.json` and the generated `lib/src/sdk_version.dart`. Read the SDK's CHANGELOG for API or behaviour changes the plugin has to mirror (and check `../reception-react-native`, which wraps the same SDK), then re-run the full verification round per `verification/commands.txt` before releasing.
+The sync updates `vendor/ios-sdk.json` and the generated `lib/src/sdk_version.dart`. Read the SDK's CHANGELOG for API or behaviour changes the plugin has to mirror (and check `../reception-react-native`, which wraps the same SDK), then re-run the full verification round per the maintainers' notes (`commands.txt`) before releasing.
 
 ## Example app and local backend
 

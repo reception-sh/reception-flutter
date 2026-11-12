@@ -9,7 +9,7 @@ import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 
 /**
- * Debug-only hosts for verification/android.md "Fix round 1": a cached engine that outlives its activity, which these
+ * Debug-only hosts for a cached engine that outlives its activity, which these
  * activities let Android recreate on rotation (no `configChanges`). Start them with
  * `adb shell am start -n sh.reception.receptionFlutterExample/.CachedEngineActivity` (or `.CachedEngineFragmentActivity`).
  */

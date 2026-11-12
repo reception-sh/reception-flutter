@@ -10,7 +10,7 @@ import sh.reception.Reception
  * Receives every FCM message of the app (`com.google.android.c2dm.intent.RECEIVE`), beside Firebase's own receiver and
  * firebase_messaging's, and shows Reception replies natively through the SDK, even when the process was started for
  * the message and no Dart code runs. It never consumes the broadcast, so other messages reach the app's Firebase
- * handlers unchanged. See PUSH-DESIGN.md "Android".
+ * handlers unchanged.
  */
 public class ReceptionPushReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

@@ -4,8 +4,9 @@ Native support chat, with replies managed in the Reception dashboard.
 The chat runs entirely in the official Reception SDKs for iOS and Android.
 
 Requires Flutter 3.44+ (verified on 3.44 and 3.47), Dart 3.12+, iOS 17+ with
-Xcode 26, and Android 7.0+ (API 24, Flutter's default `minSdk`). Web and desktop
-calls do nothing.
+Xcode 26, and Android 7.0+ (API 24, Flutter's default `minSdk`; devices on Android
+7.0 itself need [one addition](https://reception.sh/docs/troubleshooting#android-7)).
+Web and desktop calls do nothing.
 
 ## 1. Install
 
